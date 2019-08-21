@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <GLUT/GLUT.h>
+#include <GL/glut.h>
 #include<cmath>
 #include "globals.h"
 #include "vec2D.h"
@@ -34,11 +34,11 @@ public:
     static const Color BLUE;
     static const Color BLACK;
     static const Color YELLOW;
-    
+
     Display(){
         um = UMAP<size_t, Color>();
     }
-    
+
     void setColors(vector<Car*> cars) {
         for (auto car:cars)
             um.insert({(size_t)car, RED});
@@ -54,32 +54,36 @@ public:
         um.at((size_t)car) = col;
     }
     //used to sleep the processor for a while
-    static void sleep(float time) {
-        long int sleeptime = time*1000000000;
-        nanosleep((const struct timespec[]){{0, sleeptime}}, NULL);
+    static void sleep(float sleep_time) {
+        struct timespec tv;
+        /* Construct the timespec from the number of whole seconds... */
+        tv.tv_sec = (time_t) sleep_time;
+        /* ... and the remainder in nanoseconds. */
+        tv.tv_nsec = (long) ((sleep_time - tv.tv_sec) * 1e+9);
+        nanosleep(&tv, NULL);
     }
 
     static void drawBlocks(const vector<Block*>& blocks) {
         for(const auto& block: blocks)
           rectangle(block->getCenter(), block->getHeight(), block->getWidth(), Display::GREY,NULL, 1.0);
     }
-    
+
     static void drawGoal(Block& goal) {
       rectangle(goal.getCenter(),goal.getHeight(),goal.getWidth(), Display::GREEN, NULL, 1.0);
     }
-    
+
     static void drawLine(const vector<Line*>&lines)  {
         for(const auto& l :lines)
             line(l->getstart(), l->getend(), Display::BLACK);
     }
-    
+
     void drawCar(Car* car) {
         Color color = um[(size_t)car];
         if (car->isHost()) color = Display::BLUE;
         Vector2f dir = car->getDir();
         rectangle(car->getPos(), Car::WIDTH, Car::LENGTH, color, &dir);
     }
-    
+
     void drawCars(vector<Car*>& cars) {
         Color color = Display::BLUE;
         for (Car*car: cars) {
@@ -87,36 +91,36 @@ public:
          rectangle(car->getPos(), Car::WIDTH, Car::LENGTH, color, &dir);
         }
     }
-    
+
     void drawOtherCar(const vector<Car*>& cars){
         for (Car* car:cars) drawCar(car);
     }
-    
+
     static void drawGraph(vector<Block>& graph){
         for(Block block : graph)
             rectangle(block.getCenter(), block.getHeight(), block.getWidth(), Display::BLUE,NULL, 1.0);
     }
-    
+
     static void drawTriagnle(vector<Vector2f>& triangles) {
         triangle(triangles, Display::YELLOW, 1);
     }
-    
+
     //draw the rectangle
     static void rectangle(Vector2f pos, int length, int width, Color color, Vector2f* dir = NULL, int filled = 1, int thickness = 0) {
-        
+
         Vector2f vertices[] = {
             Vector2f(-width/2.0, -length/2.0),
             Vector2f(+width/2.0, -length/2.0),
             Vector2f(+width/2.0, +length/2.0),
             Vector2f(-width/2.0, +length/2.0)};
-        
+
         float angle = 0;
-        
+
         if (dir){
             dir->normalized();
             angle = -dir->get_angle_between(Vector2f(1, 0));
         }
-        
+
         float polygonvertices[8];
         for (int i = 0; i < 4; i++)
         {
@@ -124,7 +128,7 @@ public:
             polygonvertices[2*i] = pos[0] + vertices[i][0];
             polygonvertices[2*i+1] = pos[1] + vertices[i][1];
         }
-        
+
         glPushAttrib( GL_POLYGON_BIT);
         glPushAttrib(GL_LINE_BIT);
         if (thickness!=0) glLineWidth(thickness);
@@ -136,11 +140,11 @@ public:
         glDrawArrays(GL_POLYGON, 0, 4);
         glDisableClientState(GL_VERTEX_ARRAY);
         glPopAttrib();
-        
+
     }
-    
+
     static void triangle(vector<Vector2f> pos, Color color, int filled = 1, int thickness = 0) {
-        
+
 
         float polygonvertices[8];
         for (int i = 0; i < 3; i++)
@@ -148,7 +152,7 @@ public:
             polygonvertices[2*i] = pos[i].x;
             polygonvertices[2*i+1] = pos[i].y;
         }
-        
+
         glPushAttrib( GL_POLYGON_BIT);
         glPushAttrib(GL_LINE_BIT);
         if (thickness!=0) glLineWidth(thickness);
@@ -160,10 +164,10 @@ public:
         glDrawArrays(GL_POLYGON, 0, 3);
         glDisableClientState(GL_VERTEX_ARRAY);
         glPopAttrib();
-        
+
     }
-    
-    
+
+
     static void line(Vector2f here, Vector2f there, const Color& color, int width=1, pii dash = pii(4,4)){
         GLfloat polygonvertices[4] = {
               here[0], here[1], there[0], there[1]
@@ -178,25 +182,25 @@ public:
         glDisable(GL_LINE_STIPPLE);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
-    
+
     static void square(float x, float y, float grid_size, const Color& color, bool filled = 0, int width = 3) {
         Vector2f pos(x, y);
         rectangle(pos, grid_size, grid_size, color, NULL, filled, width);
     }
     static void text(float x, float y, const Color& color, const std::string& str, bool isIteration) {
- 
+
         glColor3f(color.r, color.g, color.b);
         void* font = NULL;
         if (isIteration) font = GLUT_BITMAP_TIMES_ROMAN_24;
         else font =GLUT_BITMAP_8_BY_13;
-        
+
         glRasterPos2f(x, y);
         for (int i= 0; i < str.length(); i++) {
             glutBitmapCharacter(font, str.data()[i]);
         }
-        
+
     }
-    
+
     //draw the plolygon shape
     static void drawPolygon(const vector<Vector2f>&vertices, const Color& color){
         float polygonvertices[6];
@@ -210,13 +214,13 @@ public:
         glVertexPointer(2, GL_FLOAT, 0, polygonvertices);
         glDrawArrays(GL_POLYGON, 0, 3);
         glDisableClientState(GL_VERTEX_ARRAY);
-        
+
     }
-    
+
     static void Circle(float x, float y, float radius, const Color& color) {
         int i;
         int triangleAmount = 40; //# of triangles used to draw circle
-        
+
         GLfloat twicePi = 2.0f * pi;
         glBegin(GL_TRIANGLE_FAN);
         glColor3f(color.r, color.g, color.b);
@@ -228,7 +232,7 @@ public:
                        );
         }
         glEnd();
-        
+
     }
 };
 const Color Display::GREY = {0.5f, 0.5f, 0.5f};
