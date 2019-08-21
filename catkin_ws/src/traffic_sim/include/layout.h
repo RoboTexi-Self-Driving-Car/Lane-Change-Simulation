@@ -43,7 +43,7 @@ Layout::Layout(std::string worldname) {
 
 void Layout::loadData(std::string worldname){
     //read file and load file
-    std::string path = ros::package::getPath("traffic_status");
+    std::string path = ros::package::getPath("traffic_sim");
     std::string filename = worldname + ".json";
     std::string layoutpath = path + "/config/"+filename;
     std::ifstream infile(layoutpath);

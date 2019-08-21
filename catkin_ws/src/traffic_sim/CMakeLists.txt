@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(traffic_status)
+project(traffic_sim)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -110,7 +110,7 @@ find_package(GLUT REQUIRED)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
-#  LIBRARIES traffic_status
+#  LIBRARIES traffic_sim
 #  CATKIN_DEPENDS roscpp rospy std_msgs
 #  DEPENDS system_lib
 )
@@ -132,7 +132,7 @@ include_directories(
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
-#   src/traffic_status.cpp
+#   src/traffic_sim.cpp
 # )
 
 ## Add cmake target dependencies of the library
@@ -143,7 +143,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(traffic_status src/traffic_status.cpp)
+add_executable(traffic_sim src/traffic_sim.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -156,7 +156,7 @@ add_executable(traffic_status src/traffic_status.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(traffic_status
+target_link_libraries(traffic_sim
   ${catkin_LIBRARIES}
   ${OPENGL_LIBRARY}
   ${GLUT_LIBRARY}
@@ -210,7 +210,7 @@ target_link_libraries(traffic_status
 #############
 
 ## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_traffic_status.cpp)
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_traffic_sim.cpp)
 # if(TARGET ${PROJECT_NAME}-test)
 #   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
 # endif()
