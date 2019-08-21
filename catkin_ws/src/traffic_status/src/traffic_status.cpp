@@ -7,13 +7,13 @@
 ////
 //
 #include <iostream>
-#include "header/picojson.h"
-#include "header/layout.h"
-#include "header/display.h"
-#include "header/globals.h"
-#include "header/model.h"
-#include "header/search.h"
-#include "header/inference.h"
+#include "picojson.h"
+#include "layout.h"
+#include "display.h"
+#include "globals.h"
+#include "model.h"
+#include "search.h"
+#include "inference.h"
 #include <cmath>
 #include <time.h>
 #include <unistd.h>
@@ -21,8 +21,8 @@
 #include <fstream>
 
 #include "KdTree.hpp"
-#include "header/decisionmaking2.h"
-#include "header/util.h"
+#include "decisionmaking2.h"
+#include "util.h"
 
 using namespace std;
 
