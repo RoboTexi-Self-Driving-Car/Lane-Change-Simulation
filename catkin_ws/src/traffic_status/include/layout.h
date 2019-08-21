@@ -4,6 +4,8 @@
 #include "picojson.h"
 #include "globals.h"
 #include <fstream>
+#include <ros/package.h>
+
 
 class Layout{
 
@@ -17,7 +19,7 @@ public:
     int  getStartY();
     int getBeliefRows();
     int getBeliefCols();
-    
+
     vector<vector<int>>  getLineData();
     vector<vector<int>>  getOtherData();
     std::string getHostDir();
@@ -34,15 +36,16 @@ private:
 };
 
 Layout::Layout(std::string worldname) {
-    
+
      loadData(worldname);
      assertValid();
 }
 
 void Layout::loadData(std::string worldname){
     //read file and load file
+    std::string path = ros::package::getPath("traffic_status");
     std::string filename = worldname + ".json";
-    std::string layoutpath = "../layout/"+filename;
+    std::string layoutpath = path + "/config/"+filename;
     std::ifstream infile(layoutpath);
     if (infile) {
         infile>>data;
@@ -72,7 +75,7 @@ vector<vector<int>> Layout:: getOtherData(){
             for (int j = 0; j < result[i].size(); j++)
                 result[i][j] = re[i].get<picojson::array>()[j].get<double>();
         }
-       
+
     }
     return result;
 }
@@ -115,7 +118,7 @@ vector<vector<int>>  Layout::getBlockData() {
         }
     }
     return a;
-    
+
 }
 
 vector<vector<int>> Layout::getAgentGraph(){
@@ -140,7 +143,7 @@ vector<vector<int>> Layout::getHostGraph() {
 
 
 vector<vector<int>> Layout::getIntersectionData() {
-    
+
     vector<vector<int>> output;
     if (!data.contains("intersections"))
         return output;

@@ -30,11 +30,11 @@ using namespace std;
 GLFWwindow *window = NULL;
 
 Display display = Display();
-ofstream myfile;
+// ofstream myfile;
 
 int main(void) {
 
-  myfile.open ("intention.txt"); // ?
+  // myfile.open ("intention.txt"); // ?
 
   // load the map for running testing examples
   string worldname = "dense_traffic";
@@ -146,6 +146,6 @@ int main(void) {
   std::cout << "You lose the car game" << endl;
 
   glfwTerminate();
-  myfile.close();
+  // myfile.close();
   return 1;
 }
