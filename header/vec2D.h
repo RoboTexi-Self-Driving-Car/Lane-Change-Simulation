@@ -18,7 +18,7 @@ using std::ostream;
 /*The Vector2d class is an object consisting of simply an x and
  y value. Certain operators are overloaded to make it easier
  for vector math to be performed.*/
-#define PI 3.14159265
+#define PI3.14159265
 
 template<class T>
 class Vector2d {

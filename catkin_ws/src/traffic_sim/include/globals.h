@@ -1,6 +1,6 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
-        
+
 #include <algorithm>
 #include <cassert>
 #include <cmath>
@@ -89,13 +89,13 @@ namespace Globals {
         BELIEF_TILE_SIZE(30)
         {}
     };
-    
+
     template<class T>
     inline void hash_combine(size_t& seed, const T& v) {
         std::hash<T> hasher;
         seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-    
+
 } // namespace
 
 namespace std {
@@ -108,7 +108,7 @@ namespace std {
             return seed;
         }
     };
-    
+
     template<typename T>
     struct hash<vector<T>> {
         inline size_t operator()(const vector<T>& v) const {

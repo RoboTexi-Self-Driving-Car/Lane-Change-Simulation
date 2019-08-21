@@ -646,7 +646,7 @@ return true;
 }
 bool match(const std::string& pattern) {
 for (std::string::const_iterator pi(pattern.begin());
-pi != pattern.end();
+PI!= pattern.end();
 ++pi) {
 if (getc() != *pi) {
 ungetc();

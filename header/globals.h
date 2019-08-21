@@ -26,7 +26,7 @@
 using namespace std;
 
 #define inf std::numeric_limits<double>::infinity()
-#define PI 3.14159265
+#define PI3.14159265
 #define MAP map
 #define UMAP unordered_map
 typedef std::pair<int, int> pii;

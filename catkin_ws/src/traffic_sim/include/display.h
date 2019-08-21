@@ -4,7 +4,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <GL/glut.h>
-#include<cmath>
+#include <cmath>
 #include "globals.h"
 #include "vec2D.h"
 #include "model.h"
@@ -12,7 +12,6 @@
 #include <iomanip>
 #include <cmath>
 
-#define pi 3.1415926
 extern void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title);
 using std::vector;
 
@@ -221,14 +220,14 @@ public:
         int i;
         int triangleAmount = 40; //# of triangles used to draw circle
 
-        GLfloat twicePi = 2.0f * pi;
+        GLfloat twicePI= 2.0f * PI;
         glBegin(GL_TRIANGLE_FAN);
         glColor3f(color.r, color.g, color.b);
         glVertex2f(x, y); // center of circle
         for(i = 0; i <= triangleAmount;i++) {
             glVertex2f(
-                       x + (radius * cos(i *  twicePi / triangleAmount)),
-                       y + (radius * sin(i * twicePi / triangleAmount))
+                       x + (radius * cos(i *  twicePI/ triangleAmount)),
+                       y + (radius * sin(i * twicePI/ triangleAmount))
                        );
         }
         glEnd();

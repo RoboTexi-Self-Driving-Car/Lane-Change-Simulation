@@ -19,7 +19,7 @@
     [370, 165],
     [420, 165]
   ],
-  "hostDir":"east",
+  "hostDir": "east",
   "blockUnitSize": 30,
   "blocks": [
     [0, 0, 32, 5],

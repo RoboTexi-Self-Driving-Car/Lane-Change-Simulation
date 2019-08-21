@@ -53,13 +53,13 @@ public:
     //Apply scalar operations.
     Vector2d& operator*=(const T& s) { x *= s; y *= s; return *this; }
     Vector2d& operator/=(const T& s) { x /= s; y /= s; return *this; }
-    
+
     //utility functions below for analaysis
-    
+
     //roate
     void rotate(float angle_degrees);
     //return roated vector
-    
+
     Vector2d<T> rotated(float angle_degrees);
     //Product functions
     T dot(const Vector2d<T>&, const Vector2d<T>&);
@@ -68,23 +68,23 @@ public:
     T Length(const Vector2d<T>& v);
     //set length of the vector
     T Length() { return sqrt((this->x * this->x) + (this->y * this->y));}
-    
+
     //get distance between objects
     T get_distance(const Vector2d<T>& other) {
         return sqrt(pow((x - other[0]),2) + pow((y - other[1]),2));}
     //nomalized vector
     void normalized();
     Vector2d<T> normalized(const Vector2d<T>& v);
-    
+
     //Return a vector perpendicular to the left.
     Vector2d<T> perpendicular() { return Vector2d<T>(y, -x);}
-    
+
     //Return true if two line segments intersect.
     bool Intersect(const Vector2d<T>&, const Vector2d<T>&, const Vector2d<T>&, const Vector2d<T>&);
-    
+
     //Return the point where two lines intersect.
     Vector2d<T> get_Intersect(const Vector2d<T>&, const Vector2d<T>&, const Vector2d<T>&, const Vector2d<T>&);
-    
+
     //return the angle
     float get_angle() {
         if (this->Length() == 0) return 0;
@@ -94,18 +94,18 @@ public:
     }
     //return the angle between two vectors
     float get_angle_between(const Vector2d<T>&);
-    
+
     // get the opposite direction vector
     Vector2d<T> get_reflection() {
         return Vector2d(-x, -y);
     }
-    
+
    //projection
     T project(const Vector2d<T>& point, const Vector2d<T>& vector);
 
     // projection
     std::pair<T,T> projectPoints(const std::vector<Vector2d<T>>& points, const Vector2d<T>& vec);
-    
+
     friend ostream& operator<<(std::ostream& os, const Vector2d<T>& v)
     {
         os << "("<<v[0] << ", " << v[1] << ")";
@@ -181,10 +181,10 @@ bool Vector2d<T>::Intersect(const Vector2d<T>&aa, const Vector2d<T>&ab, const Ve
     Vector2d<T> r = ab - aa;
     Vector2d<T> q = ba;
     Vector2d<T> s = bb - ba;
-    
+
     float t = CrossProduct((q - p), s) / CrossProduct(r, s);
     float u = CrossProduct((q - p), r) / CrossProduct(r, s);
-    
+
     return (0.0 <= t && t <= 1.0) &&
     (0.0 <= u && u <= 1.0);
 }

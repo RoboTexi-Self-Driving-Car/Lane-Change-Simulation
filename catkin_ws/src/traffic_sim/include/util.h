@@ -6,6 +6,7 @@
  */
 extern GLFWwindow *window;
 extern Display display;
+
 //initiation to start the open gl program
 void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title) {
     if (!glfwInit()){
@@ -29,7 +30,8 @@ bool gameover(Model& model){
         return true;
     return false;
 }
-//draw lines 
+
+//draw lines
 void drawPolygon(vector<Vector2f>& polygonvertices){
     glPushAttrib( GL_POLYGON_BIT);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
