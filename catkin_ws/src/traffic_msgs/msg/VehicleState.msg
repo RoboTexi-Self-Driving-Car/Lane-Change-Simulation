@@ -4,6 +4,10 @@ Header header
 # Lifetime ID of the object
 uint32 vehicle_id
 
+float32 width
+
+float32 length
+
 # Pose (Position + Orientation)
 #   must be specified in the coordinate frame given by header.frame_id
 #   For further details: http://docs.ros.org/api/geometry_msgs/html/msg/PoseWithCovariance.html

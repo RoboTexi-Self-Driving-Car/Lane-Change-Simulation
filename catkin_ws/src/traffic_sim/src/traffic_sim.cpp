@@ -36,7 +36,11 @@ GLFWwindow *window = NULL;
 Display display = Display();
 // ofstream myfile;
 
+traffic_msgs::VehicleState ego_state;
+
 traffic_msgs::VehicleStateArray update_traffic_info(vector<Car*> cars) {
+  traffic_msgs::VehicleStateArray veh_array;
+
   Car* host;
   vector<Car*> cars_in_target_lane;
   for (Car* car: cars) {
@@ -46,6 +50,11 @@ traffic_msgs::VehicleStateArray update_traffic_info(vector<Car*> cars) {
       cout << "  velocity: " << car->getVelocity().x << ", " << car->getVelocity().y << endl;
       cout << "  dir: " << car->getDir().x << ", " << car->getDir().y << endl;
       host = car;
+      ego_state.pose.pose.position.x = car->getPos().x;
+      ego_state.pose.pose.position.y = car->getPos().y;
+      ego_state.pose.pose.position.z = 0;
+      ego_state.twist.twist.linear.x = car->getVelocity().x;
+      ego_state.twist.twist.linear.y = car->getVelocity().y;
     }
   }
 
@@ -59,8 +68,6 @@ traffic_msgs::VehicleStateArray update_traffic_info(vector<Car*> cars) {
 
   sort(cars_in_target_lane.begin(), cars_in_target_lane.end(),
        [](Car* a, Car* b) { return a->getPos().x > b->getPos().x; });
-
-  traffic_msgs::VehicleStateArray vehicle_array;
 
   cout << "+++++ Cars in the target lane: +++++" << endl;
   for (Car* car: cars_in_target_lane) {
@@ -76,7 +83,7 @@ traffic_msgs::VehicleStateArray update_traffic_info(vector<Car*> cars) {
     veh.pose.pose.position.z = 0;
     veh.twist.twist.linear.x = car->getVelocity().x;
     veh.twist.twist.linear.y = car->getVelocity().y;
-    vehicle_array.vehicles.push_back(veh);
+    veh_array.vehicles.push_back(veh);
   }
 
   cout << "+++++ Gaps in the target lane: +++++" << endl;
@@ -92,15 +99,16 @@ traffic_msgs::VehicleStateArray update_traffic_info(vector<Car*> cars) {
     cout << "  distance to ego: " << gap_x - host->getPos().x << endl;
   }
 
-  return vehicle_array;
+  return veh_array;
 }
 
 
 int main(int argc, char **argv) {
-  ros::init(argc, argv, "gap_selector");
+  ros::init(argc, argv, "traffic_sim");
   ros::NodeHandle n;
 
-  ros::Publisher veh_array_pub = n.advertise<traffic_msgs::VehicleStateArray>("/traffic_info", 1000);
+  ros::Publisher ego_state_pub = n.advertise<traffic_msgs::VehicleState>("/ego_state", 1000);
+  ros::Publisher veh_array_pub = n.advertise<traffic_msgs::VehicleStateArray>("/vehicles_in_target_lane", 1000);
 
   ros::Rate rate(10);
 
@@ -187,6 +195,8 @@ int main(int argc, char **argv) {
 
     if (!gameover(model)) {
       traffic_msgs::VehicleStateArray veh_array = update_traffic_info(cars);
+
+      ego_state_pub.publish(ego_state);
       veh_array_pub.publish(veh_array);
 
       //update cars here for further processing

@@ -1,0 +1,4 @@
+<launch>
+  <node pkg="traffic_sim" type="traffic_sim" name="traffic_sim" />
+  <node pkg="gap_selector" type="gap_selector" name="gap_selector" output="screen"/>
+</launch>
