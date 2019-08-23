@@ -6,8 +6,8 @@
 //  Copyright © 2016 HJKBD. All rights reserved.
 //
 //#include "inference.h"
-#ifndef model_h
-#define model_h
+#ifndef MODEL_H
+#define MODEL_H
 #include "globals.h"
 #include "vec2D.h"
 #include "KdTree.hpp"
@@ -15,14 +15,21 @@
 //#include "inference.h"
 
 class Car;
+
 using std::vector;
+
 using std::string;
+
 class Model;
 
 namespace Inference {
+
   enum State{cooperative, aggressive};
+
   vector<string> intentions{"cooperative", "aggressive"};
+
   UMAP<string, int> Intention_To_Index{{"cooperative", 0}, {"aggressive", 1}};
+
   class JointParticles {
   private:
     int numParticles;
@@ -31,16 +38,19 @@ namespace Inference {
     vector<Car*> agents;
     Counter<vector<string>> beliefs;
     vector<vector<string>> particles;
+
   public:
-    JointParticles(int num=600): numParticles(num), numAgents(0){};
+    JointParticles(int num=600): numParticles(num), numAgents(0) {};
     void initializeUniformly(const Model& model, const vector<string>& intentions);
     void initializeParticles();
     void observe(const Model& model);
     Counter<vector<string>> getBelief();
-    vector<string> sample( Counter<vector<string>>& counter);
+    vector<string> sample(Counter<vector<string>>& counter);
     pff getMeanStandard(queue<float>&history, const string& intention);
   };
+
   JointParticles jointInference = JointParticles();
+
   class MarginalInference {
   private:
     vector<string> legalIntentions;
@@ -51,6 +61,7 @@ namespace Inference {
     void observe(const Model& gameState);
     vector<float> getBelief();
   };
+
 }
 
 static float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
@@ -115,7 +126,7 @@ public:
 
 
 // buid the model
-class Model{
+class Model {
 public:
   Model(Layout&);
   Model(const Model&);
@@ -416,7 +427,7 @@ void Model::initGraphs() {
 }
 
 void Model:: initIntersections(){
-  for (vector<int> blockData : layout.getIntersectionData()){
+  for (vector<int> blockData : layout.getIntersectionData()) {
     Block* inter = new Block(blockData);
     interSections.push_back(inter);
     allGraph.push_back(inter);
@@ -427,7 +438,7 @@ bool Model::checkVictory() const{
   vector<Vector2f> bounds = host->getBounds();
   for(Vector2f point: bounds)
   if(finish->containsPoint(point[0], point[1]))
-  return true;
+    return true;
   return false;
 }
 
@@ -444,14 +455,16 @@ bool Model::checkCollision(Car* car) const{
   }
   return false;
 }
+
 bool Model::inBounds(float x, float y) const{
   if (x < 0 || x >= getWidth()) return false;
   if (y < 0 || y >= getHeight()) return false;
-  for (const auto& it : blocks)
-  if (it->containsPoint(x, y))
-    return false;
+  for (const auto& it : blocks) {
+    if (it->containsPoint(x, y)) return false;
+  }
   return true;
 }
+
 bool Model::inBoundsLarger(float x, float y) const {
   if (x < 0 || x >= getWidth()) return false;
   if (y < 0 || y >= getHeight()) return false;
@@ -460,6 +473,7 @@ bool Model::inBoundsLarger(float x, float y) const {
     return false;
   return true;
 }
+
 bool Model::inIntersection(float x, float y) const{
   Block* result = getIntersection(x, y);
   return result != NULL;
@@ -977,4 +991,4 @@ Inference::MarginalInference* Agent::getInference(int index, const Model& state)
   }
   return inference;
 }
-#endif /* model_h */
+#endif /* MODEL_H */

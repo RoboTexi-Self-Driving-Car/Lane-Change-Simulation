@@ -83,10 +83,10 @@ public:
     float evaluation(const vec2f& position);
     void smooth();
 private:
-    int  xToCol(float x) { return int((x / unitdistanace));}
-    int  yToRow(float y) {return int((y / unitdistanace));}
-    float rowToY(int row) {return (row + 0.5) * unitdistanace;}
-    float colToX(int col){return (col + 0.5) * unitdistanace;}
+    int  xToCol(float x) { return int((x / unitdistance));}
+    int  yToRow(float y) {return int((y / unitdistance));}
+    float rowToY(int row) {return (row + 0.5) * unitdistance;}
+    float colToX(int col){return (col + 0.5) * unitdistance;}
     vector<vec2f> path(list<char>&);
 //"The Manhattan distance heuristic for a PositionSearchProblem"
     float manhattanHeuristic(const vec2f& position) {
@@ -95,7 +95,7 @@ private:
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
     }
     Model* model;
-    int unitdistanace;
+    int unitdistance;
     vec2f goal;
     State start;
     float cost;
@@ -111,7 +111,7 @@ Search::Search(Model*m, const vec2f& goal):model(m) {
     start = State(pvff(pos, vec2f(1, 0)));
     this->goal = goal;
     cost = 1;
-    unitdistanace = 10;
+    unitdistance = 10;
     for(float ang = 45; ang>=-45;ang-=15)
     angle.push_back(ang);
     State state2 = search();
@@ -122,7 +122,7 @@ Search::Search(Model*m, const vec2f& goal):model(m) {
 bool Search::isGoal(State& s){
     float x = s.current.first[0];
     float y = s.current.first[1];
-    if (abs(x-goal[0]) < unitdistanace && abs(y-goal[1]) < unitdistanace)
+    if (abs(x-goal[0]) < unitdistance && abs(y-goal[1]) < unitdistance)
     return true;
     return false ;
 }
@@ -131,12 +131,12 @@ vector<vec2f> Search::path(list<char>& actions) {
 vector<vec2f> result;
 //    vec2f pos = start.current.first;
 //    vec2f olddir = start.current.second;
-//    vec2f velocity = olddir*float(unitdistanace);
+//    vec2f velocity = olddir*float(unitdistance);
 //    Car car(pos, olddir, velocity);
     State state = start;
     vec2f pos = state.current.first;
     vec2f olddir =  state.current.second;
-    vec2f velocity = olddir*float(unitdistanace);
+    vec2f velocity = olddir*float(unitdistance);
     result.push_back(pos);
     for (const auto& c: actions) {
         Car car(pos, olddir, velocity);
@@ -144,7 +144,7 @@ vector<vec2f> result;
         car.update();
         pos = car.getPos();
         olddir = car.getDir();
-        velocity = olddir*float(unitdistanace);
+        velocity = olddir*float(unitdistance);
 
         float x = car.getPos()[0];
         float y = car.getPos()[1];
@@ -168,7 +168,7 @@ vector<State> Search::getSuccessors(const State& state) {
     //    float ScaleRatio = 1.5;
     vec2f pos = state.current.first;
     vec2f olddir = state.current.second;
-    vec2f velocity = olddir*float(unitdistanace);
+    vec2f velocity = olddir*float(unitdistance);
 
     for(int i = 0; i < num_action(); i++) {
         list<char> actions = state.actions;

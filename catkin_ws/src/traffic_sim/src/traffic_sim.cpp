@@ -112,33 +112,31 @@ int main(int argc, char **argv) {
 
   ros::Rate rate(10);
 
-  // myfile.open ("intention.txt"); // ?
-
   // load the map for running testing examples
   string worldname = "dense_traffic";
-  Layout layout = Layout(worldname);
+  Layout layout(worldname);
   Model model(layout);
 
   display.setColors(model.getCars());
 
   Car* mycar = model.getHost();
-  cout << "***** Check host: *****" << endl;
-  cout << mycar->isHost() << endl;
-  cout << "***** Check mycar type: *****" << endl;
-  cout << typeid(mycar).name() << endl;
-  cout << endl;
+  // cout << "***** Check host: *****" << endl;
+  // cout << mycar->isHost() << endl;
+  // cout << "***** Check mycar type: *****" << endl;
+  // cout << typeid(mycar).name() << endl;
+  // cout << endl;
 
   vector<Car*> cars = model.getCars();
 
   int SCREEN_WIDTH = layout.getWidth();
   int SCREEN_HEIGHT = layout.getHeight();
   string title = Globals::constant.TITLE;
+
+  // Initlize the simulation window.
   begin_graphics(SCREEN_WIDTH, SCREEN_HEIGHT, title);
 
-  // loop util the user closes the window
-  // bool gameover = false;
-
   bool over = false;
+
   DecisionAgent2 decision;
   vector<vec2f> mypath;
   vector<int> carintentions;
@@ -148,33 +146,10 @@ int main(int argc, char **argv) {
   }
 
   bool success = decision.getPath(model, mypath, carintentions);
-
-  // debug: check mypath
-  cout << "***** Check mypath: *****" << endl;
-  for(int i = 0; i < mypath.size(); i++) {
-    cout << mypath[i].x << ", " << mypath[i].y << endl;
-  }
-  cout << endl;
-
   vector<vector<vec2f>> mypaths = decision.getPaths();
-  // debug: check mypaths
-  cout << "***** Check mypaths: *****" << endl;
-  for(int i = 0; i < mypaths.size(); i++) {
-    cout << "path " << i << endl;
-    for(int j = 0; j < mypaths[0].size(); j++) {
-      cout << mypaths[i][j].x << ", " << mypaths[i][j].y << endl;
-    }
-  }
-  cout << endl;
 
-  //pair<string, vec2f> actionset; // ?
-
-  //string filename = "coop"; // ?
-
-  // the change for car is mandatory
-  bool change; // = true;
+  bool change;
   srand(time(NULL));
-  //int i = 0;
 
   while(ros::ok() && !glfwWindowShouldClose(window)) {
     glClearColor(1.0f, 1.0f, 1.0f,1.0f);
@@ -183,9 +158,6 @@ int main(int argc, char **argv) {
     Display::drawBlocks(model.getBlocks());
     Display::drawLine(model.getLine());
 
-    // for(auto p : mypaths) {
-    //   drawPolygon(p);
-    // }
     for(int i = 0; i < mypaths.size(); i++) {
       drawPolygon(mypaths[i]);
     }
@@ -194,19 +166,22 @@ int main(int argc, char **argv) {
     display.drawOtherCar(model.getOtherCars());
 
     if (!gameover(model)) {
+      // public ego state and the cars in the target lane
       traffic_msgs::VehicleStateArray veh_array = update_traffic_info(cars);
-
       ego_state_pub.publish(ego_state);
       veh_array_pub.publish(veh_array);
 
-      //update cars here for further processing
+      // update cars here for further processing
       for (Car* car: cars) {
         if (car == mycar) { //my car moves
-          //destination reaches, generate new paths
-          if (mypath.size() == 0 || abs(mycar->getPos().x - mypath[mypath.size()-1].x) < 10) {
-            success = decision.getPath(model, mypath, carintentions);
-            mypaths = decision.getPaths();
-          }
+          // //destination reaches, generate new paths
+          // if (mypath.size() == 0 || abs(mycar->getPos().x - mypath[mypath.size()-1].x) < 10) {
+          //   success = decision.getPath(model, mypath, carintentions);
+          //   mypaths = decision.getPaths();
+          // }
+          // generate paths in each time step
+          success = decision.getPath(model, mypath, carintentions);
+          mypaths = decision.getPaths();
           car->autonomousAction(mypath, model, NULL);
           car->update();
           drawPolygon(mypath);
@@ -220,7 +195,7 @@ int main(int argc, char **argv) {
     glfwSwapBuffers(window);
     glfwPollEvents();
     over = gameover(model) || glfwWindowShouldClose(window);
-    Display::sleep(0.05);
+    Display::sleep(0.1);
   }
 
   if (model.checkVictory()) {
@@ -230,6 +205,6 @@ int main(int argc, char **argv) {
   }
 
   glfwTerminate();
-  // myfile.close();
+
   return 1;
 }
