@@ -100,7 +100,7 @@ int main(void) {
                        if (!success && change) {
                            carintentions = infer(model);
                            mypath.clear();
-                           decision.ApplyAction(model, 0, "dec");
+                           decision.applyAction(model, 0, "dec");
                        }else {
                            car->autonomousAction(mypath, model, NULL);
                            car->update();

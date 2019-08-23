@@ -64,7 +64,7 @@ public:
     DecisionAgent(int dep = 2, int ind = 0):depth(dep), index(ind){}
     std::unordered_map<std::string, vec2f>  generateLegalActions(const Model&, int);
     Model generateSuccessor(const Model&, int, const std::pair<std::string, vec2f>&);
-    void ApplyAction(const Model&, int, const std::string&);
+    void applyAction(const Model&, int, const std::string&);
    
     float evaluationFunction(const Model&);
     float value(const Model&, int, int);
@@ -91,12 +91,12 @@ Model DecisionAgent::generateSuccessor(const Model& model, int agentIndex, const
     Model newmodel = Model(model);
     //Car* car = newmodel.getCars()[agentIndex];
     std::string action = actions.first;
-    ApplyAction(newmodel, agentIndex, action);
+    applyAction(newmodel, agentIndex, action);
     return newmodel;
     
     }
     
-void  DecisionAgent::ApplyAction(const Model& model, int agentIndex, const std::string& action) {
+void  DecisionAgent::applyAction(const Model& model, int agentIndex, const std::string& action) {
     Car* car = model.getCars()[agentIndex];
     if (action == "normal") {
             car->accelerate(car->friction);
@@ -139,7 +139,7 @@ void  DecisionAgent::ApplyAction(const Model& model, int agentIndex, const std::
             
             Model newmodel = Model(model);
             Car* car = newmodel.getHost();
-            ApplyAction(newmodel, agentIndex, action);
+            applyAction(newmodel, agentIndex, action);
             
             if (action == "stop") {
                 legalActions[action] = car->getPos();

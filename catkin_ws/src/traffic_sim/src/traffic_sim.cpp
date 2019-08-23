@@ -151,7 +151,7 @@ int main(int argc, char **argv) {
   bool change;
   srand(time(NULL));
 
-  while(ros::ok() && !glfwWindowShouldClose(window)) {
+  while(ros::ok() &!glfwWindowShouldClose(window)) {
     glClearColor(1.0f, 1.0f, 1.0f,1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     Display::drawGoal(model.getFinish());

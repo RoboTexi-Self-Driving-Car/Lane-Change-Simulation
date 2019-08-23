@@ -54,7 +54,7 @@ public:
     vector<string> generateLegalActions(const Model&);
     const vector<vector<vec2f>>& generatePaths(const Model&,vector<string>&);
     const vector<vector<vec2f>>& generatePaths2(const Model& mod, vector<string>&);
-    void ApplyAction(const Model&, int, const std::string&);
+    void applyAction(const Model&, int, const std::string&);
     float evaluationPath(const Model&, const vector<vec2f>& path, vector<int>& carintentions);
     bool getPath(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
     bool getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
@@ -137,7 +137,7 @@ const vector<vector<vec2f>>& DecisionAgent2::generatePaths2(const Model& mod, ve
     return paths;
 }
 
-void  DecisionAgent2::ApplyAction(const Model& model, int agentIndex, const std::string& action) {
+void  DecisionAgent2::applyAction(const Model& model, int agentIndex, const std::string& action) {
     Car* car = model.getCars()[agentIndex];
     if (action == "normal") {
         car->accelerate(car->friction);
