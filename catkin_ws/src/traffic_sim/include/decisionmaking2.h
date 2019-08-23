@@ -95,16 +95,20 @@ const vector<vector<vec2f>>& DecisionAgent2::generatePaths(const Model& mod, vec
       ndir = vec2f(1,-1);
     }
 
+    // move toward the direction after the legal action for a distance
     vec2f pos(host->getPos() + ndir * float(Globals::constant.BELIEF_TILE_SIZE));
 
-    vec2f Pos(pos.x+50, host->getPos().y);
+    // move toward x coordinate direction for 50 units as the target from the original
+    vec2f Pos(pos.x + 50, host->getPos().y);
 
+    // search a path from the current pos to the target pos
     SEARCH2::Search search(&model, Pos);
     vector<vec2f> path = search.path();
     paths.push_back(path);
 
+    // with different delta x generate multiple paths for lane change
     for (float deltax = 0; deltax < 80; deltax += 10) {
-      vec2f Pos(pos.x+deltax, pos.y);
+      vec2f Pos(pos.x + deltax, pos.y);
       SEARCH2::Search search(&model, Pos);
       vector<vec2f> path = search.path();
       paths.push_back(path);

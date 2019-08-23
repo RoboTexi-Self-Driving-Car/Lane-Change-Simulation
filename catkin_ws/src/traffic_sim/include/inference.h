@@ -285,10 +285,11 @@ namespace Inference {
     result.resize(legalIntentions.size());
     for (const auto& item: dist)
       result[item.first] = item.second;
-    //        if (result[0]>result[1])
-    //            cout<<"I am here"<<endl;
+    // if (result[0]>result[1])
+    //   cout<<"I am here"<<endl;
     return result;
   }
 
 }
+
 #endif

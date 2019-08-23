@@ -145,6 +145,7 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(traffic_sim src/traffic_sim.cpp)
+add_executable(traffic_sim2 src/traffic_sim2.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -158,6 +159,13 @@ add_executable(traffic_sim src/traffic_sim.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(traffic_sim
+  ${catkin_LIBRARIES}
+  ${OPENGL_LIBRARY}
+  ${GLUT_LIBRARY}
+  ${GLFW_LIBRARIES}
+)
+
+target_link_libraries(traffic_sim2
   ${catkin_LIBRARIES}
   ${OPENGL_LIBRARY}
   ${GLUT_LIBRARY}

@@ -1,16 +1,7 @@
-//
-//  search.h
-//  CarGame
-//
-//  Created by HJKBD on 8/22/16.
-//  Copyright © 2016 HJKBD. All rights reserved.
-//
-
-
 /*
-read first
-cost function defined in both the generate successsor and also the evaluation function
-depends on the applications, the cost function is adjusted to suit the best
+    read first
+    cost function defined in both the generate successsor and also the heuristic function
+    depends on the applications, the cost function is adjusted to suit the best
 */
 #ifndef SEARCH2_H
 #define SEARCH2_H
@@ -32,13 +23,18 @@ typedef std::pair<int, int> pii;
 
 namespace SEARCH2 {
 
-  struct State{
+  /**
+   * State type
+   *   - used as the node in grid search
+   *
+   */
+  struct State {
     pvff current;
     list<char> actions;
     float cost;
     float heu;
 
-    State():cost(0), heu(0){};
+    State() : cost(0), heu(0){};
 
     State(const pvff & p1, float c =0, float h=0) : current(p1),cost(c),heu(h){};
 
@@ -60,47 +56,60 @@ namespace SEARCH2 {
       heu = s.heu;
       return *this;
     }
-    //    State& operator=(State&& s) {
-    //            current = std::move(s.current);
-    //        actions = std::move(actions);
-    //            cost = std::move(s.cost);
-    //            heu = std::move(s.heu);
-    //        return *this;
-    //    }
+
+    // State& operator=(State&& s) {
+    //   current = std::move(s.current);
+    //   actions = std::move(actions);
+    //   cost = std::move(s.cost);
+    //   heu = std::move(s.heu);
+    //   return *this;
+    // }
+
     friend ostream& operator<<(ostream& os, const State& s);
+
     bool operator<(const State& s2) const {return (cost+heu) > (s2.cost+s2.heu);}
   };
 
-
-  ostream& operator<<(ostream& os, const State& s){
-    os<<"{current:[pos:"<<s.current.first<<", dir"<<s.current.second<<"]"<<", pre:[action:"<<s.actions.size()
-    <<"], cost:"<<s.cost<<",heu: "<<s.heu<<"}"<<std::endl;
+  /*
+   * Overload '<<' operator for printing.
+   */
+  ostream& operator<<(ostream& os, const State& s) {
+    os << "{current:[pos:" << s.current.first << ", dir" << s.current.second << "]"
+       << ", pre:[action:"<<s.actions.size()
+       << "], cost:" << s.cost << ", heu: " << s.heu << "}"
+       << std::endl;
     return os;
   }
 
-
+  /**
+   * Search class
+   *   - Hybrid A* search
+   */
   class Search {
   public:
     Search(Model* m, const vec2f& goal);
     State search();
     vector<State> getSuccessors(const State& state);
     bool isGoal(State&);
-    size_t num_action(){return angle.size();}
-    vector<vec2f>& path(){smooth();return pa;}
-    float evaluation(const vec2f& position);
+    size_t num_action() { return angle.size(); }
+    vector<vec2f>& path() { smooth(); return pa; }
+    float heuristic(const vec2f& position);
     void smooth();
+
   private:
-    int  xToCol(float x) { return int((x / unitdistance));}
-    int  yToRow(float y) {return int((y / unitdistance));}
-    float rowToY(int row) {return (row + 0.5) * unitdistance;}
-    float colToX(int col){return (col + 0.5) * unitdistance;}
+    int xToCol(float x) { return int((x / unitdistance)); }
+    int yToRow(float y) { return int((y / unitdistance)); }
+    float rowToY(int row) { return (row + 0.5) * unitdistance; }
+    float colToX(int col) { return (col + 0.5) * unitdistance; }
     vector<vec2f> path(list<char>&);
-    //"The Manhattan distance heuristic for a PositionSearchProblem"
+
+    // The Manhattan distance heuristic for a PositionSearchProblem
     float manhattanHeuristic(const vec2f& position) {
       vec2f xy1 = position;
       vec2f xy2 = goal;
       return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
     }
+
     Model* model;
     int unitdistance;
     vec2f goal;
@@ -108,33 +117,42 @@ namespace SEARCH2 {
     float cost;
     vector<float> angle;
     vector<vec2f> pa;
-    //enum {left90, left45, strainght, right45, right90};
-    //float angle[9] = {60, 45, 30, 15, 0, -15, -30, -45, -60};
+    // enum {left90, left45, strainght, right45, right90};
+    // float angle[9] = {60, 45, 30, 15, 0, -15, -30, -45, -60};
     // enum {east, north, west, south};
   };
 
-  Search::Search(Model*m, const vec2f& goal):model(m) {
+  /**
+   * Constructor
+   *   - initialize the start state
+   *   - specify the search goal
+   */
+  Search::Search(Model*m, const vec2f& goal) : model(m) {
     vec2f pos = model->getHost()->getPos();
     start = State(pvff(pos, vec2f(1, 0)));
     this->goal = goal;
     cost = 1;
     unitdistance = 10;
-    for(float ang = 45; ang>=-45;ang-=15)
-    angle.push_back(ang);
+    for(float ang = 45; ang>=-45; ang-=15) {
+      angle.push_back(ang);
+    }
     State state2 = search();
     list<char> actions = state2.actions;
     pa = path(actions);
   }
 
-  bool Search::isGoal(State& s){
+  bool Search::isGoal(State& s) {
     float x = s.current.first[0];
     float y = s.current.first[1];
     if (abs(x-goal[0]) < unitdistance && abs(y-goal[1]) < unitdistance)
-    return true;
+      return true;
     return false ;
   }
 
-  // @para actions:
+  /**
+   * Convert actions to path.
+   *   @para actions:
+   */
   vector<vec2f> Search::path(list<char>& actions) {
     vector<vec2f> result;
     //    vec2f pos = start.current.first;
@@ -156,8 +174,8 @@ namespace SEARCH2 {
 
       float x = car.getPos()[0];
       float y = car.getPos()[1];
-      //        int col = xToCol(x);
-      //        int row = yToRow(y);
+      // int col = xToCol(x);
+      // int row = yToRow(y);
       vec2f newpos(x, y);
       result.push_back(newpos);
     }
@@ -166,13 +184,13 @@ namespace SEARCH2 {
 
   vector<State> Search::getSuccessors(const State& state) {
     /*
-    Returns successor states, the actions they require, and a cost of 1.
-    As noted in search.py:
-    For a given state, this should return a list of triples,
-    (successor, action, stepCost), where 'successor' is a
+      Returns successor states, the actions they require, and a cost of 1.
+      As noted in search.py:
+      For a given state, this should return a list of triples,
+      (successor, action, stepCost), where 'successor' is a
     */
     vector<State> successors;
-    //    float ScaleRatio = 1.5;
+    // float ScaleRatio = 1.5;
     vec2f pos = state.current.first;
     vec2f olddir = state.current.second;
     vec2f velocity = olddir*float(unitdistance);
@@ -193,13 +211,13 @@ namespace SEARCH2 {
         }
       }
 
-      //        vector<Car*> cars = model->getOtherCars();
-      //        for (Car* othercar : cars) {
-      //            if (othercar->collides(car.getPos(), bounds)){
-      //                isinBound = false;
-      //                break;
-      //            }
-      //        }
+      // vector<Car*> cars = model->getOtherCars();
+      //   for (Car* othercar : cars) {
+      //     if (othercar->collides(car.getPos(), bounds)) {
+      //       isinBound = false;
+      //       break;
+      //   }
+      // }
 
       if  (!isinBound) continue;
 
@@ -216,8 +234,11 @@ namespace SEARCH2 {
     return successors;
   }
 
+  /**
+   * search algorithm: Hyrid A*
+   *
+   */
   State Search::search() {
-
     priority_queue<State> open;
     unordered_set<pii> closed;
     float c, h ;
@@ -230,34 +251,39 @@ namespace SEARCH2 {
     while (!open.empty()) {
       State state = open.top();
       open.pop();
+
       vec2f position = state.current.first;
       vec2f dir = state.current.second;
       //int action = int (state.actions.back()-'A');
       c = state.cost;
       h = state.heu;
 
-      if (isGoal(state))
-      return state;
+      if (isGoal(state)) return state;
 
-      cell = pii( yToRow(position[1]), xToCol(position[0]));
-      if (closed.count(cell)!=0) continue;
+      cell = pii(yToRow(position[1]), xToCol(position[0]));
+
+      // If the cell is already in closed which means it has been visited.
+      if (closed.count(cell)) continue;
       closed.insert(cell);
+
       // get sucesssor
       vector<State> successors = getSuccessors(state);
 
-      if (successors.size() == 0)
-      continue;
-      for (auto& ele: successors) {
+      // dead end
+      if (successors.size() == 0) continue;
+
+      for (auto& ele : successors) {
         position = ele.current.first;
-        cell = pii( yToRow(position[1]), xToCol(position[0]));
-        if(closed.count(cell) == 0) {
-          h =  evaluation(position);
+        cell = pii(yToRow(position[1]), xToCol(position[0]));
+        if(!closed.count(cell)) {
+          h = heuristic(position);
           ele.heu = h;
-          //State state2(ele.current, ele.actions, cost, h);
           open.push(ele);
         }
       }
     }
+
+    // If reaching here, it means there is no path found. Return an empty state.
     State state2;
     return state2;
   }
@@ -287,14 +313,14 @@ namespace SEARCH2 {
 
     }
     pa = result;
-
   }
 
-  //evaluate the path
-  float Search::evaluation(const vec2f& position) {
+  // heuristic function for Hybrid A* search algorithm
+  float Search::heuristic(const vec2f& position) {
     float h = manhattanHeuristic(position);
     return h;
   }
 
 }
+
 #endif // SEARCH2_H
