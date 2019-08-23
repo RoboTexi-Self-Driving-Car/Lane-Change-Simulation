@@ -113,7 +113,7 @@ int main(int argc, char **argv) {
   ros::Rate rate(10);
 
   // load the map for running testing examples
-  string worldname = "dense_traffic";
+  string worldname = "dense_traffic2";
   Layout layout(worldname);
   Model model(layout);
 
