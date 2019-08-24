@@ -28,7 +28,7 @@ namespace Inference {
 
   vector<string> intentions{"cooperative", "aggressive"};
 
-  UMAP<string, int> Intention_To_Index{{"cooperative", 0}, {"aggressive", 1}};
+  UMAP<string, int> intention_to_index{{"cooperative", 0}, {"aggressive", 1}};
 
   class JointParticles {
   private:
@@ -269,7 +269,7 @@ public:
   bool collides(const Vector2f& otherPos, const vector<Vector2f>& otherBounds);
   //carfufl not to too use the function, this is used for planning ahead
   void setVelocity(float amount);
-  bool carInintersection(const Model& state);
+  bool carInIntersection(const Model& state);
   bool isCloseToOtherCar(const Model& model) const;
 
 };
@@ -636,7 +636,7 @@ void Car::setVelocity(float amount) {
 }
 
 //check car is in instersection
-bool Car::carInintersection(const Model& model) {
+bool Car::carInIntersection(const Model& model) {
   vector<Vector2f> bounds = getBounds();
   for (const auto& point : bounds) {
     if (model.inIntersection(point[0], point[1]))
@@ -805,15 +805,21 @@ UMAP<string, float>  Host::getAutonomousActions2(const vector<Vector2f>& path, c
   return output;
 }
 
+/**
+ * Observe the other cars state.
+ *   - POMDP
+ *   - update each car's history
+ */
 void Host::makeObse(const Model& state) {
   vector<Car*>cars = state.getOtherCars();
-  for (const auto& car:cars) {
-    Vector2f obsv = dynamic_cast<Agent*>(car)->getObserv();
-    float obs = obsv.Length();
-    obs = obs>0?obs:0;
-    if (dynamic_cast<Agent*>(car)->history.size() == 11)
-    dynamic_cast<Agent*>(car)->history.pop();
-    dynamic_cast<Agent*>(car)->history.push(obs);
+  for (const auto& car : cars) {
+    Vector2f obsv = dynamic_cast<Agent*>(car)->getObserv(); // What is computed from here?
+    float obs = obsv.Length(); // Why length?
+    obs = obs > 0 ? obs : 0;
+    if (dynamic_cast<Agent*>(car)->history.size() == 11) { // Why cannot beyond 11?
+      dynamic_cast<Agent*>(car)->history.pop();
+    }
+    dynamic_cast<Agent*>(car)->history.push(obs); // push in the length?
   }
 }
 
@@ -833,7 +839,7 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path, con
     return output;
   }
   //
-  if (carInintersection(model) && !stopflag) {
+  if (carInIntersection(model) && !stopflag) {
     stopflag = true;
     //setVelocity(0.0);
     output["TURN_WHEEL"] = 0;
@@ -869,7 +875,7 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path, con
     float angle2 = abs(vectogoal2.get_angle_between(getDir()));
     if (angle2 < 90) nextId = p2.id;
     else nextId = p1.id;
-  }else {
+  } else {
     nextId = nodeId + 1;
     if (nodeId>=path.size()) nodeId = pre;
     if (nextId > path.size()) nextId = nodeId;
@@ -900,9 +906,7 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path, con
   return output;
 }
 
-
-void Agent::setup()
-{
+void Agent::setup() {
   maxSpeed = 3.0;
   friction = 1;
   maxWheelAngle = 45;
@@ -913,10 +917,9 @@ void Agent::setup()
   inference = NULL;
 }
 
-
-void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model, kdtree::kdtree<point<float>>* tree){
+void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model, kdtree::kdtree<point<float>>* tree) {
   /*
-  here we have three choices to choose: normal, acc, dec
+    here we have three choices to choose: normal, acc, dec
   */
   // set the timer to control time
   if (timer < 30 && stopflag) {
@@ -924,8 +927,8 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model, k
     timer++;
     return;
   }
-  //
-  bool check = carInintersection(model);
+
+  bool check = carInIntersection(model);
   if (check && !stopflag) {
     stopflag = true;
     accelerate(0);
@@ -940,35 +943,34 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model, k
     return;
   }
 
-  //unsigned int i = rand()%1;
-  //assume it is not conservative for all drivers
+  // unsigned int i = rand()%1;
+  // assume it is not conservative for all drivers
   unsigned int i = 1;
   Car* host = model.getHost();
-  //conservative driver will yield
+  // conservative driver will yield
   if ((host->getPos().x < this->getPos().x + Car::LENGTH*4) && (host->getPos().x > this->getPos().x))
   i = 0;
   switch (i) {
     case 0:
-    accelerate(friction);
-    setWheelAngle(0);
-    break;
+      accelerate(friction);
+      setWheelAngle(0);
+      break;
     case 1:
-    accelerate(maxaccler);
-    setWheelAngle(0);
-    break;
+      accelerate(maxaccler);
+      setWheelAngle(0);
+      break;
     case 2:
-    accelerate(maxaccler*0.25);
-    setWheelAngle(0);
-    break;
+      accelerate(maxaccler*0.25);
+      setWheelAngle(0);
+      break;
     default:
-    break;
+      break;
   }
 }
 
-void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Model& model, int i){
-
-  //unsigned int i = rand()%1;
-  //assume it is not conservative for all drivers
+void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Model& model, int i) {
+  // unsigned int i = rand()%1;
+  // assume it is not conservative for all drivers
   switch (i) {
     case 0:
       accelerate(friction);
@@ -991,4 +993,5 @@ Inference::MarginalInference* Agent::getInference(int index, const Model& state)
   }
   return inference;
 }
+
 #endif /* MODEL_H */

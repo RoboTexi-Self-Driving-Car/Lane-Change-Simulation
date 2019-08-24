@@ -36,7 +36,7 @@ typedef Vector2d<float> Vector2f;
 
 //set counter class
 template<class Key>
-class Counter:public std::UMAP<Key, float> {
+class Counter : public std::UMAP<Key, float> {
 public:
 
   float & operator[]( const Key& key ) {
@@ -128,8 +128,8 @@ namespace std {
 
 namespace Globals {
   Constant constant;
-  //    const double INF = 1e8;
-  //    const double TINY = 1e-8;
+  // const double INF = 1e8;
+  // const double TINY = 1e-8;
 } // namespace
 
 #endif

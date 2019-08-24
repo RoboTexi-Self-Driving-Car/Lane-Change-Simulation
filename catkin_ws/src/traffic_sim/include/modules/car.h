@@ -73,7 +73,7 @@ public:
   bool collides(const Vector2f& otherPos, const vector<Vector2f>& otherBounds);
   //carfufl not to too use the function, this is used for planning ahead
   void setVelocity(float amount);
-  bool carInintersection(const Model& state);
+  bool carInIntersection(const Model& state);
   bool isCloseToOtherCar(const Model& model) const;
 
 };

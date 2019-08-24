@@ -139,13 +139,13 @@ int main(int argc, char **argv) {
 
   DecisionAgent2 decision;
   vector<vec2f> mypath;
-  vector<int> carintentions;
+  vector<int> car_intentions;
 
   for (int i = 0; i < model.getOtherCars().size(); i++) {
-    carintentions.push_back(1);
+    car_intentions.push_back(1);
   }
 
-  bool success = decision.getPath(model, mypath, carintentions);
+  bool success = decision.getPath(model, mypath, car_intentions);
   vector<vector<vec2f>> mypaths = decision.getPaths();
 
   bool change;
@@ -176,11 +176,11 @@ int main(int argc, char **argv) {
         if (car == mycar) { //my car moves
           // //destination reaches, generate new paths
           // if (mypath.size() == 0 || abs(mycar->getPos().x - mypath[mypath.size()-1].x) < 10) {
-          //   success = decision.getPath(model, mypath, carintentions);
+          //   success = decision.getPath(model, mypath, car_intentions);
           //   mypaths = decision.getPaths();
           // }
           // generate paths in each time step
-          success = decision.getPath(model, mypath, carintentions);
+          success = decision.getPath(model, mypath, car_intentions);
           mypaths = decision.getPaths();
           car->autonomousAction(mypath, model, NULL);
           car->update();

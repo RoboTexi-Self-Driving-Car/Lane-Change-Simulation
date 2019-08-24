@@ -223,7 +223,7 @@ public:
     bool collides(const Vector2f& otherPos, const vector<Vector2f>& otherBounds);
     //carfufl not to too use the function, this is used for planning ahead
     void setVelocity(float amount);
-    bool carInintersection(const Model& state);
+    bool carInIntersection(const Model& state);
     bool isCloseToOtherCar(const Model& model) const;
     
 };
@@ -279,7 +279,7 @@ public:
 //namespace Inference {
 //    enum State{cooperative, normal, aggressive};
 //    vector<string> intentions{"cooperative","normal","aggressive"};
-//    UMAP<string, int> Intention_To_Index{{"cooperative",0},{"normal",1},{"aggressive",2}};
+//    UMAP<string, int> intention_to_index{{"cooperative",0},{"normal",1},{"aggressive",2}};
 //    
 //    //to produce the permuation of a list of states
 //    vector<vector<string>> product(const vector<string>& states, int repeat = 3) {
@@ -453,7 +453,7 @@ public:
 //        float vref =  total/history.size();
 //        if (vref == 0) vref = 0.001;
 //        float sigma = 0.5*vref;
-//        int index = Intention_To_Index[intention];
+//        int index = intention_to_index[intention];
 //        if  (index == 0)
 //            return pff(0, sigma);
 //        else if (index == 1)
@@ -490,7 +490,7 @@ public:
 //            Counter<vector<string>> jointDistribution = jointInference.getBelief();
 //            Counter<int> dist = Counter<int>();
 //            for (const auto& item: jointDistribution) {
-//                int i = Intention_To_Index[item.first[index-1]];
+//                int i = intention_to_index[item.first[index-1]];
 //                dist[i] += item.second;
 //            }
 //            vector<float> result = vector<float>();

@@ -59,9 +59,9 @@ public:
   const vector<vector<vec2f>>& generatePaths(const Model&, vector<string>&);
   const vector<vector<vec2f>>& generatePaths2(const Model& mod, vector<string>&);
   void applyAction(const Model&, int, const std::string&);
-  float evaluationPath(const Model&, const vector<vec2f>& path, vector<int>& carintentions);
-  bool getPath(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
-  bool getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
+  float evaluationPath(const Model&, const vector<vec2f>& path, vector<int>& car_intentions);
+  bool getPath(const Model& model, vector<vec2f>& mypath, vector<int>& car_intentions);
+  bool getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& car_intentions);
   const vector<vector<vec2f>> getPaths() { return paths; }
   bool isCloseToOtherCar(Car*car, const Model& model) const;
   bool isChangeRequired(Car* mycar, const Model& model);
@@ -176,7 +176,7 @@ void  DecisionAgent2::applyAction(const Model& model, int agentIndex, const std:
 
 }
 
-float DecisionAgent2::evaluationPath(const Model& mo, const vector<vec2f>& path, vector<int>& carintentions) {
+float DecisionAgent2::evaluationPath(const Model& mo, const vector<vec2f>& path, vector<int>& car_intentions) {
   Model model(mo);
   float score = 0.0;
   Car* mycar = model.getHost();
@@ -186,7 +186,7 @@ float DecisionAgent2::evaluationPath(const Model& mo, const vector<vec2f>& path,
     mycar->update();
     for(int i = 0; i <model.getOtherCars().size(); i++) {
       Car* car = model.getOtherCars()[i];
-      car->autonomousAction2(path, model, carintentions[i]);
+      car->autonomousAction2(path, model, car_intentions[i]);
       car->update();
     }
     if (model.checkCollision(mycar))
@@ -205,7 +205,7 @@ float DecisionAgent2::evaluationPath(const Model& mo, const vector<vec2f>& path,
   return score;
 }
 
-bool DecisionAgent2::getPath(const Model& model, vector<vec2f>& mypath, vector<int>& carintentions) {
+bool DecisionAgent2::getPath(const Model& model, vector<vec2f>& mypath, vector<int>& car_intentions) {
   // std::string bestAction = "stop";
   // int numAgents = model.getCars().size();
   vector<string> legalactions = generateLegalActions(model);
@@ -214,7 +214,7 @@ bool DecisionAgent2::getPath(const Model& model, vector<vec2f>& mypath, vector<i
   float bestscore = -inf;
   float score = 0.0;
   for (int i = 0; i < paths.size(); i++) {
-    score = evaluationPath(model, paths[i], carintentions);
+    score = evaluationPath(model, paths[i], car_intentions);
     if (bestscore < score) {
       index = i;
       bestscore = score;
@@ -227,7 +227,7 @@ bool DecisionAgent2::getPath(const Model& model, vector<vec2f>& mypath, vector<i
   return true;
 };
 
-bool DecisionAgent2:: getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& carintentions) {
+bool DecisionAgent2:: getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& car_intentions) {
   //std::string bestAction = "stop";
   //int numAgents = model.getCars().size();
   vector<string> legalactions = generateLegalActions(model);
@@ -236,7 +236,7 @@ bool DecisionAgent2:: getPath2(const Model& model, vector<vec2f>& mypath, vector
   float bestscore = -inf;
   float score = 0.0;
   for (int i = 0; i < paths.size(); i++) {
-    score = evaluationPath(model, paths[i],carintentions);
+    score = evaluationPath(model, paths[i],car_intentions);
     if (bestscore < score) {
       index = i;
       bestscore = score;
