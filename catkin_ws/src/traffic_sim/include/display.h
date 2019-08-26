@@ -230,7 +230,7 @@ public:
     int i;
     int triangleAmount = 40; //# of triangles used to draw circle
 
-    GLfloat twicePI= 2.0f * PI;
+    GLfloat twicePI= 2.0f * M_PI;
     glBegin(GL_TRIANGLE_FAN);
     glColor3f(color.r, color.g, color.b);
     glVertex2f(x, y); // center of circle

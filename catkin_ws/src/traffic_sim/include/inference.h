@@ -7,17 +7,19 @@
 namespace Inference {
 
   /**
-   * to produce the permuation of a list of states
+   * Generate the permuation of a list of states
    *
    */
-  vector<vector<string>> product(const vector<string>& states, int repeat = 2) {
+  vector<vector<string>> permute(const vector<string>& states, int repeat = 2) {
     vector<vector<string>> res(states.size());
     vector<vector<string>> output;
-    for (int i = 0; i < states.size(); i++)
+    for (int i = 0; i < states.size(); i++) {
       res[i].push_back(states[i]);
+    }
 
     if (repeat == 1) return res;
-    vector<vector<string>> middle = product(states, repeat - 1);
+
+    vector<vector<string>> middle = permute(states, repeat - 1);
     for (int i = 0; i < res.size(); i++) {
       for (int j = 0; j < middle.size(); j++) {
         vector<string> temp(res[i]);
@@ -34,7 +36,7 @@ namespace Inference {
    */
   double pdf(float mean, float std, float value) {
     double u = double(value - mean)/abs(std);
-    double y = (1.0 / (sqrt(2 * PI) * abs(std))) * exp(-u * u / 2.0);
+    double y = (1.0 / (sqrt(2 * M_PI) * abs(std))) * exp(-u * u / 2.0);
     if (y == 0)
       return 0.00000001;
     return y;
@@ -101,10 +103,11 @@ namespace Inference {
     initializeParticles();
   }
 
+  // intilize particles
   void JointParticles::initializeParticles() {
     std::random_device rd;
     std::mt19937 g(rd());
-    vector<vector<string>> jointstates = product(legalIntentions, numAgents);
+    vector<vector<string>> jointstates = permute(legalIntentions, numAgents);
     std::shuffle (jointstates.begin(), jointstates.end(), g);
     int n = numParticles;
     int p = jointstates.size();
@@ -158,7 +161,6 @@ namespace Inference {
         particles[i] = newPos;
       }
     }
-
   }
 
   Counter<vector<string>> JointParticles::getBelief() {

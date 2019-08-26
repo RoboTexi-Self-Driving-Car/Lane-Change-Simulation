@@ -26,7 +26,6 @@
 using namespace std;
 
 #define inf std::numeric_limits<double>::infinity()
-#define PI 3.14159265
 #define MAP map
 #define UMAP unordered_map
 typedef std::pair<int, int> pii;
@@ -34,20 +33,20 @@ typedef std::pair<float, float> pff;
 typedef Vector2d<float> Vector2f;
 
 
-//set counter class
+/**
+ * set counter class
+ */
 template<class Key>
 class Counter : public std::UMAP<Key, float> {
 public:
 
   float & operator[]( const Key& key ) {
-    if(this->count(key) == 0 )
-    this->insert({key, 0.0});
+    if(this->count(key) == 0) this->insert({key, 0.0});
     return this->at(key);
   }
 
   float& operator[]( Key&& key ) {
-    if(this->count(key) == 0)
-    this->insert({key, 0.0});
+    if(this->count(key) == 0) this->insert({key, 0.0});
     return this->at(key);
   }
 

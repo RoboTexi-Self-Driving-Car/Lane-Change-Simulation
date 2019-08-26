@@ -321,7 +321,7 @@ public:
   void autonomousAction(const vector<Vector2f>& vec2, const Model& model, kdtree::kdtree<point<float>>* tree);
   void autonomousAction2(const vector<Vector2f>&path, const Model& model, int i = 1);
   Inference::MarginalInference* getInference(int index, const Model& model);
-  Vector2f getObserv() {return getVelocity();}
+  Vector2f getObserv() { return getVelocity(); }
 };
 
 

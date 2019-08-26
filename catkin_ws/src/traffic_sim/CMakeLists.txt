@@ -144,6 +144,7 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
+add_executable(test_particles src/test_particles.cpp)
 add_executable(traffic_sim src/traffic_sim.cpp)
 add_executable(traffic_sim2 src/traffic_sim2.cpp)
 
@@ -158,6 +159,10 @@ add_executable(traffic_sim2 src/traffic_sim2.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(test_particles
+  ${catkin_LIBRARIES}
+)
+
 target_link_libraries(traffic_sim
   ${catkin_LIBRARIES}
   ${OPENGL_LIBRARY}
