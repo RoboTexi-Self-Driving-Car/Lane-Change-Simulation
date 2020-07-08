@@ -3,7 +3,7 @@
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
-#include <GLUT/GLUT.h>
+#include <GL/glut.h>
 #include<cmath>
 #include "globals.h"
 #include "vec2D.h"
@@ -56,7 +56,10 @@ public:
     //used to sleep the processor for a while
     static void sleep(float time) {
         long int sleeptime = time*1000000000;
-        nanosleep((const struct timespec[]){{0, sleeptime}}, NULL);
+        struct timespec req = {0};
+        req.tv_sec = 0;
+        req.tv_nsec = sleeptime;
+        nanosleep(&req, (struct timespec *)NULL);
     }
 
     static void drawBlocks(const vector<Block*>& blocks) {
