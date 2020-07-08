@@ -1,3 +1,0 @@
-/home/pxu/Dropbox/workspace/lane-change-sim/build/CMakeFiles/rebuild_cache.dir
-/home/pxu/Dropbox/workspace/lane-change-sim/build/CMakeFiles/simulation.dir
-/home/pxu/Dropbox/workspace/lane-change-sim/build/CMakeFiles/edit_cache.dir

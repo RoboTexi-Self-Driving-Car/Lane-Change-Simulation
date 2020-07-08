@@ -1,1 +1,0 @@
-/usr/bin/c++   -std=c++11  -rdynamic CMakeFiles/simulation.dir/main.cpp.o  -o simulation   -L/usr/local/Cellar/glfw/3.2.1/lib  -Wl,-rpath,/usr/local/Cellar/glfw/3.2.1/lib -lGL -lGLU -lglut -lXmu -lXi -lglfw -ldl 
