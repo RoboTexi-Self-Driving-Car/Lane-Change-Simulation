@@ -9,6 +9,9 @@
 #ifndef KdTree_hpp
 #define KdTree_hpp
 
+#include <vector>
+#include <algorithm>
+
 template <typename T>
 class point {
  public:

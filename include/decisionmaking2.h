@@ -1,7 +1,9 @@
-
 #ifndef decision2_h
 #define decision2_h
+
+
 #include "model.h"
+#include "search.h"
 #include "search2.h"
 // static Vector2f setToOne( Vector2f& vec) {
 //

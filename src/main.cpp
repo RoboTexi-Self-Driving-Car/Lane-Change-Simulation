@@ -14,6 +14,8 @@
 #include <iomanip>
 #include <iostream>
 
+#include "KdTree.hpp"
+#include "decisionmaking2.h"
 #include "display.h"
 #include "globals.h"
 #include "inference.h"
@@ -21,10 +23,9 @@
 #include "model.h"
 #include "search.h"
 #include "thirdparty/picojson.h"
-using namespace std;
-#include "KdTree.hpp"
-#include "decisionmaking2.h"
 #include "util.h"
+
+using namespace std;
 
 GLFWwindow* window = NULL;
 
@@ -32,66 +33,101 @@ Display display = Display();
 ofstream myfile;
 
 int main(void) {
-  // load the map for running testing examples
+  //****************************************************************************
+  // Load the map.
+  //****************************************************************************
   myfile.open("intention.txt");
+
   string worldname = "road2";
   Layout layout = Layout(worldname);
   Model model(layout);
+
+  // Display setting.
   display.setColors(model.getCars());
 
   int SCREEN_WIDTH = layout.getWidth();
   int SCREEN_HEIGHT = layout.getHeight();
 
+  // Get the ego car.
   Car* mycar = model.getHost();
+
+  // Get the neighboring cars.
   vector<Car*> cars = model.getCars();
-  //    std::cout<<car->isHost()<<std::endl;
+  // std::cout<<car->isHost()<<std::endl;
+
+  // Display setting.
   string title = Globals::constant.TITLE;
   begin_graphics(SCREEN_WIDTH, SCREEN_HEIGHT, title);
   std::cout << typeid(*mycar).name() << std::endl;
+
   // loop util the user closes the window
   // bool gameover = false;
-
   bool over = false;
+
+  // decision making module
   DecisionAgent2 decision;
+
+  // final path
   vector<vec2f> mypath;
 
+  // each neighboring cars' yielding intention
   vector<int> carintentions;
-  for (int i = 0; i < model.getOtherCars().size(); i++)
+  for (int i = 0; i < model.getOtherCars().size(); i++) {
     carintentions.push_back(1);
+  }
 
   bool success = decision.getPath(model, mypath, carintentions);
 
+  // get candidate paths
   vector<vector<vec2f>> mypaths = decision.getPaths();
+
+  // action set
   std::pair<std::string, vec2f> actionset;
+
   string filename = "coop";
 
   // the change for car is mandatory
   bool change = true;
+
   srand(time(NULL));
+
   int i = 0;
 
   while (!glfwWindowShouldClose(window)) {
+    //**************************************************************************
+    // Display static taffic objects.
+    //**************************************************************************
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     Display::drawGoal(model.getFinish());
     Display::drawBlocks(model.getBlocks());
     Display::drawLine(model.getLine());
 
-    for (auto p : mypaths) drawPolygon(p);
+    //**************************************************************************
+    // Draw candidate paths.
+    //**************************************************************************
+    for (auto p : mypaths) {
+      drawPolygon(p);
+    }
 
+    //**************************************************************************
+    // Display the cars.
+    //**************************************************************************
     display.drawCar(model.getHost());
     display.drawOtherCar(model.getOtherCars());
 
     if (!gameover(model)) {
-      // update cars here for further processing
+      //************************************************************************
+      // Update all the cars in a time step
+      //************************************************************************
       for (Car* car : cars) {
         // my car moves
         if (car == mycar) {
           // destination reaches, generate new paths
-          if (mypath.size() == 0 ||
-              abs(mycar->getPos().x - mypath[mypath.size() - 1].x) < 10) {
+          if (mypath.size() == 0 || abs(mycar->getPos().x - mypath[mypath.size() - 1].x) < 10) {
             success = decision.getPath(model, mypath, carintentions);
             change = decision.isChangeRequired(car, model);
+            // candidate paths
             mypaths = decision.getPaths();
             if (!success && change) {
               carintentions = infer(model);
@@ -101,10 +137,13 @@ int main(void) {
               car->autonomousAction(mypath, model, NULL);
               car->update();
             }
-          } else {
+          }
+          // using the current path
+          else {
             car->autonomousAction(mypath, model, NULL);
             car->update();
           }
+          // display the final path
           drawPolygon(mypath);
         }
         // other car moves
@@ -115,16 +154,31 @@ int main(void) {
       }
     }
 
+    //************************************************************************
+    // Update the display window.
+    //************************************************************************
     glfwSwapBuffers(window);
     glfwPollEvents();
+
+    //************************************************************************
+    // Check the ending contion.
+    //************************************************************************
     over = (gameover(model) || glfwWindowShouldClose(window));
+
     Display::sleep(0.05);
   }
-  if (model.checkVictory())
+  if (model.checkVictory()) {
     std::cout << "The car win" << endl;
-  else
+  }
+  else {
     std::cout << "You lose the car game" << endl;
+  }
+
+  //************************************************************************
+  // Close the simulation.
+  //************************************************************************
   glfwTerminate();
   myfile.close();
-  return 1;
+
+  return 0;
 }
