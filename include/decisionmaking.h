@@ -1,3 +1,6 @@
+#ifndef DECISION_MAKING_H
+#define DECISION_MAKING_H
+
 #include "globals.h"
 #include "model.h"
 
@@ -13,23 +16,29 @@ static Vector2f setToOne(Vector2f& vec) {
   if (vec[0] != 0) return vec / vec[0];
   return vec / vec[1];
 }
+
 static const unordered_map<std::string, pii> directions = {
     {"east", {1, 0}},        {"northeast", {1, -1}}, {"north", {0, -1}},
     {"northwest", {-1, -1}}, {"west", {-1, 0}},      {"southwest", {-1, 1}},
     {"south", {0, 1}},       {"southeast", {1, 1}},
 };
+
 static inline int xToCol(float x) {
   return int(x / (Globals::constant.BELIEF_TILE_SIZE));
 }
+
 static inline int yToRow(float y) {
   return int((y / Globals::constant.BELIEF_TILE_SIZE));
 }
+
 float rowToY(int row) {
   return (row + 0.5) * Globals::constant.BELIEF_TILE_SIZE;
 }
+
 float colToX(int col) {
   return (col + 0.5) * Globals::constant.BELIEF_TILE_SIZE;
 }
+
 static vec2f corToCenter(const vec2f& pos) {
   float x = pos[0];
   float y = pos[1];
@@ -52,11 +61,11 @@ class DecisionAgent {
   is another abstract class.
   """
   */
- private:
+private:
   int depth;
   unsigned int index;
 
- public:
+public:
   static const vector<std::string> hostActions;
   static const vector<std::string> otherActions;
   static const unordered_map<std::string, float> actionReward;
@@ -78,13 +87,17 @@ class DecisionAgent {
 
 const vector<std::string> DecisionAgent::hostActions = {
     "normal", "acc", "dec", "stop", "left", "right"};
+
 const vector<std::string> DecisionAgent::otherActions = {"acc", "dec", "normal",
                                                          "stop"};
+
 const unordered_map<std::string, float> DecisionAgent::actionReward = {
     {"normal", 3}, {"acc", 0},  {"dec", -1},
     {"stop", -1},  {"left", 0}, {"right", 0}};
+
 // const unorder_mapd<std::string, std::pair<int,int> > command =
 // {{"normal",{}}, "acc", "dec", "stop", "left", "right"};
+
 /*
 Evaluation function need to check many features
 
@@ -344,3 +357,5 @@ bool DecisionAgent::isCloseToOtherCar(Car* mycar, const Model& model) const {
     return true;
   return false;
 }
+
+#endif /* DECISION_MAKING_H */

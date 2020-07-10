@@ -6,19 +6,22 @@
 //  Copyright © 2016 HJKBD. All rights reserved.
 //
 
-#ifndef KdTree_hpp
-#define KdTree_hpp
+#ifndef KDTREE_HPP
+#define KDTREE_HPP
 
 #include <vector>
 #include <algorithm>
 
 template <typename T>
 class point {
- public:
+public:
   T x, y;
   int id;
+  
   point() : x(0), y(0), id(0){};
+  
   point(T x, T y, int id_ = 0) : x(x), y(y), id(id_){};
+  
   point(const point &p) : x(p.x), y(p.y), id(p.id){};
 
   inline double distance(const point &p) {
@@ -41,33 +44,37 @@ class point {
     return os;
   }
 };
+
 typedef point<int> pointi;
 
 namespace kdtree {
+
 template <typename T>
 class node {
- public:
+public:
   T point;
   node<T> *left = NULL;
   node<T> *right = NULL;
   int _size = 0;
-  ///-----------------------------------------------------------------------
-  /// @name Constructor
-  ///-----------------------------------------------------------------------
+
+  //************************************************************************
+  // Constructor
+  //************************************************************************
+
   /**
    *  Initialize node having a point.
-   *
+   * 
    *  @param point  A point.
-   *
+   * 
    *  @return Initialized node instance.
    */
   node(T point) : point(point) { _size++; }
 
   /**
    *  Initialize node as a root of a kdtree with specified points.
-   *
+   * 
    *  @param points  A vector of points.
-   *
+   * 
    *  @return Initialized node instance.
    */
   node(std::vector<T> points) : node<T>(&points[0], (int)points.size(), 0) {}
@@ -83,12 +90,15 @@ class node {
    */
   node(T *points, int size, int depth = 0) {
     _size = size;
+    
     if (size == 1) {
       this->point = *points;
       return;
     }
+    
     // Sort points
     bool is_even = !(depth & 1);
+    
     if (is_even) {
       std::sort(points, points + size,
                 [](T const &a, T const &b) { return a.x < b.x; });
@@ -111,9 +121,10 @@ class node {
     }
   }
 
-  ///-----------------------------------------------------------------------
-  /// @name Destructor
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // Destructor
+  //************************************************************************
+
   /**
    *  Delete node object.
    */
@@ -122,9 +133,10 @@ class node {
     if (this->has_right_node()) delete this->right;
   }
 
-  ///-----------------------------------------------------------------------
-  /// @name Helper Methods
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // Helper Methods
+  //************************************************************************
+
   /**
    *  Indicates whether the node has the left node.
    *
@@ -191,9 +203,10 @@ class node {
     return this->distance(a) < this->distance(b) ? a : b;
   }
 
-  ///-----------------------------------------------------------------------
-  /// @name Nearest Neighbor Search
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // Nearest Neighbor Search
+  //************************************************************************
+
   /**
    *  Search for the nearest neighbor in the tree.
    *
@@ -349,9 +362,10 @@ class node {
     }
   }
 
-  ///-----------------------------------------------------------------------
-  /// @name k-Nearest Neighbor Search
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // k-Nearest Neighbor Search
+  //************************************************************************
+  
   /**
    *  Search for k-nearest neighbors in the tree.
    *
@@ -466,14 +480,16 @@ class node {
 }  // namespace kdtree
 
 namespace kdtree {
+
 template <typename T>
 class kdtree {
  public:
   node<T> *root;
 
-  ///-----------------------------------------------------------------------
-  /// @name Constructor
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // Constructor
+  //************************************************************************
+
   /**
    *  Initialize kdtree.
    *
@@ -493,17 +509,17 @@ class kdtree {
    */
   kdtree(T *points, int size) { this->root = new node<T>(points, size); }
 
-  ///-----------------------------------------------------------------------
-  /// @name Destructor
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // Destructor
+  //************************************************************************
   /**
    *  Delete kdtree object.
    */
   ~kdtree() { delete this->root; }
 
-  ///-----------------------------------------------------------------------
-  /// @name Nearest Neighbor Search
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // Nearest Neighbor Search
+  //************************************************************************
   /**
    *  Search for the nearest neighbor in the tree.
    *
@@ -546,9 +562,9 @@ class kdtree {
     return this->root->radius_nearest(query, r);
   }
 
-  ///-----------------------------------------------------------------------
-  /// @name k-Nearest Neighbor Search
-  ///-----------------------------------------------------------------------
+  //************************************************************************
+  // k-Nearest Neighbor Search
+  //************************************************************************
   /**
    *  Search for k-nearest neighbors in the tree.
    *
@@ -575,6 +591,7 @@ class kdtree {
 
   int size() { return this->root->_size; }
 };
+
 }  // namespace kdtree
 
-#endif /* KdTree_hpp */
+#endif /* KDTREE_HPP */

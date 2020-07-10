@@ -21,7 +21,6 @@
 #include "inference.h"
 #include "layout.h"
 #include "model.h"
-#include "search.h"
 #include "thirdparty/picojson.h"
 #include "util.h"
 

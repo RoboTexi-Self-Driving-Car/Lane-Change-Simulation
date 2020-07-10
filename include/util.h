@@ -1,24 +1,30 @@
 
+/*
+ * This file is for any helper function not listed in other files, will be here
+ */
 #ifndef UTIL_H
 #define UTIL_H
-/*
- This file is for any helper function not listed in other files, will be here
- */
+
 extern GLFWwindow* window;
 extern Display display;
+
 // initiation to start the open gl program
 void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title) {
   if (!glfwInit()) {
     return;
   }
+
   glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+
   // create a window mode window and its openGL context
   window =
       glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, title.c_str(), NULL, NULL);
+
   if (!window) {
     glfwTerminate();
     return;
   }
+
   glfwMakeContextCurrent(window);
   glOrtho(0, SCREEN_WIDTH, 0, SCREEN_HEIGHT, 0, 1);
 }
@@ -29,6 +35,7 @@ bool gameover(Model& model) {
     return true;
   return false;
 }
+
 // draw lines
 void drawPolygon(vector<Vector2f>& polygonvertices) {
   glPushAttrib(GL_POLYGON_BIT);
@@ -37,17 +44,19 @@ void drawPolygon(vector<Vector2f>& polygonvertices) {
   float* vertices = new float[polygonvertices.size() * 2];
   glLineWidth(2);
   glBegin(GL_LINE_STRIP);
+
   for (int i = 0; i < polygonvertices.size(); i++) {
     vertices[2 * i] = polygonvertices[i][0];
     vertices[2 * i + 1] = polygonvertices[i][1];
     glVertex2d(vertices[2 * i], vertices[2 * i + 1]);
   }
+
   glEnd();
   glPopAttrib();
-  //    glEnableClientState(GL_VERTEX_ARRAY);
-  //    glVertexPointer(2, GL_FLOAT, 0, vertices);
-  //    glDrawArrays(GL_POLYGON, 0, polygonvertices.size());
-  //    glDisableClientState(GL_VERTEX_ARRAY);
+  // glEnableClientState(GL_VERTEX_ARRAY);
+  // glVertexPointer(2, GL_FLOAT, 0, vertices);
+  // glDrawArrays(GL_POLYGON, 0, polygonvertices.size());
+  // glDisableClientState(GL_VERTEX_ARRAY);
   delete[] vertices;
 }
 
@@ -73,18 +82,22 @@ vector<int> infer(const Model& model) {
     Agent* car = dynamic_cast<Agent*>(cars[k]);
     int index = model.toindex(car);
     vector<float> belief = car->getInference(index + 1, model)->getBelief();
-    //        if (k != index)
-    //            cout<<"I am here"<<endl;
+
+    // if (k != index)
+    //   cout<<"I am here"<<endl;
+
     int maxindex = 0;
     for (int i = 0; i < belief.size(); i++) {
       if (belief[i] > belief[maxindex]) {
         maxindex = i;
       }
     }
+
     cartoIntention.push_back(maxindex);
     display.colorchange(car, colors[maxindex]);
   }
+
   return cartoIntention;
 }
 
-#endif
+#endif /* UTIL_H */

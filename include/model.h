@@ -5,55 +5,71 @@
 //  Created by HJKBD on 8/21/16.
 //  Copyright © 2016 HJKBD. All rights reserved.
 //
-//#include "inference.h"
-#ifndef model_h
-#define model_h
+
+#ifndef MODEL_H
+#define MODEL_H
+
 #include "KdTree.hpp"
 #include "globals.h"
 #include "layout.h"
 #include "vec2D.h"
-//#include "inference.h"
+// #include "inference.h"
 
-class Car;
 using std::string;
 using std::vector;
+
+// Forward declaration
+class Car;
 class Model;
 
 namespace Inference {
+
 enum State { cooperative, aggressive };
+
 vector<string> intentions{"cooperative", "aggressive"};
+
 UMAP<string, int> Intention_To_Index{{"cooperative", 0}, {"aggressive", 1}};
+
 class JointParticles {
- private:
+public:
+  JointParticles(int num = 600) : numParticles(num), numAgents(0){};
+  
+  void initializeUniformly(const Model& model,
+                           const vector<string>& intentions);
+  
+  void initializeParticles();
+  
+  void observe(const Model& model);
+  
+  Counter<vector<string>> getBelief();
+  
+  vector<string> sample(Counter<vector<string>>& counter);
+  
+  pff getMeanStandard(queue<float>& history, const string& intention);
+
+private:
   int numParticles;
   int numAgents;
   vector<string> legalIntentions;
   vector<Car*> agents;
   Counter<vector<string>> beliefs;
   vector<vector<string>> particles;
-
- public:
-  JointParticles(int num = 600) : numParticles(num), numAgents(0){};
-  void initializeUniformly(const Model& model,
-                           const vector<string>& intentions);
-  void initializeParticles();
-  void observe(const Model& model);
-  Counter<vector<string>> getBelief();
-  vector<string> sample(Counter<vector<string>>& counter);
-  pff getMeanStandard(queue<float>& history, const string& intention);
 };
-JointParticles jointInference = JointParticles();
-class MarginalInference {
- private:
-  vector<string> legalIntentions;
-  int index;
 
- public:
+JointParticles jointInference = JointParticles();
+
+class MarginalInference {
+public:
   MarginalInference(int index, const Model& model);
   void initializeUniformly(const Model& gameState);
   void observe(const Model& gameState);
   vector<float> getBelief();
+
+private:
+  vector<string> legalIntentions;
+  int index;
 };
+
 }  // namespace Inference
 
 static float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
@@ -63,26 +79,26 @@ static float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
 
 struct Line {
   int x1, y1, x2, y2;
+  
   Line(float _x1, float _y1, float _x2, float _y2)
       : x1(_x1), y1(_y1), x2(_x2), y2(_y2) {}
+  
   Line(vector<int>& row) {
     x1 = row[0] * (Globals::constant.BLOCK_TILE_SIZE);
     y1 = row[1] * (Globals::constant.BLOCK_TILE_SIZE);
     x2 = row[2] * (Globals::constant.BLOCK_TILE_SIZE);
     y2 = row[3] * (Globals::constant.BLOCK_TILE_SIZE);
   }
+  
   Vector2f getstart() { return Vector2f(x1, y1); }
+  
   Vector2f getend() { return Vector2f(x2, y2); }
 };
 
 class Block {
- private:
-  int startx, starty;
-  int endx, endy;
-  float centerX, centerY;
-
- public:
+public:
   Block() : startx(0), starty(0), endx(0), endy(0) {}
+  
   Block(vector<int>& blockdata) {
     assert(blockdata.size() == 4);
     int unit = Globals::constant.BLOCK_TILE_SIZE;
@@ -93,9 +109,13 @@ class Block {
     centerX = (startx + endx) / 2.0;
     centerY = (starty + endy) / 2.0;
   }
+  
   Vector2f getCenter() const { return Vector2f(centerX, centerY); }
+  
   int getWidth() const { return abs(endx - startx); }
+  
   int getHeight() const { return abs(endy - starty); }
+  
   bool containsPoint(int x, int y) const {
     if (x < startx) return false;
     if (y < starty) return false;
@@ -103,6 +123,7 @@ class Block {
     if (y > endy) return false;
     return true;
   }
+  
   // larger one
   bool containsPointLarger(int x, int y) const {
     int size = 2;
@@ -116,50 +137,71 @@ class Block {
     if (y > endy1) return false;
     return true;
   }
+
+private:
+  int startx, starty;
+  int endx, endy;
+  float centerX, centerY;
 };
 
 // buid the model
 class Model {
- public:
+public:
   Model(Layout&);
+  
   Model(const Model&);
+  
   ~Model();
+  
   // get the properties for the model class
   int getWidth() const { return layout.getWidth(); }
+  
   int getHeight() const { return layout.getHeight(); }
+  
   int getBeliefRows() const { return layout.getBeliefRows(); }
+  
   int getBeliefCols() const { return layout.getBeliefCols(); }
+  
   const vector<Block*>& getBlocks() const { return blocks; }
+  
   const vector<Line*>& getLine() const { return lines; }
+  
   const vector<Car*>& getCars() const { return cars; }
+  
   const vector<Car*>& getOtherCars() const { return otherCars; }
+  
   vector<Vector2f> getIntersectionCenter();
+  
   vector<Block*>& getIntersectionGraph() { return interSections; }
+  
   vector<Block*>& getAgentGraph() { return agentGraph; }
+  
   vector<Block*>& getHostGraph() { return hostGraph; }
+  
   vector<Block*>& getAllGraph() { return allGraph; }
 
   Block* getIntersection(float x, float y) const;
+  
   Block& getFinish() const { return *finish; }
+  
   Car* getHost() const { return host; }
+  
   void setHost(Car* car);
 
   // utility function to help check model
   bool checkVictory() const;
+  
   bool checkCollision(Car* car) const;
+  
   bool inBounds(float x, float y) const;
+  
   bool inBoundsLarger(float x, float y) const;
+  
   bool inIntersection(float x, float y) const;
+  
   int toindex(const Car* car) const { return cartoindex.at((size_t)car); }
 
- private:
-  void clearBlocks(vector<Block*>& blocks);
-  void initBlocks();
-  void initLines();
-  void initIntersections();
-  void initGraphs();
-  // void initOtherCars();
-  // void getStartNode()
+private:
   Layout& layout;
   Block* finish;
   Car* host;
@@ -173,27 +215,40 @@ class Model {
   vector<Block*> hostGraph;
   vector<Block*> allGraph;
   UMAP<size_t, int> cartoindex;
+
+  void clearBlocks(vector<Block*>& blocks);
+  
+  void initBlocks();
+  
+  void initLines();
+  
+  void initIntersections();
+  
+  void initGraphs();
+  
+  // void initOtherCars();
+  
+  // void getStartNode();
 };
 
 /*
-
- Car object initilization now
-
+ * Car object initilization now
  */
 
 static UMAP<string, pff> direction = {
-    {"east", {1, 0}},       {"west", {-1, 0}},      {"south", {1, 0}},
-    {"north", {-1, 0}},     {"northeast", {1, 1}},  {"northwest", {-1, 1}},
-    {"southeast", {1, -1}}, {"southwest", {-1, -1}}};
+  {"east", {1, 0}},
+  {"west", {-1, 0}},
+  {"south", {1, 0}},
+  {"north", {-1, 0}},
+  {"northeast", {1, 1}},
+  {"northwest", {-1, 1}},
+  {"southeast", {1, -1}},
+  {"southwest", {-1, -1}}
+};
 
 // abstract class
 class Car {
- private:
-  Vector2f pos;
-  Vector2f velocity;
-  Vector2f dir;
-
- public:
+public:
   float wheelAngle;
   float maxSpeed;
   float friction;
@@ -201,13 +256,11 @@ class Car {
   float maxaccler;
   float minSpeed;
 
- public:
-  void init(const string& dir);
-  virtual void init();
   constexpr const static float LENGTH = 25.0;
   constexpr const static float WIDTH = 12.5;
   const static float RADIUS;
 
+public:
   Car() {}
 
   Car(const Vector2f& _pos, string&& dir, const Vector2f& _velocity)
@@ -235,14 +288,23 @@ class Car {
   }
 
   virtual ~Car(){};
+
+  void init(const string& dir);
+
+  virtual void init();
+
   virtual bool isHost() { return false; }
+
   virtual void autonomousAction(const vector<Vector2f>&, const Model&,
                                 kdtree::kdtree<point<float>>* tree = NULL){};
+  
   virtual void autonomousAction2(const vector<Vector2f>&, const Model&,
                                  int i = 1){};
+  
   virtual void setup();
 
   Vector2f getPos() const { return pos; }
+  
   void setPos(const Vector2f& pos) { this->pos = pos; }
 
   Vector2f getDir() const { return dir; }
@@ -270,110 +332,144 @@ class Car {
   //#
   //http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
   bool collides(const Vector2f& otherPos, const vector<Vector2f>& otherBounds);
+  
   // carfufl not to too use the function, this is used for planning ahead
   void setVelocity(float amount);
+  
   bool carInintersection(const Model& state);
+  
   bool isCloseToOtherCar(const Model& model) const;
+
+private:
+  Vector2f pos;
+  Vector2f velocity;
+  Vector2f dir;
 };
 
-// derived class
+/*
+ * derived class
+ */
 class Host : public Car {
-  // car model
- private:
-  int nodeId;
-  int pre;
-
- public:
+public:
   Host() : Car(), nodeId{0}, pre{-1} {}
+  
   Host(const Vector2f& _pos, string&& _dir, const Vector2f& _velocity)
       : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
     setup();
   }
+  
   Host(const Vector2f& _pos, const string& _dir, const Vector2f& _velocity)
       : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
     setup();
   }
+  
   Host(const Vector2f& _pos, const string& _dir, Vector2f&& _velocity)
       : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
     setup();
   }
+  
   Host(const Vector2f& _pos, string&& _dir, Vector2f&& _velocity)
       : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
     setup();
   }
+  
   Host(const Car& car)
       : Car(car.getPos(), car.getDir(), car.getVelocity()), nodeId(0), pre(-1) {
     setup();
   }
+  
   ~Host(){};
 
   virtual void setup();
+  
   bool isHost() { return true; }
+  
   void autonomousAction(const vector<Vector2f>& path, const Model& model,
                         kdtree::kdtree<point<float>>* tree);
+  
   void autonomousAction2(const vector<Vector2f>& path, const Model& model,
                          int i = 1);
+  
   UMAP<string, float> getAutonomousActions(const vector<Vector2f>& path,
                                            const Model& model,
                                            kdtree::kdtree<point<float>>* tree);
+  
   UMAP<string, float> getAutonomousActions2(const vector<Vector2f>& path,
                                             const Model& model);
+  
   void makeObse(const Model& state);
+
+private:
+  int nodeId;
+  int pre;
 };
 
 // derived class for other cars
 class Agent : public Car {
- public:
+public:
   unsigned int timer = 0;
   bool stopflag = false;
   std::queue<float> history;
   bool hasinference;
   Inference::MarginalInference* inference;
 
- public:
+public:
   Agent() : Car() {}
+  
   Agent(const Vector2f& _pos, string&& _dir, const Vector2f& _velocity)
       : Car(_pos, _dir, _velocity) {
     setup();
   }
+  
   Agent(const Vector2f& _pos, const string& _dir, const Vector2f& _velocity)
       : Car(_pos, _dir, _velocity) {
     setup();
   }
+  
   Agent(const Vector2f& _pos, const string& _dir, Vector2f&& _velocity)
       : Car(_pos, _dir, _velocity) {
     setup();
   }
+  
   Agent(const Vector2f& _pos, string&& _dir, Vector2f&& _velocity)
       : Car(_pos, _dir, _velocity) {
     setup();
   }
+  
   Agent(const Car& car) : Car(car.getPos(), car.getDir(), car.getVelocity()) {}
+  
   ~Agent() {
     if (inference != NULL) delete inference;
   };
+  
   virtual void setup();
+  
   bool isHost() { return false; }
+  
   std::queue<float>& getHistory() { return history; }
+  
   void autonomousAction(const vector<Vector2f>& vec2, const Model& model,
                         kdtree::kdtree<point<float>>* tree);
+  
   void autonomousAction2(const vector<Vector2f>& path, const Model& model,
                          int i = 1);
+  
   Inference::MarginalInference* getInference(int index, const Model& model);
+  
   Vector2f getObserv() { return getVelocity(); }
 };
 
-/*
- method implementation for the models
- */
+//************************************************************************
+// method implementation for the models
+//************************************************************************
 
-// method
 Model::Model(Layout& lay) : layout(lay) {
   initLines();
   initBlocks();
   initGraphs();
   initIntersections();
   // initOtherCars();
+  
   int startX = layout.getStartX();
   int startY = layout.getStartY();
   string startDir = layout.getHostDir();
@@ -381,15 +477,19 @@ Model::Model(Layout& lay) : layout(lay) {
   finish = new Block(finishdata);
   host = new Host(Vector2f(startX, startY), startDir, Vector2f(0.0, 0.0));
   cars.push_back(host);
+  
   for (vector<int> other : layout.getOtherData()) {
     Car* othercar =
         new Agent(Vector2f(other[0], other[1]), "east", Vector2f(0.0, 0.0));
     otherCars.push_back(othercar);
     cars.push_back(othercar);
   }
+  
   cartoindex = UMAP<size_t, int>();
-  for (int i = 0; i < otherCars.size(); i++)
+  
+  for (int i = 0; i < otherCars.size(); i++) {
     cartoindex.insert({(size_t)otherCars[i], i});
+  }
 }
 
 Model::Model(const Model& mo) : layout(mo.layout) {
@@ -403,6 +503,7 @@ Model::Model(const Model& mo) : layout(mo.layout) {
   host = new Host(*mo.getHost());
   host->setup();
   cars.push_back(host);
+  
   for (Car* car : mo.getOtherCars()) {
     Car* othercar = new Agent(*car);
     othercar->setup();
@@ -419,6 +520,7 @@ Model::~Model() {
     }
   }
 }
+
 void Model::setHost(Car* car) {
   vector<Car*> cars;
   cars.push_back(car);
@@ -427,6 +529,7 @@ void Model::setHost(Car* car) {
   }
   this->cars = cars;
 }
+
 void Model::clearBlocks(vector<Block*>& bloc) {
   if (bloc.size() != 0) {
     while (bloc.size() != 0) {
@@ -441,6 +544,7 @@ void Model::initBlocks() {
     blocks.push_back(new Block(blockData));
   }
 }
+
 void Model::initLines() {
   for (vector<int> lineData : layout.getLineData())
     lines.push_back(new Line(lineData));
@@ -452,6 +556,7 @@ void Model::initGraphs() {
     hostGraph.push_back(hostgraph);
     allGraph.push_back(hostgraph);
   }
+  
   for (vector<int> data : layout.getAgentGraph()) {
     Block* agentgraph = new Block(data);
     agentGraph.push_back(agentgraph);
@@ -467,30 +572,38 @@ void Model::initIntersections() {
   }
 }
 bool Model::checkVictory() const {
+  
   vector<Vector2f> bounds = host->getBounds();
-  for (Vector2f point : bounds)
+  for (Vector2f point : bounds) {
     if (finish->containsPoint(point[0], point[1])) return true;
+  }
+  
   return false;
 }
 
 bool Model::checkCollision(Car* car) const {
   vector<Vector2f> bounds = car->getBounds();
-  for (Vector2f point : bounds)
+  for (Vector2f point : bounds) {
     if (!inBounds(point.x, point.y)) return true;
+  }
 
   for (Car* othercar : cars) {
     if (othercar == car) continue;
     if (othercar->collides(car->getPos(), bounds)) return true;
   }
+
   return false;
 }
+
 bool Model::inBounds(float x, float y) const {
   if (x < 0 || x >= getWidth()) return false;
   if (y < 0 || y >= getHeight()) return false;
-  for (const auto& it : blocks)
+  for (const auto& it : blocks) {
     if (it->containsPoint(x, y)) return false;
+  }
   return true;
 }
+
 bool Model::inBoundsLarger(float x, float y) const {
   if (x < 0 || x >= getWidth()) return false;
   if (y < 0 || y >= getHeight()) return false;
@@ -498,6 +611,7 @@ bool Model::inBoundsLarger(float x, float y) const {
     if (it->containsPointLarger(x, y)) return false;
   return true;
 }
+
 bool Model::inIntersection(float x, float y) const {
   Block* result = getIntersection(x, y);
   return result != NULL;
@@ -508,6 +622,7 @@ Block* Model::getIntersection(float x, float y) const {
     if (interSections[i]->containsPoint(x, y)) return interSections[i];
   return NULL;
 }
+
 vector<Vector2f> Model::getIntersectionCenter() {
   vector<Vector2f> IntersectionCenter;
   for (const auto& it : interSections)
@@ -515,9 +630,12 @@ vector<Vector2f> Model::getIntersectionCenter() {
   return IntersectionCenter;
 }
 
+//************************************************************************
 // methods and implementation
-/************************************/
+//************************************************************************
+
 const float Car::RADIUS = sqrt(pow(Car::LENGTH, 2) + pow(Car::WIDTH, 2));
+
 void Car::init(const string& dir) {
   pii p = direction[dir];
   this->dir = Vector2f(p.first, p.second);
@@ -529,6 +647,7 @@ void Car::init() {
   wheelAngle = 0;
   setup();
 }
+
 void Car::setup() {
   maxSpeed = 5.0;
   friction = 0.5;
@@ -544,6 +663,7 @@ void Car::turnCarTowardsWheels() {
     dir.normalized();
   }
 }
+
 void Car::update() {
   turnCarTowardsWheels();
   pos += velocity;
@@ -553,25 +673,31 @@ void Car::update() {
 
 void Car::decellerate(float amount) {
   float speed = velocity.Length();
+  
   if (speed < minSpeed) {
     speed = minSpeed;
     return;
   }
+
   Vector2f frictionVec = velocity.get_reflection();
   frictionVec.normalized();
   frictionVec *= amount;
   velocity += frictionVec;
   float angle = velocity.get_angle_between(frictionVec);
+  
   if (abs(angle) < 180) velocity = Vector2f(0, 0);
 }
 
 void Car::setWheelAngle(float angle) {
   wheelAngle = angle;
+  
   if (wheelAngle <= -maxWheelAngle) wheelAngle = -maxWheelAngle;
   if (wheelAngle >= maxWheelAngle) wheelAngle = maxWheelAngle;
 }
+
 void Car::accelerate(float amount) {
   amount = std::min(amount, maxaccler);
+  
   if (amount < 0) decellerate(amount);
   if (amount == 0) return;
 
@@ -579,6 +705,7 @@ void Car::accelerate(float amount) {
   acceleration.normalized();
   acceleration *= amount;
   velocity += acceleration;
+  
   if (velocity.Length() >= maxSpeed) {
     velocity.normalized();
     velocity *= maxSpeed;
@@ -588,21 +715,26 @@ void Car::accelerate(float amount) {
 vector<Vector2f> Car::getBounds() {
   dir.normalized();
   Vector2f perpDir = dir.perpendicular();
+  
   vector<Vector2f> bounds;
   bounds.push_back(pos + dir * float(LENGTH / 2) + perpDir * float(WIDTH / 2));
   bounds.push_back(pos + dir * float(LENGTH / 2) - perpDir * float(WIDTH / 2));
   bounds.push_back(pos - dir * float(LENGTH / 2) + perpDir * float(WIDTH / 2));
   bounds.push_back(pos - dir * float(LENGTH / 2) - perpDir * float(WIDTH / 2));
+  
   return bounds;
 }
+
 vector<Vector2f> Car::getBounds(Car& car, float LEN, float WID) {
   Vector2f normalDir = normalized(car.getDir());
   Vector2f perpDir = normalDir.perpendicular();
+  
   vector<Vector2f> bounds;
   bounds.push_back(pos + dir * float(LEN / 2) + perpDir * float(WID / 2));
   bounds.push_back(pos + dir * float(LEN / 2) - perpDir * float(WID / 2));
   bounds.push_back(pos - dir * float(LEN / 2) + perpDir * float(WID / 2));
   bounds.push_back(pos - dir * float(LEN / 2) - perpDir * float(WID / 2));
+  
   return bounds;
 }
 
@@ -617,8 +749,11 @@ bool Car::collides(const Vector2f& otherPos,
   vector<Vector2f> bounds = getBounds();
   Vector2f vec1 = bounds[0] - bounds[1];
   Vector2f vec2 = otherBounds[0] - otherBounds[1];
-  vector<Vector2f> axis = {vec1, vec1.perpendicular(), vec2,
-                           vec2.perpendicular()};
+  vector<Vector2f> axis = {vec1,
+                           vec1.perpendicular(),
+                           vec2,
+                           vec2.perpendicular()
+                           };
 
   for (const auto& vec : axis) {
     pff result = projectPoints(bounds, vec);
@@ -629,6 +764,7 @@ bool Car::collides(const Vector2f& otherPos,
     float maxB = result.second;
     bool leftmostA = (minA <= minB) ? true : false;
     bool overlap = false;
+    
     if (leftmostA && maxA >= minB) overlap = true;
     if (!leftmostA && maxB >= minA) overlap = true;
     if (!overlap) return false;
@@ -642,6 +778,7 @@ void Car::setVelocity(float amount) {
   ve *= amount;
   velocity = ve;
 }
+
 // check car is in instersection
 bool Car::carInintersection(const Model& model) {
   vector<Vector2f> bounds = getBounds();
@@ -688,6 +825,7 @@ void Host::setup() {
   maxaccler = 1.5;
   minSpeed = 1;
 }
+
 void Host::autonomousAction(const vector<Vector2f>& path, const Model& model,
                             kdtree::kdtree<point<float>>* tree = NULL) {
   if (path.size() == 0) return;
@@ -699,7 +837,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Model& model,
   assert(getPos() == oldPos);
   assert(getDir() == oldDir);
 
-  //    assert (getVelocity() == oldVel);
+  // assert (getVelocity() == oldVel);
   if (actions.count("DRIVE_FORWARD") != 0) {
     float percent = actions["DRIVE_FORWARD"];
     int sign = 1;
@@ -723,10 +861,13 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Model& model,
   Vector2f oldPos = getPos();
   Vector2f oldDir = getDir();
   // Vector2f oldVel = getVelocity();
+  
   UMAP<string, float> actions = getAutonomousActions2(path, model);
+  
   assert(getPos() == oldPos);
   assert(getDir() == oldDir);
-  //    assert (getVelocity() == oldVel);
+  // assert (getVelocity() == oldVel);
+  
   if (actions.count("DRIVE_FORWARD") != 0) {
     float percent = actions["DRIVE_FORWARD"];
     int sign = 1;
@@ -769,6 +910,7 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Model& model,
 //    action = agent.getAction(model);
 //    return action;
 //}
+
 UMAP<string, float> Host::getAutonomousActions2(const vector<Vector2f>& path,
                                                 const Model& model) {
   UMAP<string, float> output;
@@ -830,6 +972,7 @@ UMAP<string, float> Host::getAutonomousActions(
 
   static unsigned int timer = 0;
   static bool stopflag = false;
+  
   // set the timer to control time
   if (timer < 30 && stopflag) {
     setVelocity(0.0);
@@ -838,7 +981,7 @@ UMAP<string, float> Host::getAutonomousActions(
     timer++;
     return output;
   }
-  //
+
   if (carInintersection(model) && !stopflag) {
     stopflag = true;
     // setVelocity(0.0);
@@ -853,15 +996,16 @@ UMAP<string, float> Host::getAutonomousActions(
     output["DRIVE_FORWARD"] = 0;
     return output;
   }
-  //
 
   if (path.size() == 0) return output;
+
   int nextId;
   //= nodeId + 1;
-  //    if (nodeId>=path.size()) nodeId = pre;
-  //    if (nextId > path.size()) nextId = nodeId;
+  // if (nodeId>=path.size()) nodeId = pre;
+  // if (nextId > path.size()) nextId = nodeId;
 
   Vector2f vectogoal;
+  
   // chek the kd tree
   if ((tree != NULL) && (path.size() == tree->size())) {
     Vector2f mypos = getPos();
@@ -903,9 +1047,9 @@ UMAP<string, float> Host::getAutonomousActions(
 
   output["TURN_WHEEL"] = wheelAngle * sign;
   output["DRIVE_FORWARD"] = 1.0;
-  //    if (abs(wheelAngle) < 20) output["DRIVE_FORWARD"] = 1.0;
-  //    else if(abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
-  //    else output["DRIVE_FORWARD"] = 0.5;
+  // if (abs(wheelAngle) < 20) output["DRIVE_FORWARD"] = 1.0;
+  // else if(abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
+  // else output["DRIVE_FORWARD"] = 0.5;
 
   return output;
 }
@@ -924,7 +1068,7 @@ void Agent::setup() {
 void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
                              kdtree::kdtree<point<float>>* tree) {
   /*
-   here we have three choices to choose: normal, acc, dec
+   * here we have three choices to choose: normal, acc, dec
    */
   // set the timer to control time
   if (timer < 30 && stopflag) {
@@ -951,7 +1095,9 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
   // unsigned int i = rand()%1;
   // assume it is not conservative for all drivers
   unsigned int i = 1;
+  
   Car* host = model.getHost();
+
   // conservative driver will yield
   if ((host->getPos().x < this->getPos().x + Car::LENGTH * 4) &&
       (host->getPos().x > this->getPos().x))
@@ -973,6 +1119,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
       break;
   }
 }
+
 void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Model& model,
                               int i) {
   // unsigned int i = rand()%1;
@@ -990,6 +1137,7 @@ void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Model& model,
       break;
   }
 }
+
 Inference::MarginalInference* Agent::getInference(int index,
                                                   const Model& state) {
   if (!hasinference) {
@@ -997,6 +1145,8 @@ Inference::MarginalInference* Agent::getInference(int index,
     hasinference = true;
     return inference;
   }
+
   return inference;
 }
-#endif /* model_h */
+
+#endif /* MODEL_H */

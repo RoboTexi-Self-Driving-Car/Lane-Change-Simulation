@@ -1,8 +1,11 @@
 #ifndef INFERENCE_H
 #define INFERENCE_H
+
 #include "globals.h"
 #include "model.h"
+
 namespace Inference {
+
 //    enum State{cooperative, normal, aggressive};
 //    vector<string> intentions{"cooperative","normal","aggressive"};
 //    UMAP<string, int>
@@ -17,7 +20,9 @@ vector<vector<string>> product(const vector<string>& states, int repeat = 2) {
   if (repeat == 1) {
     return res;
   }
+
   vector<vector<string>> middle = product(states, repeat - 1);
+
   for (int i = 0; i < res.size(); i++) {
     for (int j = 0; j < middle.size(); j++) {
       vector<string> temp(res[i]);
@@ -25,6 +30,7 @@ vector<vector<string>> product(const vector<string>& states, int repeat = 2) {
       output.push_back(temp);
     }
   }
+
   return output;
 }
 
@@ -33,28 +39,30 @@ double pdf(float mean, float std, float value) {
   double u = double(value - mean) / abs(std);
   double y = (1.0 / (sqrt(2 * PI) * abs(std))) * exp(-u * u / 2.0);
   if (y == 0) return 0.00000001;
-  //            cout<<"I am here!"<<endl;
+  // cout << "I am here!" << endl;
   return y;
 }
 
-// started writing the classes for the simulations above
+/*
+ * class Belief
+ */
 class Belief {
- private:
-  vector<float> grid;
-  int numElems;
-
- public:
+public:
   Belief(int _numElems, float value = -1) : numElems(_numElems) {
     if (value == -1) value = (1.0 / numElems);
     grid.resize(numElems);
     std::fill(grid.begin(), grid.end(), value);
   }
+  
   float operator[](int i) { return grid[i]; }
+ 
   void setProb(int row, float p) { grid[row] = p; }
+  
   void addProb(int row, float delta) {
     grid[row] += delta;
     assert(grid[row] >= 0.0);
   }
+  
   // Returns the belief for tile row, col.
   float getProb(int row) { return grid[row]; }
 
@@ -63,6 +71,7 @@ class Belief {
     float total = getSum();
     for (int i = 0; i < numElems; i++) grid[i] /= total;
   }
+  
   int getNumElems() { return numElems; }
 
   float getSum() {
@@ -70,6 +79,10 @@ class Belief {
     for (int i = 0; i < numElems; i++) total += getProb(i);
     return total;
   }
+
+private:
+  vector<float> grid;
+  int numElems;
 };
 
 // to build the joint particles for processing
@@ -90,6 +103,7 @@ class Belief {
 //        getMeanStandard(queue<float>&history, const string& intention);
 //    };
 //
+
 void JointParticles::initializeUniformly(const Model& model,
                                          const vector<string>& intentions) {
   // stores infomraiton about the game, then initialize the particles
@@ -107,18 +121,22 @@ void JointParticles::initializeParticles() {
   int n = numParticles;
   int p = jointstates.size();
   particles.clear();
+  
   while (n > p) {
     particles.insert(particles.end(), jointstates.begin(), jointstates.end());
     n -= p;
   }
+
   particles.insert(particles.end(), jointstates.begin(),
                    jointstates.begin() + n);
 }
 
 void JointParticles::observe(const Model& model) {
   if (beliefs.size() == 1) initializeParticles();
+  
   vector<Car*> othercars = model.getOtherCars();
   Counter<vector<string>> tempCounter = Counter<vector<string>>();
+  
   for (int i = 0; i < particles.size(); i++) {
     float prob = 1;
     vector<string> intentions = particles[i];
@@ -137,10 +155,13 @@ void JointParticles::observe(const Model& model) {
     for (int i = 0; i < item.first.size(); i++) cout << item.first[i] << " ";
     cout << item.second << endl;
   }
+  
   cout << "Now it has finished!" << endl;
+  
   // resampling
-  if (tempCounter.size() == 0)
+  if (tempCounter.size() == 0) {
     initializeParticles();
+  }
   else {
     beliefs.normalize();
     for (int i = 0; i < particles.size(); i++) {
@@ -152,53 +173,73 @@ void JointParticles::observe(const Model& model) {
 
 Counter<vector<string>> JointParticles::getBelief() {
   Counter<vector<string>> beliefDist = Counter<vector<string>>();
-  for (int index = 0; index < particles.size(); index++)
+
+  for (int index = 0; index < particles.size(); index++) {
     beliefDist[particles[index]] += 1;
+  }
+
   beliefDist.normalize();
+
   return beliefDist;
 }
 
 vector<string> JointParticles::sample(Counter<vector<string>>& distribution) {
   if (distribution.sum() != 1) distribution.normalize();
+
   std::vector<std::pair<vector<string>, float>> elems(distribution.begin(),
                                                       distribution.end());
+  
   std::sort(elems.begin(), elems.end(),
             [](const std::pair<vector<string>, float>& a,
                const std::pair<vector<string>, float>& b) -> bool {
               return a.second < b.second;
             });
+  
   vector<vector<string>> keys;
   vector<float> values;
+  
   for (auto item : elems) {
     keys.push_back(item.first);
     values.push_back(item.second);
   }
+  
   double choice = ((double)rand() / (RAND_MAX));
   int i = 0;
   double total = values[0];
+  
   while (choice > total) {
     i += 1;
     total += values[i];
   }
   return keys[i > keys.size() - 1 ? keys.size() - 1 : i];
 }
+
 pff JointParticles::getMeanStandard(queue<float>& history,
                                     const string& intention) {
   int total = history.front();
-  //        for (int i = 0; i < history.size(); i++)
-  //            total += history[i];
+  // for (int i = 0; i < history.size(); i++) {
+  //   total += history[i];
+  // }
   float vref = total;
+  
   if (vref == 0) vref = 0.01;
+  
   float sigma = 0.3 * vref;
   int index = Intention_To_Index[intention];
-  if (index == 0)
+  
+  if (index == 0) {
     return pff(0.7 * vref, sigma);
-  else if (index == 1)
+  }
+  else if (index == 1) {
     return pff(vref, sigma);
-  //        else if (index == 2)
-  //            return pff(1.5*vref,sigma);
+  }
+  // else if (index == 2) {
+  //   return pff(1.5*vref,sigma);
+  // }
+
   return pff(0, 0);
 }
+
 // to construct a joint inference array
 //    JointParticles jointInference = JointParticles();
 //    class MarginalInference {
@@ -236,6 +277,7 @@ pff JointParticles::getMeanStandard(queue<float>& history,
 //            return result;
 //        }
 //    };
+
 MarginalInference::MarginalInference(int index, const Model& model) {
   this->index = index;
   legalIntentions = intentions;
@@ -250,19 +292,26 @@ void MarginalInference::initializeUniformly(const Model& gameState) {
 void MarginalInference::observe(const Model& gameState) {
   if (index == 1) jointInference.observe(gameState);
 }
+
 std::vector<float> MarginalInference::getBelief() {
   Counter<vector<string>> jointDistribution = jointInference.getBelief();
   Counter<int> dist = Counter<int>();
+  
   for (const auto& item : jointDistribution) {
     int i = Intention_To_Index[item.first[index - 1]];
     dist[i] += item.second;
   }
+  
   vector<float> result = vector<float>();
+  
   result.resize(legalIntentions.size());
+  
   for (const auto& item : dist) result[item.first] = item.second;
-  //        if (result[0]>result[1])
-  //            cout<<"I am here"<<endl;
+  // if (result[0]>result[1]) {
+  //   cout<<"I am here"<<endl;
+  // }
   return result;
 }
+
 }  // namespace Inference
 #endif

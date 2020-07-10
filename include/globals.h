@@ -25,28 +25,34 @@
 #include <vector>
 
 #include "vec2D.h"
+
 using namespace std;
 
 #define inf std::numeric_limits<double>::infinity()
 #define PI 3.14159265
 #define MAP map
 #define UMAP unordered_map
+
 typedef std::pair<int, int> pii;
 typedef std::pair<float, float> pff;
 typedef Vector2d<float> Vector2f;
 
-// set counter class
+/**
+ * set counter class
+ */
 template <class Key>
 class Counter : public std::UMAP<Key, float> {
- public:
+public:
   float& operator[](const Key& key) {
     if (this->count(key) == 0) this->insert({key, 0.0});
     return this->at(key);
   }
+  
   float& operator[](Key&& key) {
     if (this->count(key) == 0) this->insert({key, 0.0});
     return this->at(key);
   }
+  
   vector<float> values() {
     vector<float> val;
     val.reserve(this->size());
@@ -55,11 +61,13 @@ class Counter : public std::UMAP<Key, float> {
     }
     return val;
   }
+  
   float sum() {
     float total = 0;
     for (auto it = this->begin(); it != this->end(); it++) total += it->second;
     return total;
   }
+  
   void normalize() {
     float total = sum();
     for (auto it = this->begin(); it != this->end(); it++)
@@ -68,14 +76,17 @@ class Counter : public std::UMAP<Key, float> {
 };
 
 namespace Globals {
+
 extern const double INF;
 extern const double TINY;
+
 struct Constant {
   string TITLE;
   float SONAR_STD;
   string LAYOUT_DIR;
   int BLOCK_TILE_SIZE;
   int BELIEF_TILE_SIZE;
+
   Constant()
       : TITLE("Driveless Car Simulator"),
         SONAR_STD(15.0),
@@ -93,6 +104,7 @@ inline void hash_combine(size_t& seed, const T& v) {
 }  // namespace Globals
 
 namespace std {
+
 template <typename S, typename T>
 struct hash<pair<S, T>> {
   inline size_t operator()(const pair<S, T>& v) const {
@@ -113,10 +125,15 @@ struct hash<vector<T>> {
     return seed;
   }
 };
+
 }  // namespace std
+
 namespace Globals {
+
 Constant constant;
-//    const double INF = 1e8;
-//    const double TINY = 1e-8;
-}  // namespace Globals
+// const double INF = 1e8;
+// const double TINY = 1e-8;
+
+} // namespace Globals
+
 #endif

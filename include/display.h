@@ -14,7 +14,9 @@
 #include "vec2D.h"
 
 #define pi 3.1415926
+
 extern void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title);
+
 using std::vector;
 
 struct Color {
@@ -28,11 +30,14 @@ struct Color {
   }
 };
 
+/**
+ * class Display 
+ */
 class Display {
- private:
+private:
   UMAP<size_t, Color> um;
 
- public:
+public:
   static const Color GREY;
   static const Color WHITE;
   static const Color RED;
@@ -46,6 +51,7 @@ class Display {
   void setColors(vector<Car*> cars) {
     for (auto car : cars) um.insert({(size_t)car, RED});
   }
+
   void colorchange(const Car* car, const string& color) {
     Color col = RED;
     if (color == "green")
@@ -56,6 +62,7 @@ class Display {
       col = RED;
     um.at((size_t)car) = col;
   }
+
   // used to sleep the processor for a while
   static void sleep(float time) {
     long int sleeptime = time * 1000000000;
@@ -136,10 +143,12 @@ class Display {
     glPushAttrib(GL_POLYGON_BIT);
     glPushAttrib(GL_LINE_BIT);
     if (thickness != 0) glLineWidth(thickness);
-    if (filled == 0)
+    if (filled == 0) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
+    }
+    else {
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
     glColor3f(color.r, color.g, color.b);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, polygonvertices);
@@ -159,10 +168,12 @@ class Display {
     glPushAttrib(GL_POLYGON_BIT);
     glPushAttrib(GL_LINE_BIT);
     if (thickness != 0) glLineWidth(thickness);
-    if (filled == 0)
+    if (filled == 0) {
       glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    else
+    }
+    else {
       glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    }
     glColor3f(color.r, color.g, color.b);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, polygonvertices);
@@ -190,16 +201,20 @@ class Display {
     Vector2f pos(x, y);
     rectangle(pos, grid_size, grid_size, color, NULL, filled, width);
   }
+
   static void text(float x, float y, const Color& color, const std::string& str,
                    bool isIteration) {
     glColor3f(color.r, color.g, color.b);
     void* font = NULL;
-    if (isIteration)
+    if (isIteration) {
       font = GLUT_BITMAP_TIMES_ROMAN_24;
-    else
+    }
+    else {
       font = GLUT_BITMAP_8_BY_13;
+    }
 
     glRasterPos2f(x, y);
+
     for (int i = 0; i < str.length(); i++) {
       glutBitmapCharacter(font, str.data()[i]);
     }
@@ -235,6 +250,8 @@ class Display {
     glEnd();
   }
 };
+
+// Definition of static member variables of colors.
 const Color Display::GREY = {0.5f, 0.5f, 0.5f};
 const Color Display::WHITE = {1.0f, 1.0f, 1.0f};
 const Color Display::RED = {1.0f, 0.0f, 0.0f};

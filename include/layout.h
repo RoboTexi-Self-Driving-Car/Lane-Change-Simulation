@@ -7,29 +7,45 @@
 #include "thirdparty/picojson.h"
 
 class Layout {
- public:
+public:
   // constructor for layout
   Layout(std::string worldname);
+  
   ~Layout() {}
+  
   int getWidth();
+  
   int getHeight();
+  
   int getStartX();
+  
   int getStartY();
+  
   int getBeliefRows();
+  
   int getBeliefCols();
 
   vector<vector<int>> getLineData();
+  
   vector<vector<int>> getOtherData();
+  
   std::string getHostDir();
+  
   vector<int> getFinish();
+  
   vector<vector<int>> getBlockData();
+  
   vector<vector<int>> getIntersectionData();
+  
   vector<vector<int>> getAgentGraph();
+  
   vector<vector<int>> getHostGraph();
 
- private:
+private:
   void loadData(std::string filename);
+  
   void assertValid();
+  
   picojson::value data;
 };
 
@@ -43,14 +59,17 @@ void Layout::loadData(std::string worldname) {
   std::string filename = worldname + ".json";
   std::string layoutpath = "../data/" + filename;
   std::ifstream infile(layoutpath);
+  
   if (infile) {
     infile >> data;
   } else {
     std::cerr << "Can't open the file!" << std::endl;
   }
 }
+
 vector<vector<int>> Layout::getLineData() {
   vector<vector<int>> result;
+  
   if (data.contains("roadline")) {
     picojson::array val = data.get("roadline").get<picojson::array>();
     result.resize(val.size());
@@ -58,10 +77,13 @@ vector<vector<int>> Layout::getLineData() {
       for (picojson::value ele : val[i].get<picojson::array>())
         result[i].push_back(ele.get<double>());
   }
+
   return result;
 }
+
 vector<vector<int>> Layout::getOtherData() {
   vector<vector<int>> result;
+  
   if (data.contains("others")) {
     picojson::array re = data.get("others").get<picojson::array>();
     result.resize(re.size());
@@ -72,6 +94,7 @@ vector<vector<int>> Layout::getOtherData() {
         result[i][j] = re[i].get<picojson::array>()[j].get<double>();
     }
   }
+  
   return result;
 }
 
@@ -94,12 +117,14 @@ vector<vector<int>> Layout::getBlockData() {
   picojson::array blocks = data.get("blocks").get<picojson::array>();
   vector<vector<int>> a;
   a.resize(blocks.size());
+  
   for (int i = 0; i < a.size(); i++) {
     picojson::array arrayele = blocks[i].get<picojson::array>();
     for (picojson::value ele : arrayele) {
       a[i].push_back(int(ele.get<double>()));
     }
   }
+  
   return a;
 }
 
@@ -107,10 +132,12 @@ vector<vector<int>> Layout::getAgentGraph() {
   picojson::array arr =
       data.get("agentGraph").get("nodes").get<picojson::array>();
   vector<vector<int>> result(arr.size());
+  
   for (int i = 0; i < result.size(); i++) {
     for (picojson::value ele : arr[i].get<picojson::array>())
       result[i].push_back(ele.get<double>());
   }
+  
   return result;
 }
 
@@ -118,23 +145,29 @@ vector<vector<int>> Layout::getHostGraph() {
   picojson::array arr =
       data.get("hostGraph").get("nodes").get<picojson::array>();
   vector<vector<int>> result(arr.size());
+  
   for (int i = 0; i < result.size(); i++) {
     for (picojson::value ele : arr[i].get<picojson::array>())
       result[i].push_back(ele.get<double>());
   }
+  
   return result;
 }
 
 vector<vector<int>> Layout::getIntersectionData() {
   vector<vector<int>> output;
+  
   if (!data.contains("intersections")) return output;
+  
   picojson::value val = data.get("intersections");
   picojson::array arr = val.get("nodes").get<picojson::array>();
   vector<vector<int>> result(arr.size());
+  
   for (int i = 0; i < result.size(); i++) {
     for (picojson::value ele : arr[i].get<picojson::array>())
       result[i].push_back(ele.get<double>());
   }
+  
   return result;
 }
 
@@ -154,4 +187,5 @@ void Layout::assertValid() {
   assert(width % Globals::constant.BELIEF_TILE_SIZE == 0);
   assert(height % Globals::constant.BELIEF_TILE_SIZE == 0);
 }
-#endif
+
+#endif /* LAYOUT_H */

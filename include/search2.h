@@ -13,8 +13,8 @@ function depends on the applications, the cost function is adjusted to suit the
 best
 
 */
-#ifndef search2_h
-#define search2_h
+#ifndef SEARCH_2_H
+#define SEARCH_2_H
 
 #include <cmath>
 #include <iostream>
@@ -25,11 +25,12 @@ best
 
 using std::ostream;
 using std::vector;
+using std::priority_queue;
+
 typedef Vector2d<float> vec2f;
 typedef std::pair<vec2f, vec2f> pvff;
 typedef std::pair<int, int> pii;
 
-using std::priority_queue;
 namespace SEARCH2 {
 
 struct State {
@@ -37,19 +38,24 @@ struct State {
   list<char> actions;
   float cost;
   float heu;
+
   State() : cost(0), heu(0){};
+
   State(const pvff& p1, float c = 0, float h = 0)
       : current(p1), cost(c), heu(h){};
+
   State(const pvff& p1, const list<char>& actions_, float c = 0, float h = 0)
       : current(p1), actions(actions_), cost(c), heu(h){};
 
   State(const State& s)
       : current(s.current), actions(s.actions), cost(s.cost), heu(s.heu) {}
+
   State(State&& s)
       : current(std::move(s.current)),
         actions(std::move(s.actions)),
         cost(std::move(s.cost)),
         heu(std::move(s.heu)) {}
+
   State& operator=(const State& s) {
     current = s.current;
     actions = s.actions;
@@ -57,6 +63,7 @@ struct State {
     heu = s.heu;
     return *this;
   }
+
   //    State& operator=(State&& s) {
   //            current = std::move(s.current);
   //        actions = std::move(actions);
@@ -64,7 +71,9 @@ struct State {
   //            heu = std::move(s.heu);
   //        return *this;
   //    }
+
   friend ostream& operator<<(ostream& os, const State& s);
+
   bool operator<(const State& s2) const {
     return (cost + heu) > (s2.cost + s2.heu);
   }
@@ -79,31 +88,27 @@ ostream& operator<<(ostream& os, const State& s) {
 }
 
 class Search {
- public:
+public:
   Search(Model* m, const vec2f& goal);
+
   State search();
+
   vector<State> getSuccessors(const State& state);
+
   bool isGoal(State&);
+
   size_t num_action() { return angle.size(); }
+
   vector<vec2f>& path() {
     smooth();
     return pa;
   }
+
   float evaluation(const vec2f& position);
+
   void smooth();
 
- private:
-  int xToCol(float x) { return int((x / unitdistanace)); }
-  int yToRow(float y) { return int((y / unitdistanace)); }
-  float rowToY(int row) { return (row + 0.5) * unitdistanace; }
-  float colToX(int col) { return (col + 0.5) * unitdistanace; }
-  vector<vec2f> path(list<char>&);
-  //"The Manhattan distance heuristic for a PositionSearchProblem"
-  float manhattanHeuristic(const vec2f& position) {
-    vec2f xy1 = position;
-    vec2f xy2 = goal;
-    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
-  }
+private:
   Model* model;
   int unitdistanace;
   vec2f goal;
@@ -114,6 +119,23 @@ class Search {
   // enum {left90, left45, strainght, right45, right90};
   // float angle[9] = {60, 45, 30, 15, 0, -15, -30, -45, -60};
   // enum {east, north, west, south};
+
+  int xToCol(float x) { return int((x / unitdistanace)); }
+
+  int yToRow(float y) { return int((y / unitdistanace)); }
+
+  float rowToY(int row) { return (row + 0.5) * unitdistanace; }
+
+  float colToX(int col) { return (col + 0.5) * unitdistanace; }
+
+  vector<vec2f> path(list<char>&);
+
+  //"The Manhattan distance heuristic for a PositionSearchProblem"
+  float manhattanHeuristic(const vec2f& position) {
+    vec2f xy1 = position;
+    vec2f xy2 = goal;
+    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
+  }
 };
 
 Search::Search(Model* m, const vec2f& goal) : model(m) {
@@ -122,7 +144,9 @@ Search::Search(Model* m, const vec2f& goal) : model(m) {
   this->goal = goal;
   cost = 1;
   unitdistanace = 10;
+
   for (float ang = 45; ang >= -45; ang -= 15) angle.push_back(ang);
+
   State state2 = search();
   list<char> actions = state2.actions;
   pa = path(actions);
@@ -131,8 +155,10 @@ Search::Search(Model* m, const vec2f& goal) : model(m) {
 bool Search::isGoal(State& s) {
   float x = s.current.first[0];
   float y = s.current.first[1];
+
   if (abs(x - goal[0]) < unitdistanace && abs(y - goal[1]) < unitdistanace)
     return true;
+
   return false;
 }
 
@@ -147,6 +173,7 @@ vector<vec2f> Search::path(list<char>& actions) {
   vec2f olddir = state.current.second;
   vec2f velocity = olddir * float(unitdistanace);
   result.push_back(pos);
+
   for (const auto& c : actions) {
     Car car(pos, olddir, velocity);
     car.setWheelAngle(angle[c - 'A']);
@@ -162,6 +189,7 @@ vector<vec2f> Search::path(list<char>& actions) {
     vec2f newpos(x, y);
     result.push_back(newpos);
   }
+
   return result;
 }
 
@@ -188,6 +216,7 @@ vector<State> Search::getSuccessors(const State& state) {
     vector<vec2f> bounds =
         car.getBounds(car, 1.2 * Car::LENGTH, 1.2 * Car::WIDTH);
     bool isinBound = true;
+
     for (const auto& point : bounds) {
       if (!model->inBoundsLarger(point[0], point[1])) {
         isinBound = false;
@@ -258,7 +287,9 @@ State Search::search() {
       }
     }
   }
+
   State state2;
+
   return state2;
 }
 // smooth the path a little bit
@@ -269,6 +300,7 @@ void Search::smooth() {
 
   vector<vec2f> result(pa);
   float change = 1;
+
   while (change > tolerance) {
     change = 0.0;
     for (int i = 1; i < pa.size() - 1; i++) {
@@ -291,6 +323,7 @@ void Search::smooth() {
   }
   pa = result;
 }
+
 // evaluate the path
 float Search::evaluation(const vec2f& position) {
   float h = manhattanHeuristic(position);
@@ -298,4 +331,5 @@ float Search::evaluation(const vec2f& position) {
 }
 
 }  // namespace SEARCH2
-#endif /* search_h */
+
+#endif /* SEARCH_2_H */
