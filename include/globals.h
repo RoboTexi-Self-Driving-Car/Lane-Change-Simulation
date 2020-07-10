@@ -130,8 +130,6 @@ struct hash<vector<T>> {
 namespace Globals {
 
 Constant constant;
-// const double INF = 1e8;
-// const double TINY = 1e-8;
 
 } // namespace Globals
 

@@ -313,4 +313,5 @@ std::vector<float> MarginalInference::getBelief() {
 }
 
 }  // namespace Inference
+
 #endif

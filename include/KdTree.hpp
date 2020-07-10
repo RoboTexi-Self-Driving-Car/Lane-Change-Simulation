@@ -11,17 +11,19 @@
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
+#include <cmath>
 
 template <typename T>
 class point {
 public:
   T x, y;
   int id;
-  
+
   point() : x(0), y(0), id(0){};
-  
+
   point(T x, T y, int id_ = 0) : x(x), y(y), id(id_){};
-  
+
   point(const point &p) : x(p.x), y(p.y), id(p.id){};
 
   inline double distance(const point &p) {
@@ -63,18 +65,18 @@ public:
 
   /**
    *  Initialize node having a point.
-   * 
+   *
    *  @param point  A point.
-   * 
+   *
    *  @return Initialized node instance.
    */
   node(T point) : point(point) { _size++; }
 
   /**
    *  Initialize node as a root of a kdtree with specified points.
-   * 
+   *
    *  @param points  A vector of points.
-   * 
+   *
    *  @return Initialized node instance.
    */
   node(std::vector<T> points) : node<T>(&points[0], (int)points.size(), 0) {}
@@ -90,15 +92,15 @@ public:
    */
   node(T *points, int size, int depth = 0) {
     _size = size;
-    
+
     if (size == 1) {
       this->point = *points;
       return;
     }
-    
+
     // Sort points
     bool is_even = !(depth & 1);
-    
+
     if (is_even) {
       std::sort(points, points + size,
                 [](T const &a, T const &b) { return a.x < b.x; });
@@ -365,7 +367,7 @@ public:
   //************************************************************************
   // k-Nearest Neighbor Search
   //************************************************************************
-  
+
   /**
    *  Search for k-nearest neighbors in the tree.
    *
