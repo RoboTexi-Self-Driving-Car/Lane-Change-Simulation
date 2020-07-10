@@ -30,7 +30,6 @@ using namespace std;
 
 #define inf std::numeric_limits<double>::infinity()
 #define PI 3.14159265
-#define MAP map
 #define UMAP unordered_map
 
 typedef std::pair<int, int> pii;
@@ -47,12 +46,12 @@ public:
     if (this->count(key) == 0) this->insert({key, 0.0});
     return this->at(key);
   }
-  
+
   float& operator[](Key&& key) {
     if (this->count(key) == 0) this->insert({key, 0.0});
     return this->at(key);
   }
-  
+
   vector<float> values() {
     vector<float> val;
     val.reserve(this->size());
@@ -61,13 +60,13 @@ public:
     }
     return val;
   }
-  
+
   float sum() {
     float total = 0;
     for (auto it = this->begin(); it != this->end(); it++) total += it->second;
     return total;
   }
-  
+
   void normalize() {
     float total = sum();
     for (auto it = this->begin(); it != this->end(); it++)

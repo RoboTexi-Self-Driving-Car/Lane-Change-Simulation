@@ -1,95 +1,4 @@
-#ifndef DECISION_MAKING_2_H
-#define DECISION_MAKING_2_H
-
-#include "search.h"
-#include "search2.h"
-
-// static Vector2f setToOne( Vector2f& vec) {
-//
-//    float length = vec.Length();
-//    if (length == 0) return vec;
-//    if (vec[0]!= 0)
-//        return vec/vec[0];
-//    return vec/vec[1];
-//}
-
-// static float manhaDistance(const vec2f& position, const vec2f& goal) {
-//    vec2f xy1 = position;
-//    vec2f xy2 = goal;
-//    return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
-//}
-
-static inline int xToCol(float x) {
-  return int(x / (Globals::constant.BELIEF_TILE_SIZE));
-}
-
-static inline int yToRow(float y) {
-  return int((y / Globals::constant.BELIEF_TILE_SIZE));
-}
-
-float rowToY(int row) {
-  return (row + 0.5) * Globals::constant.BELIEF_TILE_SIZE;
-}
-
-float colToX(int col) {
-  return (col + 0.5) * Globals::constant.BELIEF_TILE_SIZE;
-}
-
-// static vec2f corToCenter(const vec2f& pos) {
-//    float x = pos[0];
-//    float y = pos[1];
-//    int col = xToCol(x);
-//    int row = yToRow(y);
-//    float newx = colToX(col);
-//    float newy = rowToY(row);
-//    return vec2f(newx, newy);
-//}
-
-/*
- * This class provides some common elements to all of your
- * multi-agent searchers.  Any methods defined here will be available
- * Note: this is an abstract class: one that should not be instantiated.  It's
- * only partially specified, and designed to be extended.  Agent (game.py)
- * is another abstract class.
- */
-class DecisionAgent2 {
-public:
-  static const vector<std::string> hostActions;
-  static const vector<std::string> otherActions;
-  static const unordered_map<std::string, float> actionReward;
-  // static const unorder_mapd<std::string, float> command;
-
-  DecisionAgent2(int dep = 2, int ind = 0) : depth(dep), index(ind) {}
-
-  vector<string> generateLegalActions(const Model&);
-
-  const vector<vector<vec2f>>& generatePaths(const Model&, vector<string>&);
-
-  const vector<vector<vec2f>>& generatePaths2(const Model& mod,
-                                              vector<string>&);
-
-  void ApplyAction(const Model&, int, const std::string&);
-
-  float evaluationPath(const Model&, const vector<vec2f>& path,
-                       vector<int>& carintentions);
-
-  bool getPath(const Model& model, vector<vec2f>& mypath,
-               vector<int>& carIntentions);
-
-  bool getPath2(const Model& model, vector<vec2f>& mypath,
-                vector<int>& carIntentions);
-
-  const vector<vector<vec2f>> getPaths() { return paths; }
-
-  bool isCloseToOtherCar(Car* car, const Model& model) const;
-
-  bool isChangeRequired(Car* mycar, const Model& model);
-
-private:
-  int depth;
-  unsigned int index;
-  vector<vector<vec2f>> paths;
-};
+#include "decisionmaking2.h"
 
 const vector<std::string> DecisionAgent2::hostActions = {
   "normal",
@@ -106,9 +15,9 @@ const vector<std::string> DecisionAgent2::otherActions = {
 
 const unordered_map<std::string, float> DecisionAgent2::actionReward = {
   {"normal", 3},
-  {"acc", 0},
+  {"acc", 0}, 
   {"dec", -1},
-  {"stop", -1},
+  {"stop", -1}, 
   {"left", 0},
   {"right", 0}
 };
@@ -121,14 +30,14 @@ const unordered_map<std::string, float> DecisionAgent2::actionReward = {
 const vector<vector<vec2f>>& DecisionAgent2::generatePaths(
     const Model& mod, vector<string>& legalactions) {
   if (paths.size() > 0) paths.clear();
-
+  
   Model model = mod;
   Car* host = model.getHost();
   // vec2f ndir = host->getDir();
 
   for (int i = 0; i < legalactions.size(); i++) {
     vec2f ndir = vec2f(1, 1);
-
+    
     if (legalactions[i] == "normal") continue;
     if (legalactions[i] == "right") {
       ndir = vec2f(1, -1);
@@ -154,19 +63,19 @@ const vector<vector<vec2f>>& DecisionAgent2::generatePaths(
 const vector<vector<vec2f>>& DecisionAgent2::generatePaths2(
     const Model& mod, vector<string>& legalactions) {
   if (paths.size() > 0) paths.clear();
-
+  
   Model model = mod;
   Car* host = model.getHost();
   // vec2f ndir = host->getDir();
-
+  
   for (int i = 0; i < legalactions.size(); i++) {
     vec2f ndir = vec2f(1, 1);
-
+    
     if (legalactions[i] == "normal") continue;
     if (legalactions[i] == "right") {
       ndir = vec2f(1, -1);
     }
-
+    
     vec2f pos(host->getPos() + ndir * float(Globals::constant.BELIEF_TILE_SIZE));
 
     vec2f Pos(pos.x + 50, host->getPos().y);
@@ -221,32 +130,32 @@ float DecisionAgent2::evaluationPath(const Model& mo, const vector<vec2f>& path,
   float score = 0.0;
   Car* mycar = model.getHost();
   vec2f carpos = mycar->getPos();
-
+  
   while (abs(carpos.x - path[path.size() - 1].x) > 5) {
     mycar->autonomousAction2(path, model);
     mycar->update();
-
+    
     for (int i = 0; i < model.getOtherCars().size(); i++) {
       Car* car = model.getOtherCars()[i];
       car->autonomousAction2(path, model, carintentions[i]);
       car->update();
     }
-
+    
     if (model.checkCollision(mycar)) return -inf;
-
+    
     carpos = mycar->getPos();
   }
 
   mycar->setPos(path[path.size() - 1]);
-
+  
   if (model.checkCollision(mycar)) return -inf;
-
+  
   if (isCloseToOtherCar(mycar, model)) return -inf;
-
+  
   Vector2f goal = mo.getFinish().getCenter();
   score += 100 * (1 - abs(goal[0] - mycar->getPos()[0]) / 960);
   score += 100 * (1 - abs(mycar->getPos()[1] - goal[1]) / 100);
-
+  
   return score;
 }
 
@@ -259,7 +168,7 @@ bool DecisionAgent2::getPath(const Model& model, vector<vec2f>& mypath,
   int index = 0;
   float bestscore = -inf;
   float score = 0.0;
-
+  
   for (int i = 0; i < paths.size(); i++) {
     score = evaluationPath(model, paths[i], carintentions);
     if (bestscore < score) {
@@ -267,9 +176,9 @@ bool DecisionAgent2::getPath(const Model& model, vector<vec2f>& mypath,
       bestscore = score;
     }
   }
-
+  
   mypath = paths[index];
-
+  
   // index = 0 means, it can't find its next path to go
   if (index == 0) return false;
   return true;
@@ -284,7 +193,7 @@ bool DecisionAgent2::getPath2(const Model& model, vector<vec2f>& mypath,
   int index = 0;
   float bestscore = -inf;
   float score = 0.0;
-
+  
   for (int i = 0; i < paths.size(); i++) {
     score = evaluationPath(model, paths[i], carintentions);
     if (bestscore < score) {
@@ -292,9 +201,9 @@ bool DecisionAgent2::getPath2(const Model& model, vector<vec2f>& mypath,
       bestscore = score;
     }
   }
-
+  
   mypath = paths[index];
-
+  
   // index = 0 means, it can't find its next path to go
   if (index == 0) return false;
   return true;
@@ -339,10 +248,10 @@ vector<string> DecisionAgent2::generateLegalActions(const Model& model) {
 bool DecisionAgent2::isCloseToOtherCar(Car* mycar, const Model& model) const {
   vector<Car*> cars = model.getOtherCars();
   if (cars.size() == 0) return false;
-
+  
   Car* obstaclecar = nullptr;
   float distance = inf;
-
+  
   for (Car* car : cars) {
     float cardis = manhattanDistance(car->getPos(), mycar->getPos());
     if (cardis < distance) {
@@ -350,7 +259,7 @@ bool DecisionAgent2::isCloseToOtherCar(Car* mycar, const Model& model) const {
       obstaclecar = car;
     }
   }
-
+  
   if (abs(obstaclecar->getPos()[0] - mycar->getPos()[0]) < Globals::constant.BELIEF_TILE_SIZE * 1.2 &&
       abs(obstaclecar->getPos()[1] - mycar->getPos()[1]) < Car::WIDTH) {
     return true;
@@ -365,5 +274,3 @@ bool DecisionAgent2::isChangeRequired(Car* mycar, const Model& model) {
   if (abs(host->getPos().y - goal.y) < 5) return false;
   return true;
 }
-
-#endif /* DECISION_MAKING_2_H */

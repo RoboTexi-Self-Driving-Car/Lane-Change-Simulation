@@ -20,8 +20,6 @@
 #include <iostream>
 #include <tuple>
 
-#include "globals.h"
-
 using std::ostream;
 
 #define PI 3.14159265

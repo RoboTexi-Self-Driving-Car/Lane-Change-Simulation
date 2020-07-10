@@ -1,7 +1,6 @@
 #ifndef INFERENCE_H
 #define INFERENCE_H
 
-#include "globals.h"
 #include "model.h"
 
 namespace Inference {
@@ -53,16 +52,16 @@ public:
     grid.resize(numElems);
     std::fill(grid.begin(), grid.end(), value);
   }
-  
+
   float operator[](int i) { return grid[i]; }
- 
+
   void setProb(int row, float p) { grid[row] = p; }
-  
+
   void addProb(int row, float delta) {
     grid[row] += delta;
     assert(grid[row] >= 0.0);
   }
-  
+
   // Returns the belief for tile row, col.
   float getProb(int row) { return grid[row]; }
 
@@ -71,7 +70,7 @@ public:
     float total = getSum();
     for (int i = 0; i < numElems; i++) grid[i] /= total;
   }
-  
+
   int getNumElems() { return numElems; }
 
   float getSum() {
@@ -121,7 +120,7 @@ void JointParticles::initializeParticles() {
   int n = numParticles;
   int p = jointstates.size();
   particles.clear();
-  
+
   while (n > p) {
     particles.insert(particles.end(), jointstates.begin(), jointstates.end());
     n -= p;
@@ -133,10 +132,10 @@ void JointParticles::initializeParticles() {
 
 void JointParticles::observe(const Model& model) {
   if (beliefs.size() == 1) initializeParticles();
-  
+
   vector<Car*> othercars = model.getOtherCars();
   Counter<vector<string>> tempCounter = Counter<vector<string>>();
-  
+
   for (int i = 0; i < particles.size(); i++) {
     float prob = 1;
     vector<string> intentions = particles[i];
@@ -155,9 +154,9 @@ void JointParticles::observe(const Model& model) {
     for (int i = 0; i < item.first.size(); i++) cout << item.first[i] << " ";
     cout << item.second << endl;
   }
-  
+
   cout << "Now it has finished!" << endl;
-  
+
   // resampling
   if (tempCounter.size() == 0) {
     initializeParticles();
@@ -188,25 +187,25 @@ vector<string> JointParticles::sample(Counter<vector<string>>& distribution) {
 
   std::vector<std::pair<vector<string>, float>> elems(distribution.begin(),
                                                       distribution.end());
-  
+
   std::sort(elems.begin(), elems.end(),
             [](const std::pair<vector<string>, float>& a,
                const std::pair<vector<string>, float>& b) -> bool {
               return a.second < b.second;
             });
-  
+
   vector<vector<string>> keys;
   vector<float> values;
-  
+
   for (auto item : elems) {
     keys.push_back(item.first);
     values.push_back(item.second);
   }
-  
+
   double choice = ((double)rand() / (RAND_MAX));
   int i = 0;
   double total = values[0];
-  
+
   while (choice > total) {
     i += 1;
     total += values[i];
@@ -221,12 +220,12 @@ pff JointParticles::getMeanStandard(queue<float>& history,
   //   total += history[i];
   // }
   float vref = total;
-  
+
   if (vref == 0) vref = 0.01;
-  
+
   float sigma = 0.3 * vref;
   int index = Intention_To_Index[intention];
-  
+
   if (index == 0) {
     return pff(0.7 * vref, sigma);
   }
@@ -296,16 +295,16 @@ void MarginalInference::observe(const Model& gameState) {
 std::vector<float> MarginalInference::getBelief() {
   Counter<vector<string>> jointDistribution = jointInference.getBelief();
   Counter<int> dist = Counter<int>();
-  
+
   for (const auto& item : jointDistribution) {
     int i = Intention_To_Index[item.first[index - 1]];
     dist[i] += item.second;
   }
-  
+
   vector<float> result = vector<float>();
-  
+
   result.resize(legalIntentions.size());
-  
+
   for (const auto& item : dist) result[item.first] = item.second;
   // if (result[0]>result[1]) {
   //   cout<<"I am here"<<endl;

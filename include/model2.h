@@ -10,8 +10,6 @@
 #define MODEL_2_H
 
 #include "KdTree.hpp"
-#include "globals.h"
-#include "inference.h"
 #include "layout.h"
 #include "vec2D.h"
 
@@ -413,7 +411,7 @@ vector<vector<string>> product(const vector<string>& states, int repeat = 3) {
   }
 
   vector<vector<string>> middle = product(states, repeat - 1);
-  
+
   for (int i = 0; i < res.size(); i++) {
     for (int j = 0; j < middle.size(); j++) {
       vector<string> temp(res[i]);
@@ -421,7 +419,7 @@ vector<vector<string>> product(const vector<string>& states, int repeat = 3) {
       output.push_back(temp);
     }
   }
-  
+
   return output;
 }
 
@@ -440,16 +438,16 @@ public:
     grid.resize(numElems);
     std::fill(grid.begin(), grid.end(), value);
   }
-  
+
   float operator[](int i) { return grid[i]; }
-  
+
   void setProb(int row, float p) { grid[row] = p; }
-  
+
   void addProb(int row, float delta) {
     grid[row] += delta;
     assert(grid[row] >= 0.0);
   }
-  
+
   // Returns the belief for tile row, col.
   float getProb(int row) { return grid[row]; }
 
@@ -458,7 +456,7 @@ public:
     float total = getSum();
     for (int i = 0; i < numElems; i++) grid[i] /= total;
   }
-  
+
   int getNumElems() { return numElems; }
 
   float getSum() {
@@ -509,26 +507,26 @@ void JointParticles::initializeParticles() {
   std::shuffle(jointstates.begin(), jointstates.end(), g);
   int n = numParticles;
   int p = jointstates.size();
-  
+
   while (n > p) {
     particles.insert(particles.end(), jointstates.begin(), jointstates.end());
     n -= p;
   }
-  
+
   particles.insert(particles.end(), jointstates.begin(),
                    jointstates.begin() + n - 1);
 }
 
 void JointParticles::observe(const Model& model) {
   if (beliefs.size() == 1) initializeParticles();
-  
+
   vector<Car*> othercars = model.getOtherCars();
   Counter<vector<string>> tempCounter = Counter<vector<string>>();
-  
+
   for (int i = 0; i < particles.size(); i++) {
     float prob = 1;
     vector<string> intentions = particles[i];
-    
+
     for (int index = 0; index < numAgents; index++) {
       queue<float> history = ((Agent*)othercars[i])->getHistory();
       float observ = history.front();
@@ -557,39 +555,39 @@ void JointParticles::observe(const Model& model) {
 
 Counter<vector<string>> JointParticles::getBelief() {
   Counter<vector<string>> beliefDist = Counter<vector<string>>();
-  
+
   for (int index = 0; index < particles.size(); index++) {
     beliefDist[particles[index]] += 1;
     beliefDist.normalize();
   }
-  
+
   return beliefDist;
 }
 
 vector<string> JointParticles::sample(Counter<vector<string>>& distribution) {
   if (distribution.sum() != 1) distribution.normalize();
-  
+
   std::vector<std::pair<vector<string>, float>> elems(distribution.begin(),
                                                       distribution.end());
-  
+
   std::sort(elems.begin(), elems.end(),
             [](const std::pair<vector<string>, float>& a,
                const std::pair<vector<string>, float>& b) -> bool {
               return a.second < b.second;
             });
-  
+
   vector<vector<string>> keys;
   vector<float> values;
-  
+
   for (auto item : elems) {
     keys.push_back(item.first);
     values.push_back(item.second);
   }
-  
+
   double choice = ((double)rand() / (RAND_MAX));
   int i = 0;
   double total = values[0];
-  
+
   while (choice > total) {
     i += 1;
     total += values[i];
@@ -604,12 +602,12 @@ pff JointParticles::getMeanStandard(queue<float>& history,
   //   total += history[i];
 
   float vref = total / history.size();
-  
+
   if (vref == 0) vref = 0.001;
-  
+
   float sigma = 0.5 * vref;
   int index = Intention_To_Index[intention];
-  
+
   if (index == 0)
     return pff(0, sigma);
   else if (index == 1)
@@ -618,7 +616,7 @@ pff JointParticles::getMeanStandard(queue<float>& history,
     return pff(vref, sigma);
   else if (index == 3)
     return pff(1.5 * vref, sigma);
-  
+
   return pff(0, 0);
 }
 
@@ -642,16 +640,16 @@ public:
   void observe(const Model& gameState) {
     if (index == 1) jointInference.observe(gameState);
   }
-  
+
   vector<float> getBelief() {
     Counter<vector<string>> jointDistribution = jointInference.getBelief();
     Counter<int> dist = Counter<int>();
-    
+
     for (const auto& item : jointDistribution) {
       int i = Intention_To_Index[item.first[index - 1]];
       dist[i] += item.second;
     }
-    
+
     vector<float> result = vector<float>();
     result.resize(legalIntentions.size());
 

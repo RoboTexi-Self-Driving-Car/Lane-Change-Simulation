@@ -14,14 +14,9 @@
 #include <iomanip>
 #include <iostream>
 
-#include "KdTree.hpp"
 #include "decisionmaking2.h"
 #include "display.h"
-#include "globals.h"
 #include "inference.h"
-#include "layout.h"
-#include "model.h"
-#include "thirdparty/picojson.h"
 #include "util.h"
 
 using namespace std;

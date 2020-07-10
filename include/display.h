@@ -9,7 +9,6 @@
 #include <cmath>
 #include <iomanip>
 
-#include "globals.h"
 #include "model.h"
 #include "vec2D.h"
 
@@ -31,7 +30,7 @@ struct Color {
 };
 
 /**
- * class Display 
+ * class Display
  */
 class Display {
 private:
