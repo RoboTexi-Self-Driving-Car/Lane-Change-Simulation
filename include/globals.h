@@ -129,7 +129,7 @@ struct hash<vector<T>> {
 
 namespace Globals {
 
-Constant constant;
+const Constant constant;
 
 } // namespace Globals
 

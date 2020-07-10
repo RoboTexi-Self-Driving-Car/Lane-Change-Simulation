@@ -26,9 +26,9 @@ namespace Inference {
 
 enum State { cooperative, aggressive };
 
-vector<string> intentions{"cooperative", "aggressive"};
+const vector<string> intentions{"cooperative", "aggressive"};
 
-UMAP<string, int> Intention_To_Index{{"cooperative", 0}, {"aggressive", 1}};
+const UMAP<string, int> Intention_To_Index{{"cooperative", 0}, {"aggressive", 1}};
 
 //************************************************************************
 // class JointParticles
@@ -60,7 +60,7 @@ private:
   vector<vector<string>> particles;
 };
 
-JointParticles jointInference = JointParticles();
+static JointParticles jointInference = JointParticles();
 
 //************************************************************************
 // class MarginalInference
