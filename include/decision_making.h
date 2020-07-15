@@ -42,15 +42,15 @@ public:
 
   vector<string> generateLegalActions(const Simulation&);
 
-  vector<vector<vec2f>>& generatePaths(const Simulation&, vector<string>&);
+  vector<vector<Vec2f>>& generatePaths(const Simulation&, vector<string>&);
 
   void ApplyAction(const Simulation&, int, const std::string&);
 
-  float evaluationPath(const Simulation&, const vector<vec2f>& path, vector<int>& car_intentions);
+  float evaluatePath(const Simulation&, const vector<Vec2f>& path, vector<int>& car_intentions);
 
-  bool getPath(const Simulation& simulation, vector<vec2f>& final_path, vector<int>& carIntentions);
+  bool getPath(const Simulation& simulation, vector<Vec2f>& final_path, vector<int>& carIntentions);
 
-  vector<vector<vec2f>> getPaths() { return paths; }
+  vector<vector<Vec2f>> getPaths() { return paths; }
 
   bool isCloseToOtherCar(Car* car, const Simulation& simulation) const;
 
@@ -59,7 +59,7 @@ public:
 private:
   int depth;
   unsigned int index;
-  vector<vector<vec2f>> paths;
+  vector<vector<Vec2f>> paths;
 };
 
 #endif /* DECISION_MAKING_H */

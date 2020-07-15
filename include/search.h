@@ -27,8 +27,8 @@ using std::ostream;
 using std::vector;
 using std::priority_queue;
 
-typedef Vector2d<float> vec2f;
-typedef std::pair<vec2f, vec2f> pvff;
+typedef Vector2d<float> Vec2f;
+typedef std::pair<Vec2f, Vec2f> pvff;
 typedef std::pair<int, int> pii;
 
 namespace SEARCH {
@@ -69,7 +69,7 @@ struct State {
 
 class Search {
 public:
-  Search(Simulation* m, const vec2f& goal);
+  Search(Simulation* m, const Vec2f& goal);
 
   State search();
 
@@ -79,23 +79,23 @@ public:
 
   size_t num_action() { return angle.size(); }
 
-  vector<vec2f>& path() {
+  vector<Vec2f>& path() {
     smooth();
     return pa;
   }
 
-  float evaluation(const vec2f& position);
+  float evaluation(const Vec2f& position);
 
   void smooth();
 
 private:
   Simulation* simulation;
   int unitdistanace;
-  vec2f goal;
+  Vec2f goal;
   State start;
   float cost;
   vector<float> angle;
-  vector<vec2f> pa;
+  vector<Vec2f> pa;
   // enum {left90, left45, strainght, right45, right90};
   // float angle[9] = {60, 45, 30, 15, 0, -15, -30, -45, -60};
   // enum {east, north, west, south};
@@ -108,12 +108,12 @@ private:
 
   float colToX(int col) { return (col + 0.5) * unitdistanace; }
 
-  vector<vec2f> path(list<char>&);
+  vector<Vec2f> path(list<char>&);
 
   //"The Manhattan distance heuristic for a PositionSearchProblem"
-  inline float manhattanHeuristic(const vec2f& position) {
-    vec2f xy1 = position;
-    vec2f xy2 = goal;
+  inline float manhattanHeuristic(const Vec2f& position) {
+    Vec2f xy1 = position;
+    Vec2f xy2 = goal;
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
   }
 };

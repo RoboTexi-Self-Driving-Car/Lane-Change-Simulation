@@ -61,7 +61,7 @@ int main(void) {
   DecisionMaker decision;
 
   // final path
-  vector<vec2f> final_path;
+  vector<Vec2f> final_path;
 
   // each neighboring cars' yielding intention
   vector<int> car_intentions;
@@ -72,7 +72,7 @@ int main(void) {
   bool success = decision.getPath(simulation, final_path, car_intentions);
 
   // get candidate paths
-  vector<vector<vec2f>> candidate_paths = decision.getPaths();
+  vector<vector<Vec2f>> candidate_paths = decision.getPaths();
 
   // the change for car is mandatory
   bool change = true;

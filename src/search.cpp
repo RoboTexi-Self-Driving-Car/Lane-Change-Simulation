@@ -34,9 +34,9 @@ ostream& operator<<(ostream& os, const State& s) {
 // Search member functions
 //******************************************************************************
 
-Search::Search(Simulation* m, const vec2f& goal) : simulation(m) {
-  vec2f pos = simulation->getHost()->getPos();
-  start = State(pvff(pos, vec2f(1, 0)));
+Search::Search(Simulation* m, const Vec2f& goal) : simulation(m) {
+  Vec2f pos = simulation->getHost()->getPos();
+  start = State(pvff(pos, Vec2f(1, 0)));
   this->goal = goal;
   cost = 1;
   unitdistanace = 10;
@@ -58,16 +58,16 @@ bool Search::isGoal(State& s) {
   return false;
 }
 
-vector<vec2f> Search::path(list<char>& actions) {
-  vector<vec2f> result;
-  //    vec2f pos = start.current.first;
-  //    vec2f olddir = start.current.second;
-  //    vec2f velocity = olddir*float(unitdistanace);
+vector<Vec2f> Search::path(list<char>& actions) {
+  vector<Vec2f> result;
+  //    Vec2f pos = start.current.first;
+  //    Vec2f olddir = start.current.second;
+  //    Vec2f velocity = olddir*float(unitdistanace);
   //    Car car(pos, olddir, velocity);
   State state = start;
-  vec2f pos = state.current.first;
-  vec2f olddir = state.current.second;
-  vec2f velocity = olddir * float(unitdistanace);
+  Vec2f pos = state.current.first;
+  Vec2f olddir = state.current.second;
+  Vec2f velocity = olddir * float(unitdistanace);
   result.push_back(pos);
 
   for (const auto& c : actions) {
@@ -82,7 +82,7 @@ vector<vec2f> Search::path(list<char>& actions) {
     float y = car.getPos()[1];
     //        int col = xToCol(x);
     //        int row = yToRow(y);
-    vec2f newpos(x, y);
+    Vec2f newpos(x, y);
     result.push_back(newpos);
   }
 
@@ -98,9 +98,9 @@ vector<State> Search::getSuccessors(const State& state) {
   */
   vector<State> successors;
   //    float ScaleRatio = 1.5;
-  vec2f pos = state.current.first;
-  vec2f olddir = state.current.second;
-  vec2f velocity = olddir * float(unitdistanace);
+  Vec2f pos = state.current.first;
+  Vec2f olddir = state.current.second;
+  Vec2f velocity = olddir * float(unitdistanace);
 
   for (int i = 0; i < num_action(); i++) {
     list<char> actions = state.actions;
@@ -109,7 +109,7 @@ vector<State> Search::getSuccessors(const State& state) {
     car.setWheelAngle(angle[i]);
     car.update();
     // before it was 1.5* car::length now i change to 1 to suit 'road' case
-    vector<vec2f> bounds =
+    vector<Vec2f> bounds =
         car.getBounds(car, 1.2 * Car::LENGTH, 1.2 * Car::WIDTH);
     bool isinBound = true;
 
@@ -130,8 +130,8 @@ vector<State> Search::getSuccessors(const State& state) {
 
     if (!isinBound) continue;
 
-    vec2f newPos = car.getPos();
-    vec2f newdir = car.getDir();
+    Vec2f newPos = car.getPos();
+    Vec2f newdir = car.getDir();
     // I remove the 400 item here for to ajust for the second to suit 'road'
     // case
     oldcost = oldcost + cost + 10 * abs(angle[i]) / 180;
@@ -157,8 +157,8 @@ State Search::search() {
   while (!open.empty()) {
     State state = open.top();
     open.pop();
-    vec2f position = state.current.first;
-    vec2f dir = state.current.second;
+    Vec2f position = state.current.first;
+    Vec2f dir = state.current.second;
     // int action = int (state.actions.back()-'A');
     c = state.cost;
     h = state.heu;
@@ -194,7 +194,7 @@ void Search::smooth() {
   float weight_data = 0.1;
   float weight_smooth = 0.1;
 
-  vector<vec2f> result(pa);
+  vector<Vec2f> result(pa);
   float change = 1;
 
   while (change > tolerance) {
@@ -221,7 +221,7 @@ void Search::smooth() {
 }
 
 // evaluate the path
-float Search::evaluation(const vec2f& position) {
+float Search::evaluation(const Vec2f& position) {
   float h = manhattanHeuristic(position);
   return h;
 }
