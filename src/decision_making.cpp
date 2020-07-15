@@ -27,10 +27,10 @@ unordered_map<std::string, float> DecisionMaker::actionReward = {
 2. distance to goal
 3. distance to the neareast other cars, if it is two close, the score is less
 */
-vector<vector<vec2f>>& DecisionMaker::generatePaths(const Simulation& mod, vector<string>& legalactions) {
+vector<vector<vec2f>>& DecisionMaker::generatePaths(const Simulation& sim, vector<string>& legalactions) {
   if (paths.size() > 0) paths.clear();
 
-  Simulation simulation = mod;
+  Simulation simulation = sim;
   Car* host = simulation.getHost();
   // vec2f ndir = host->getDir();
 
