@@ -47,12 +47,12 @@ int main(void) {
 
   // Get the neighboring cars.
   vector<Car*> cars = model.getCars();
-  // std::cout<<car->isHost()<<std::endl;
+  // std::cout << car->isHost() << std::endl;
 
   // Display setting.
   string title = Globals::constant.TITLE;
   begin_graphics(SCREEN_WIDTH, SCREEN_HEIGHT, title);
-  std::cout << typeid(*mycar).name() << std::endl;
+  std::cout << "[Simulation]: " << typeid(*mycar).name() << std::endl;
 
   // loop util the user closes the window
   // bool gameover = false;
@@ -163,10 +163,10 @@ int main(void) {
   }
 
   if (model.checkVictory()) {
-    std::cout << "The car win" << endl;
+    std::cout << "[Simulation]: The car win." << endl;
   }
   else {
-    std::cout << "You lose the car game" << endl;
+    std::cout << "[Simulation]: You lose the car game." << endl;
   }
 
   //************************************************************************

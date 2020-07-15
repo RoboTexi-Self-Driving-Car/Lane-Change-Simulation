@@ -2,49 +2,64 @@
 #define INFERENCE_H
 
 #include "model.h"
+#include "car.h"
+
+class Model;
+class Car;
 
 namespace Inference {
 
-/*
- * class Belief (Not Used)
- */
-class Belief {
+enum State {cooperative, aggressive};
+
+const vector<string> intentions{"cooperative", "aggressive"};
+
+const UMAP<string, int> Intention_To_Index{{"cooperative", 0}, {"aggressive", 1}};
+
+//************************************************************************
+// class JointParticles
+//************************************************************************
+
+class JointParticles {
 public:
-  Belief(int _numElems, float value = -1) : numElems(_numElems) {
-    if (value == -1) value = (1.0 / numElems);
-    grid.resize(numElems);
-    std::fill(grid.begin(), grid.end(), value);
-  }
+  JointParticles(int num = 600) : numParticles(num), numAgents(0) {};
 
-  float operator[](int i) { return grid[i]; }
+  void initializeUniformly(const Model& model, const vector<string>& intentions);
 
-  void setProb(int row, float p) { grid[row] = p; }
+  void initializeParticles();
 
-  void addProb(int row, float delta) {
-    grid[row] += delta;
-    assert(grid[row] >= 0.0);
-  }
+  void observe(const Model& model);
 
-  // Returns the belief for tile row, col.
-  float getProb(int row) { return grid[row]; }
+  Counter<vector<string>> getBelief();
 
-  // Function: Normalize
-  void normalize() {
-    float total = getSum();
-    for (int i = 0; i < numElems; i++) grid[i] /= total;
-  }
+  vector<string> sample(Counter<vector<string>>& counter);
 
-  int getNumElems() { return numElems; }
-
-  float getSum() {
-    float total = 0.0;
-    for (int i = 0; i < numElems; i++) total += getProb(i);
-    return total;
-  }
+  pff getMeanStandard(queue<float>& history, const string& intention);
 
 private:
-  vector<float> grid;
-  int numElems;
+  int numParticles;
+  int numAgents;
+  vector<string> legalIntentions;
+  vector<Car*> agents;
+  Counter<vector<string>> beliefs;
+  vector<vector<string>> particles;
+};
+
+static JointParticles jointInference = JointParticles();
+
+//************************************************************************
+// class MarginalInference
+//************************************************************************
+
+class MarginalInference {
+public:
+  MarginalInference(int index, const Model& model);
+  void initializeUniformly(const Model& gameState);
+  void observe(const Model& gameState);
+  vector<float> getBelief();
+
+private:
+  vector<string> legalIntentions;
+  int index;
 };
 
 }  // namespace Inference

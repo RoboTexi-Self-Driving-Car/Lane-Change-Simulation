@@ -44,9 +44,10 @@ Search::Search(Model* m, const vec2f& goal) : model(m) {
   State state2 = search();
   list<char> actions = state2.actions;
   pa = path(actions);
-  //    for (const auto&  ele: pa)
-  //        std::cout<<ele;
-  //    std::cout<<std::endl;
+  // for (const auto&  ele: pa) {
+  //   std::cout << ele;
+  // }
+  // std::cout << std::endl;
 }
 
 bool Search::isGoal(State& s) {

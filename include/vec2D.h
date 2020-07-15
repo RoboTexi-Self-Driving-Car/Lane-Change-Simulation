@@ -334,7 +334,7 @@ std::pair<T, T> projectPoints(const std::vector<Vector2d<T>>& points,
   }
 
   auto ele = std::minmax_element(values.begin(), values.end());
-  // std::cout<<*ele.first<<std::endl;
+  // std::cout << *ele.first << std::endl;
   // std::pair<T,T> result = make_pair(*ele.first, *ele.second);
   std::pair<T, T> result(*ele.first, *ele.second);  //(points[0], points[1]);
 

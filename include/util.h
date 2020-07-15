@@ -83,9 +83,6 @@ vector<int> infer(const Model& model) {
     int index = model.toindex(car);
     vector<float> belief = car->getInference(index + 1, model)->getBelief();
 
-    // if (k != index)
-    //   cout<<"I am here"<<endl;
-
     int maxindex = 0;
     for (int i = 0; i < belief.size(); i++) {
       if (belief[i] > belief[maxindex]) {

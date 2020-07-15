@@ -89,12 +89,17 @@ void JointParticles::observe(const Model& model) {
   }
 
   beliefs = tempCounter;
+  cout << "-----------------------------------------------------------" << endl;
+  cout << "[Simulation]: " << endl;
   for (const auto& item : beliefs) {
-    for (int i = 0; i < item.first.size(); i++) cout << item.first[i] << " ";
-    cout << item.second << endl;
+    cout << "\tBelief: ";
+    for (int i = 0; i < item.first.size(); i++) {
+      cout << "\t" << item.first[i] << " ";
+    }
+    cout << "\t" << item.second << endl;
   }
 
-  cout << "Now it has finished!" << endl;
+  cout << "[Simulation]: Now it has finished!" << endl;
 
   // resampling
   if (tempCounter.size() == 0) {
@@ -249,8 +254,8 @@ std::vector<float> MarginalInference::getBelief() {
   result.resize(legalIntentions.size());
 
   for (const auto& item : dist) result[item.first] = item.second;
-  // if (result[0]>result[1]) {
-  //   cout<<"I am here"<<endl;
+  // if (result[0] > result[1]) {
+  //   cout << "I am here" << endl;
   // }
   return result;
 }

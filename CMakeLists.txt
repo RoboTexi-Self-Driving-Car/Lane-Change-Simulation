@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project( simulation )
+project(simulation)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
@@ -22,6 +22,7 @@ add_executable(simulation
   src/main.cpp
   src/layout.cpp
   src/model.cpp
+  src/car.cpp
   src/inference.cpp
   src/search.cpp
   src/search2.cpp
@@ -29,4 +30,3 @@ add_executable(simulation
 )
 
 target_link_libraries(simulation ${OPENGL_LIBRARY} ${GLUT_LIBRARY} ${GLFW_LIBRARIES})
-# target_compile_features(simulation PRIVATE cxx_range_for)
