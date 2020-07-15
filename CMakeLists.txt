@@ -20,7 +20,6 @@ include_directories(
 
 add_executable(simulation
   src/main.cpp
-  src/globals.cpp
   src/layout.cpp
   src/model.cpp
   src/inference.cpp

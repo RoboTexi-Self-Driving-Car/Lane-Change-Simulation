@@ -29,32 +29,28 @@ inline static float colToX(int col) {
  */
 class DecisionMaker {
 public:
-  static const vector<std::string> hostActions;
-  static const vector<std::string> otherActions;
-  static const unordered_map<std::string, float> actionReward;
+  static vector<std::string> hostActions;
+  static vector<std::string> otherActions;
+  static unordered_map<std::string, float> actionReward;
   // static const unorder_mapd<std::string, float> command;
 
   DecisionMaker(int dep = 2, int ind = 0) : depth(dep), index(ind) {}
 
   vector<string> generateLegalActions(const Model&);
 
-  const vector<vector<vec2f>>& generatePaths(const Model&, vector<string>&);
+  vector<vector<vec2f>>& generatePaths(const Model&, vector<string>&);
 
-  const vector<vector<vec2f>>& generatePaths2(const Model& mod,
-                                              vector<string>&);
+  vector<vector<vec2f>>& generatePaths2(const Model& mod, vector<string>&);
 
   void ApplyAction(const Model&, int, const std::string&);
 
-  float evaluationPath(const Model&, const vector<vec2f>& path,
-                       vector<int>& carintentions);
+  float evaluationPath(const Model&, const vector<vec2f>& path, vector<int>& carintentions);
 
-  bool getPath(const Model& model, vector<vec2f>& mypath,
-               vector<int>& carIntentions);
+  bool getPath(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
 
-  bool getPath2(const Model& model, vector<vec2f>& mypath,
-                vector<int>& carIntentions);
+  bool getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
 
-  const vector<vector<vec2f>> getPaths() { return paths; }
+  vector<vector<vec2f>> getPaths() { return paths; }
 
   bool isCloseToOtherCar(Car* car, const Model& model) const;
 

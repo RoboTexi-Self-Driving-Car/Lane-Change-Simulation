@@ -1,19 +1,19 @@
 #include "decision_making.h"
 
-const vector<std::string> DecisionMaker::hostActions = {
+vector<std::string> DecisionMaker::hostActions = {
   "normal",
   "left",
   "right"
 };
 
-const vector<std::string> DecisionMaker::otherActions = {
+vector<std::string> DecisionMaker::otherActions = {
   "acc",
   "dec",
   "normal",
   "stop"
 };
 
-const unordered_map<std::string, float> DecisionMaker::actionReward = {
+unordered_map<std::string, float> DecisionMaker::actionReward = {
   {"normal", 3},
   {"acc", 0},
   {"dec", -1},
@@ -27,8 +27,7 @@ const unordered_map<std::string, float> DecisionMaker::actionReward = {
 2. distance to goal
 3. distance to the neareast other cars, if it is two close, the score is less
 */
-const vector<vector<vec2f>>& DecisionMaker::generatePaths(
-    const Model& mod, vector<string>& legalactions) {
+vector<vector<vec2f>>& DecisionMaker::generatePaths(const Model& mod, vector<string>& legalactions) {
   if (paths.size() > 0) paths.clear();
 
   Model model = mod;
@@ -60,8 +59,7 @@ const vector<vector<vec2f>>& DecisionMaker::generatePaths(
   return paths;
 }
 
-const vector<vector<vec2f>>& DecisionMaker::generatePaths2(
-    const Model& mod, vector<string>& legalactions) {
+vector<vector<vec2f>>& DecisionMaker::generatePaths2(const Model& mod, vector<string>& legalactions) {
   if (paths.size() > 0) paths.clear();
 
   Model model = mod;
@@ -93,8 +91,7 @@ const vector<vector<vec2f>>& DecisionMaker::generatePaths2(
   return paths;
 }
 
-void DecisionMaker::ApplyAction(const Model& model, int agentIndex,
-                                 const std::string& action) {
+void DecisionMaker::ApplyAction(const Model& model, int agentIndex, const std::string& action) {
   Car* car = model.getCars()[agentIndex];
   if (action == "normal") {
     car->accelerate(car->friction);
@@ -124,8 +121,7 @@ void DecisionMaker::ApplyAction(const Model& model, int agentIndex,
   car->update();
 }
 
-float DecisionMaker::evaluationPath(const Model& mo, const vector<vec2f>& path,
-                                     vector<int>& carintentions) {
+float DecisionMaker::evaluationPath(const Model& mo, const vector<vec2f>& path, vector<int>& carintentions) {
   Model model(mo);
   float score = 0.0;
   Car* mycar = model.getHost();
@@ -159,8 +155,7 @@ float DecisionMaker::evaluationPath(const Model& mo, const vector<vec2f>& path,
   return score;
 }
 
-bool DecisionMaker::getPath(const Model& model, vector<vec2f>& mypath,
-                             vector<int>& carintentions) {
+bool DecisionMaker::getPath(const Model& model, vector<vec2f>& mypath, vector<int>& carintentions) {
   // std::string bestAction = "stop";
   // int numAgents = model.getCars().size();
   vector<string> legalactions = generateLegalActions(model);
@@ -184,8 +179,7 @@ bool DecisionMaker::getPath(const Model& model, vector<vec2f>& mypath,
   return true;
 };
 
-bool DecisionMaker::getPath2(const Model& model, vector<vec2f>& mypath,
-                              vector<int>& carintentions) {
+bool DecisionMaker::getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& carintentions) {
   // std::string bestAction = "stop";
   // int numAgents = model.getCars().size();
   vector<string> legalactions = generateLegalActions(model);
