@@ -45,38 +45,6 @@ vector<vector<vec2f>>& DecisionMaker::generatePaths(const Simulation& mod, vecto
     vec2f pos(host->getPos() + ndir * float(Globals::constant.BELIEF_TILE_SIZE));
 
     vec2f Pos(pos.x + 50, host->getPos().y);
-    SEARCH2::Search search(&simulation, Pos);
-    vector<vec2f> path = search.path();
-    paths.push_back(path);
-
-    for (float deltax = 0; deltax < 80; deltax += 10) {
-      vec2f Pos(pos.x + deltax, pos.y);
-      SEARCH2::Search search(&simulation, Pos);
-      vector<vec2f> path = search.path();
-      paths.push_back(path);
-    }
-  }
-  return paths;
-}
-
-vector<vector<vec2f>>& DecisionMaker::generatePaths2(const Simulation& mod, vector<string>& legalactions) {
-  if (paths.size() > 0) paths.clear();
-
-  Simulation simulation = mod;
-  Car* host = simulation.getHost();
-  // vec2f ndir = host->getDir();
-
-  for (int i = 0; i < legalactions.size(); i++) {
-    vec2f ndir = vec2f(1, 1);
-
-    if (legalactions[i] == "normal") continue;
-    if (legalactions[i] == "right") {
-      ndir = vec2f(1, -1);
-    }
-
-    vec2f pos(host->getPos() + ndir * float(Globals::constant.BELIEF_TILE_SIZE));
-
-    vec2f Pos(pos.x + 50, host->getPos().y);
     SEARCH::Search search(&simulation, Pos);
     vector<vec2f> path = search.path();
     paths.push_back(path);
@@ -121,41 +89,41 @@ void DecisionMaker::ApplyAction(const Simulation& simulation, int agentIndex, co
   car->update();
 }
 
-float DecisionMaker::evaluationPath(const Simulation& sim, const vector<vec2f>& path, vector<int>& carintentions) {
+float DecisionMaker::evaluationPath(const Simulation& sim, const vector<vec2f>& path, vector<int>& car_intentions) {
   Simulation simulation(sim);
   float score = 0.0;
-  Car* mycar = simulation.getHost();
-  vec2f carpos = mycar->getPos();
+  Car* ego_car = simulation.getHost();
+  vec2f carpos = ego_car->getPos();
 
   while (abs(carpos.x - path[path.size() - 1].x) > 5) {
-    mycar->autonomousAction2(path, simulation);
-    mycar->update();
+    ego_car->autonomousAction2(path, simulation);
+    ego_car->update();
 
     for (int i = 0; i < simulation.getOtherCars().size(); i++) {
       Car* car = simulation.getOtherCars()[i];
-      car->autonomousAction2(path, simulation, carintentions[i]);
+      car->autonomousAction2(path, simulation, car_intentions[i]);
       car->update();
     }
 
-    if (simulation.checkCollision(mycar)) return -inf;
+    if (simulation.checkCollision(ego_car)) return -inf;
 
-    carpos = mycar->getPos();
+    carpos = ego_car->getPos();
   }
 
-  mycar->setPos(path[path.size() - 1]);
+  ego_car->setPos(path[path.size() - 1]);
 
-  if (simulation.checkCollision(mycar)) return -inf;
+  if (simulation.checkCollision(ego_car)) return -inf;
 
-  if (isCloseToOtherCar(mycar, simulation)) return -inf;
+  if (isCloseToOtherCar(ego_car, simulation)) return -inf;
 
   Vector2f goal = sim.getFinish().getCenter();
-  score += 100 * (1 - abs(goal[0] - mycar->getPos()[0]) / 960);
-  score += 100 * (1 - abs(mycar->getPos()[1] - goal[1]) / 100);
+  score += 100 * (1 - abs(goal[0] - ego_car->getPos()[0]) / 960);
+  score += 100 * (1 - abs(ego_car->getPos()[1] - goal[1]) / 100);
 
   return score;
 }
 
-bool DecisionMaker::getPath(const Simulation& simulation, vector<vec2f>& mypath, vector<int>& carintentions) {
+bool DecisionMaker::getPath(const Simulation& simulation, vector<vec2f>& final_path, vector<int>& car_intentions) {
   // std::string bestAction = "stop";
   // int numAgents = simulation.getCars().size();
   vector<string> legalactions = generateLegalActions(simulation);
@@ -165,38 +133,14 @@ bool DecisionMaker::getPath(const Simulation& simulation, vector<vec2f>& mypath,
   float score = 0.0;
 
   for (int i = 0; i < paths.size(); i++) {
-    score = evaluationPath(simulation, paths[i], carintentions);
+    score = evaluationPath(simulation, paths[i], car_intentions);
     if (bestscore < score) {
       index = i;
       bestscore = score;
     }
   }
 
-  mypath = paths[index];
-
-  // index = 0 means, it can't find its next path to go
-  if (index == 0) return false;
-  return true;
-};
-
-bool DecisionMaker::getPath2(const Simulation& simulation, vector<vec2f>& mypath, vector<int>& carintentions) {
-  // std::string bestAction = "stop";
-  // int numAgents = simulation.getCars().size();
-  vector<string> legalactions = generateLegalActions(simulation);
-  generatePaths2(simulation, legalactions);
-  int index = 0;
-  float bestscore = -inf;
-  float score = 0.0;
-
-  for (int i = 0; i < paths.size(); i++) {
-    score = evaluationPath(simulation, paths[i], carintentions);
-    if (bestscore < score) {
-      index = i;
-      bestscore = score;
-    }
-  }
-
-  mypath = paths[index];
+  final_path = paths[index];
 
   // index = 0 means, it can't find its next path to go
   if (index == 0) return false;
@@ -239,7 +183,7 @@ vector<string> DecisionMaker::generateLegalActions(const Simulation& simulation)
   return legalactions;
 }
 
-bool DecisionMaker::isCloseToOtherCar(Car* mycar, const Simulation& simulation) const {
+bool DecisionMaker::isCloseToOtherCar(Car* ego_car, const Simulation& simulation) const {
   vector<Car*> cars = simulation.getOtherCars();
   if (cars.size() == 0) return false;
 
@@ -247,21 +191,21 @@ bool DecisionMaker::isCloseToOtherCar(Car* mycar, const Simulation& simulation) 
   float distance = inf;
 
   for (Car* car : cars) {
-    float cardis = manhattanDistance(car->getPos(), mycar->getPos());
+    float cardis = manhattanDistance(car->getPos(), ego_car->getPos());
     if (cardis < distance) {
       distance = cardis;
       obstaclecar = car;
     }
   }
 
-  if (abs(obstaclecar->getPos()[0] - mycar->getPos()[0]) < Globals::constant.BELIEF_TILE_SIZE * 1.2 &&
-      abs(obstaclecar->getPos()[1] - mycar->getPos()[1]) < Car::WIDTH) {
+  if (abs(obstaclecar->getPos()[0] - ego_car->getPos()[0]) < Globals::constant.BELIEF_TILE_SIZE * 1.2 &&
+      abs(obstaclecar->getPos()[1] - ego_car->getPos()[1]) < Car::WIDTH) {
     return true;
   }
   return false;
 }
 
-bool DecisionMaker::isChangeRequired(Car* mycar, const Simulation& simulation) {
+bool DecisionMaker::isChangeRequired(Car* ego_car, const Simulation& simulation) {
   Car* host = simulation.getHost();
   vec2f goal = simulation.getFinish().getCenter();
 

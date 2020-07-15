@@ -43,16 +43,15 @@ int main(void) {
   int SCREEN_HEIGHT = layout.getHeight();
 
   // Get the ego car.
-  Car* mycar = simulation.getHost();
+  Car* ego_car = simulation.getHost();
 
   // Get the neighboring cars.
   vector<Car*> cars = simulation.getCars();
-  // std::cout << car->isHost() << std::endl;
 
   // Display setting.
   string title = Globals::constant.TITLE;
   begin_graphics(SCREEN_WIDTH, SCREEN_HEIGHT, title);
-  std::cout << "[Simulation]: " << typeid(*mycar).name() << std::endl;
+  std::cout << "[Simulation]: " << typeid(*ego_car).name() << std::endl;
 
   // loop util the user closes the window
   // bool gameover = false;
@@ -62,30 +61,21 @@ int main(void) {
   DecisionMaker decision;
 
   // final path
-  vector<vec2f> mypath;
+  vector<vec2f> final_path;
 
   // each neighboring cars' yielding intention
-  vector<int> carintentions;
+  vector<int> car_intentions;
   for (int i = 0; i < simulation.getOtherCars().size(); i++) {
-    carintentions.push_back(1);
+    car_intentions.push_back(1);
   }
 
-  bool success = decision.getPath(simulation, mypath, carintentions);
+  bool success = decision.getPath(simulation, final_path, car_intentions);
 
   // get candidate paths
-  vector<vector<vec2f>> mypaths = decision.getPaths();
-
-  // action set
-  std::pair<std::string, vec2f> actionset;
-
-  string filename = "coop";
+  vector<vector<vec2f>> candidate_paths = decision.getPaths();
 
   // the change for car is mandatory
   bool change = true;
-
-  srand(time(NULL));
-
-  int i = 0;
 
   while (!glfwWindowShouldClose(window)) {
     //**************************************************************************
@@ -100,7 +90,7 @@ int main(void) {
     //**************************************************************************
     // Draw candidate paths.
     //**************************************************************************
-    for (auto p : mypaths) {
+    for (auto p : candidate_paths) {
       drawPolygon(p);
     }
 
@@ -116,33 +106,33 @@ int main(void) {
       //************************************************************************
       for (Car* car : cars) {
         // my car moves
-        if (car == mycar) {
+        if (car == ego_car) {
           // destination reaches, generate new paths
-          if (mypath.size() == 0 || abs(mycar->getPos().x - mypath[mypath.size() - 1].x) < 10) {
-            success = decision.getPath(simulation, mypath, carintentions);
+          if (final_path.size() == 0 || abs(ego_car->getPos().x - final_path[final_path.size() - 1].x) < 10) {
+            success = decision.getPath(simulation, final_path, car_intentions);
             change = decision.isChangeRequired(car, simulation);
             // candidate paths
-            mypaths = decision.getPaths();
+            candidate_paths = decision.getPaths();
             if (!success && change) {
-              carintentions = infer(simulation);
-              mypath.clear();
+              car_intentions = infer(simulation);
+              final_path.clear();
               decision.ApplyAction(simulation, 0, "dec");
             } else {
-              car->autonomousAction(mypath, simulation, NULL);
+              car->autonomousAction(final_path, simulation, NULL);
               car->update();
             }
           }
           // using the current path
           else {
-            car->autonomousAction(mypath, simulation, NULL);
+            car->autonomousAction(final_path, simulation, NULL);
             car->update();
           }
           // display the final path
-          drawPolygon(mypath);
+          drawPolygon(final_path);
         }
         // other car moves
         else {
-          car->autonomousAction(mypath, simulation, NULL);
+          car->autonomousAction(final_path, simulation, NULL);
           car->update();
         }
       }

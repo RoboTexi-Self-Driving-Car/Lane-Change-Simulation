@@ -7,13 +7,14 @@
 //
 
 /*
- * read first
- * cost function defined in both the generate successsor and also the evaluation
- * function depends on the applications, the cost function is adjusted to suit the
- * best
- */
-#ifndef SEARCH_H
-#define SEARCH_H
+read first
+cost function defined in both the generate successsor and also the evaluation
+function depends on the applications, the cost function is adjusted to suit the
+best
+
+*/
+#ifndef SEARCH_2_H
+#define SEARCH_2_H
 
 #include <cmath>
 #include <iostream>
@@ -61,7 +62,7 @@ struct State {
 
   friend ostream& operator<<(ostream& os, const State& s);
 
-  bool operator<(const State& s2) const {
+  inline bool operator<(const State& s2) const {
     return (cost + heu) > (s2.cost + s2.heu);
   }
 };
@@ -69,15 +70,22 @@ struct State {
 class Search {
 public:
   Search(Simulation* m, const vec2f& goal);
+
   State search();
+
   vector<State> getSuccessors(const State& state);
+
   bool isGoal(State&);
+
   size_t num_action() { return angle.size(); }
+
   vector<vec2f>& path() {
     smooth();
     return pa;
   }
+
   float evaluation(const vec2f& position);
+
   void smooth();
 
 private:
@@ -93,15 +101,17 @@ private:
   // enum {east, north, west, south};
 
   int xToCol(float x) { return int((x / unitdistanace)); }
+
   int yToRow(float y) { return int((y / unitdistanace)); }
+
   float rowToY(int row) { return (row + 0.5) * unitdistanace; }
+
   float colToX(int col) { return (col + 0.5) * unitdistanace; }
+
   vector<vec2f> path(list<char>&);
 
-  /**
-   * "The Manhattan distance heuristic for a PositionSearchProblem"
-   */
-  float manhattanHeuristic(const vec2f& position) {
+  //"The Manhattan distance heuristic for a PositionSearchProblem"
+  inline float manhattanHeuristic(const vec2f& position) {
     vec2f xy1 = position;
     vec2f xy2 = goal;
     return abs(xy1[0] - xy2[0]) + abs(xy1[1] - xy2[1]);
@@ -110,4 +120,4 @@ private:
 
 }  // namespace SEARCH
 
-#endif /* search_h */
+#endif /* SEARCH_2_H */

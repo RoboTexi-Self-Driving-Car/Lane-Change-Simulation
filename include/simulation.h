@@ -128,7 +128,7 @@ public:
 
   const vector<Car*>& getCars() const { return cars; }
 
-  const vector<Car*>& getOtherCars() const { return otherCars; }
+  const vector<Car*>& getOtherCars() const { return other_cars; }
 
   vector<Vector2f> getIntersectionCenter();
 
@@ -159,7 +159,7 @@ public:
 
   bool inIntersection(float x, float y) const;
 
-  int toindex(const Car* car) const { return cartoindex.at((size_t)car); }
+  int toindex(const Car* car) const { return car2index.at((size_t)car); }
 
 private:
   Layout& layout;
@@ -169,12 +169,12 @@ private:
   vector<Block*> blocks;
   vector<Line*> lines;
   vector<Car*> cars;
-  vector<Car*> otherCars;
+  vector<Car*> other_cars;
   vector<Block*> interSections;
   vector<Block*> agentGraph;
   vector<Block*> hostGraph;
   vector<Block*> allGraph;
-  UMAP<size_t, int> cartoindex;
+  UMAP<size_t, int> car2index;
 
   void clearBlocks(vector<Block*>& blocks);
 

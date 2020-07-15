@@ -39,21 +39,22 @@ Search::Search(Simulation* m, const vec2f& goal) : simulation(m) {
   start = State(pvff(pos, vec2f(1, 0)));
   this->goal = goal;
   cost = 1;
-  unitdistanace = 30;
+  unitdistanace = 10;
+
   for (float ang = 45; ang >= -45; ang -= 15) angle.push_back(ang);
+
   State state2 = search();
   list<char> actions = state2.actions;
   pa = path(actions);
-  // for (const auto&  ele: pa) {
-  //   std::cout << ele;
-  // }
-  // std::cout << std::endl;
 }
 
 bool Search::isGoal(State& s) {
   float x = s.current.first[0];
   float y = s.current.first[1];
-  if (abs(x - goal[0]) < 10 && abs(y - goal[1]) < 10) return true;
+
+  if (abs(x - goal[0]) < unitdistanace && abs(y - goal[1]) < unitdistanace)
+    return true;
+
   return false;
 }
 
@@ -68,6 +69,7 @@ vector<vec2f> Search::path(list<char>& actions) {
   vec2f olddir = state.current.second;
   vec2f velocity = olddir * float(unitdistanace);
   result.push_back(pos);
+
   for (const auto& c : actions) {
     Car car(pos, olddir, velocity);
     car.setWheelAngle(angle[c - 'A']);
@@ -78,13 +80,12 @@ vector<vec2f> Search::path(list<char>& actions) {
 
     float x = car.getPos()[0];
     float y = car.getPos()[1];
-    int col = xToCol(x);
-    int row = yToRow(y);
-    y = rowToY(row);
-    x = colToX(col);
+    //        int col = xToCol(x);
+    //        int row = yToRow(y);
     vec2f newpos(x, y);
     result.push_back(newpos);
   }
+
   return result;
 }
 
@@ -107,49 +108,33 @@ vector<State> Search::getSuccessors(const State& state) {
     Car car(pos, olddir, velocity);
     car.setWheelAngle(angle[i]);
     car.update();
-
-    // check the middle point
-    //        vec2f velocity2 = velocity*float(0.3);
-    //        Car car2(pos, olddir, velocity2);
-    //        car2.setWheelAngle(angle[i]);
-    //        car2.update();
-    //        vector<vec2f> bounds2 =
-    //        car2.getBounds(car2, 1.5*Car::LENGTH, 1.5*Car::WIDTH); bool
-    //        isinBound2 = true; for(const auto& point: bounds2) {
-    //            if (!simulation->inBounds(point[0],point[1])) {
-    //                isinBound2 = false;
-    //                break;
-    //            }
-    //        }
-    //        if  (!isinBound2) continue;
-    // finish the checking
-
     // before it was 1.5* car::length now i change to 1 to suit 'road' case
     vector<vec2f> bounds =
-        car.getBounds(car, 1.5 * Car::LENGTH, 1.5 * Car::WIDTH);
+        car.getBounds(car, 1.2 * Car::LENGTH, 1.2 * Car::WIDTH);
     bool isinBound = true;
+
     for (const auto& point : bounds) {
       if (!simulation->inBoundsLarger(point[0], point[1])) {
         isinBound = false;
         break;
       }
     }
-    vector<Car*> cars = simulation->getOtherCars();
-    for (Car* othercar : cars) {
-      if (othercar->collides(car.getPos(), bounds)) {
-        isinBound = false;
-        break;
-      }
-    }
+
+    //        vector<Car*> cars = simulation->getOtherCars();
+    //        for (Car* othercar : cars) {
+    //            if (othercar->collides(car.getPos(), bounds)){
+    //                isinBound = false;
+    //                break;
+    //            }
+    //        }
 
     if (!isinBound) continue;
 
     vec2f newPos = car.getPos();
     vec2f newdir = car.getDir();
-
     // I remove the 400 item here for to ajust for the second to suit 'road'
     // case
-    oldcost = oldcost + cost + 5 * abs(angle[i]) / 180;
+    oldcost = oldcost + cost + 10 * abs(angle[i]) / 180;
     // now the new ones is as like this
     // oldcost = oldcost + cost  + 400*abs(angle[i])/180;
     actions.push_back(char(i + 'A'));
@@ -198,10 +183,12 @@ State Search::search() {
       }
     }
   }
+
   State state2;
+
   return state2;
 }
-
+// smooth the path a little bit
 void Search::smooth() {
   float tolerance = 0.000001;
   float weight_data = 0.1;
@@ -209,6 +196,7 @@ void Search::smooth() {
 
   vector<vec2f> result(pa);
   float change = 1;
+
   while (change > tolerance) {
     change = 0.0;
     for (int i = 1; i < pa.size() - 1; i++) {
@@ -231,6 +219,8 @@ void Search::smooth() {
   }
   pa = result;
 }
+
+// evaluate the path
 float Search::evaluation(const vec2f& position) {
   float h = manhattanHeuristic(position);
   return h;

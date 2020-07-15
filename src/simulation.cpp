@@ -22,14 +22,14 @@ Simulation::Simulation(Layout& lay) : layout(lay) {
   for (vector<int> other : layout.getOtherData()) {
     Car* othercar =
         new Agent(Vector2f(other[0], other[1]), "east", Vector2f(0.0, 0.0));
-    otherCars.push_back(othercar);
+    other_cars.push_back(othercar);
     cars.push_back(othercar);
   }
 
-  cartoindex = UMAP<size_t, int>();
+  car2index = UMAP<size_t, int>();
 
-  for (int i = 0; i < otherCars.size(); i++) {
-    cartoindex.insert({(size_t)otherCars[i], i});
+  for (int i = 0; i < other_cars.size(); i++) {
+    car2index.insert({(size_t)other_cars[i], i});
   }
 }
 
@@ -48,7 +48,7 @@ Simulation::Simulation(const Simulation& sim) : layout(sim.layout) {
   for (Car* car : sim.getOtherCars()) {
     Car* othercar = new Agent(*car);
     othercar->setup();
-    otherCars.push_back(othercar);
+    other_cars.push_back(othercar);
     cars.push_back(othercar);
   }
 }
@@ -112,6 +112,7 @@ void Simulation::initIntersections() {
     allGraph.push_back(inter);
   }
 }
+
 bool Simulation::checkVictory() const {
 
   vector<Vector2f> bounds = host->getBounds();

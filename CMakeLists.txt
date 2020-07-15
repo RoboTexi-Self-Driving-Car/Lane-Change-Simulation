@@ -25,7 +25,6 @@ add_executable(simulation
   src/car.cpp
   src/inference.cpp
   src/search.cpp
-  src/search2.cpp
   src/decision_making.cpp
 )
 
