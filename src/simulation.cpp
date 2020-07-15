@@ -1,10 +1,10 @@
-#include "model.h"
+#include "simulation.h"
 
 //************************************************************************
-// class Model: method implementations
+// class Simulation: method implementations
 //************************************************************************
 
-Model::Model(Layout& lay) : layout(lay) {
+Simulation::Simulation(Layout& lay) : layout(lay) {
   initLines();
   initBlocks();
   initGraphs();
@@ -33,19 +33,19 @@ Model::Model(Layout& lay) : layout(lay) {
   }
 }
 
-Model::Model(const Model& mo) : layout(mo.layout) {
-  finish = mo.finish;
-  blocks = mo.blocks;
-  lines = mo.lines;
-  interSections = mo.interSections;
-  agentGraph = mo.agentGraph;
-  hostGraph = mo.hostGraph;
-  allGraph = mo.allGraph;
-  host = new Host(*mo.getHost());
+Simulation::Simulation(const Simulation& sim) : layout(sim.layout) {
+  finish = sim.finish;
+  blocks = sim.blocks;
+  lines = sim.lines;
+  interSections = sim.interSections;
+  agentGraph = sim.agentGraph;
+  hostGraph = sim.hostGraph;
+  allGraph = sim.allGraph;
+  host = new Host(*sim.getHost());
   host->setup();
   cars.push_back(host);
 
-  for (Car* car : mo.getOtherCars()) {
+  for (Car* car : sim.getOtherCars()) {
     Car* othercar = new Agent(*car);
     othercar->setup();
     otherCars.push_back(othercar);
@@ -53,7 +53,7 @@ Model::Model(const Model& mo) : layout(mo.layout) {
   }
 }
 
-Model::~Model() {
+Simulation::~Simulation() {
   if (cars.size() != 0) {
     while (cars.size() != 0) {
       delete cars.back();
@@ -62,7 +62,7 @@ Model::~Model() {
   }
 }
 
-void Model::setHost(Car* car) {
+void Simulation::setHost(Car* car) {
   vector<Car*> cars;
   cars.push_back(car);
   for (auto c : cars) {
@@ -71,7 +71,7 @@ void Model::setHost(Car* car) {
   this->cars = cars;
 }
 
-void Model::clearBlocks(vector<Block*>& bloc) {
+void Simulation::clearBlocks(vector<Block*>& bloc) {
   if (bloc.size() != 0) {
     while (bloc.size() != 0) {
       delete bloc.back();
@@ -80,18 +80,18 @@ void Model::clearBlocks(vector<Block*>& bloc) {
   }
 }
 
-void Model::initBlocks() {
+void Simulation::initBlocks() {
   for (vector<int> blockData : layout.getBlockData()) {
     blocks.push_back(new Block(blockData));
   }
 }
 
-void Model::initLines() {
+void Simulation::initLines() {
   for (vector<int> lineData : layout.getLineData())
     lines.push_back(new Line(lineData));
 }
 
-void Model::initGraphs() {
+void Simulation::initGraphs() {
   for (vector<int> data : layout.getHostGraph()) {
     Block* hostgraph = new Block(data);
     hostGraph.push_back(hostgraph);
@@ -105,14 +105,14 @@ void Model::initGraphs() {
   }
 }
 
-void Model::initIntersections() {
+void Simulation::initIntersections() {
   for (vector<int> blockData : layout.getIntersectionData()) {
     Block* inter = new Block(blockData);
     interSections.push_back(inter);
     allGraph.push_back(inter);
   }
 }
-bool Model::checkVictory() const {
+bool Simulation::checkVictory() const {
 
   vector<Vector2f> bounds = host->getBounds();
   for (Vector2f point : bounds) {
@@ -122,7 +122,7 @@ bool Model::checkVictory() const {
   return false;
 }
 
-bool Model::checkCollision(Car* car) const {
+bool Simulation::checkCollision(Car* car) const {
   vector<Vector2f> bounds = car->getBounds();
   for (Vector2f point : bounds) {
     if (!inBounds(point.x, point.y)) return true;
@@ -136,7 +136,7 @@ bool Model::checkCollision(Car* car) const {
   return false;
 }
 
-bool Model::inBounds(float x, float y) const {
+bool Simulation::inBounds(float x, float y) const {
   if (x < 0 || x >= getWidth()) return false;
   if (y < 0 || y >= getHeight()) return false;
   for (const auto& it : blocks) {
@@ -145,7 +145,7 @@ bool Model::inBounds(float x, float y) const {
   return true;
 }
 
-bool Model::inBoundsLarger(float x, float y) const {
+bool Simulation::inBoundsLarger(float x, float y) const {
   if (x < 0 || x >= getWidth()) return false;
   if (y < 0 || y >= getHeight()) return false;
   for (const auto& it : blocks)
@@ -153,18 +153,18 @@ bool Model::inBoundsLarger(float x, float y) const {
   return true;
 }
 
-bool Model::inIntersection(float x, float y) const {
+bool Simulation::inIntersection(float x, float y) const {
   Block* result = getIntersection(x, y);
   return result != NULL;
 }
 
-Block* Model::getIntersection(float x, float y) const {
+Block* Simulation::getIntersection(float x, float y) const {
   for (int i = 0; i < interSections.size(); i++)
     if (interSections[i]->containsPoint(x, y)) return interSections[i];
   return NULL;
 }
 
-vector<Vector2f> Model::getIntersectionCenter() {
+vector<Vector2f> Simulation::getIntersectionCenter() {
   vector<Vector2f> IntersectionCenter;
   for (const auto& it : interSections)
     IntersectionCenter.push_back(it->getCenter());

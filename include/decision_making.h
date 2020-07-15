@@ -20,6 +20,11 @@ inline static float colToX(int col) {
   return (col + 0.5) * Globals::constant.BELIEF_TILE_SIZE;
 }
 
+inline float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
+  float distance = abs(v1[0] - v2[0]) + abs(v1[1] - v2[1]);
+  return distance;
+}
+
 /*
  * This class provides some common elements to all of your
  * multi-agent searchers.  Any methods defined here will be available
@@ -36,25 +41,25 @@ public:
 
   DecisionMaker(int dep = 2, int ind = 0) : depth(dep), index(ind) {}
 
-  vector<string> generateLegalActions(const Model&);
+  vector<string> generateLegalActions(const Simulation&);
 
-  vector<vector<vec2f>>& generatePaths(const Model&, vector<string>&);
+  vector<vector<vec2f>>& generatePaths(const Simulation&, vector<string>&);
 
-  vector<vector<vec2f>>& generatePaths2(const Model& mod, vector<string>&);
+  vector<vector<vec2f>>& generatePaths2(const Simulation& mod, vector<string>&);
 
-  void ApplyAction(const Model&, int, const std::string&);
+  void ApplyAction(const Simulation&, int, const std::string&);
 
-  float evaluationPath(const Model&, const vector<vec2f>& path, vector<int>& carintentions);
+  float evaluationPath(const Simulation&, const vector<vec2f>& path, vector<int>& carintentions);
 
-  bool getPath(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
+  bool getPath(const Simulation& simulation, vector<vec2f>& mypath, vector<int>& carIntentions);
 
-  bool getPath2(const Model& model, vector<vec2f>& mypath, vector<int>& carIntentions);
+  bool getPath2(const Simulation& simulation, vector<vec2f>& mypath, vector<int>& carIntentions);
 
   vector<vector<vec2f>> getPaths() { return paths; }
 
-  bool isCloseToOtherCar(Car* car, const Model& model) const;
+  bool isCloseToOtherCar(Car* car, const Simulation& simulation) const;
 
-  bool isChangeRequired(Car* mycar, const Model& model);
+  bool isChangeRequired(Car* mycar, const Simulation& simulation);
 
 private:
   int depth;

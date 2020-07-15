@@ -1,10 +1,10 @@
 #ifndef INFERENCE_H
 #define INFERENCE_H
 
-#include "model.h"
+#include "simulation.h"
 #include "car.h"
 
-class Model;
+class Simulation;
 class Car;
 
 namespace Inference {
@@ -23,11 +23,11 @@ class JointParticles {
 public:
   JointParticles(int num = 600) : numParticles(num), numAgents(0) {};
 
-  void initializeUniformly(const Model& model, const vector<string>& intentions);
+  void initializeUniformly(const Simulation& simulation, const vector<string>& intentions);
 
   void initializeParticles();
 
-  void observe(const Model& model);
+  void observe(const Simulation& simulation);
 
   Counter<vector<string>> getBelief();
 
@@ -52,9 +52,9 @@ static JointParticles jointInference = JointParticles();
 
 class MarginalInference {
 public:
-  MarginalInference(int index, const Model& model);
-  void initializeUniformly(const Model& gameState);
-  void observe(const Model& gameState);
+  MarginalInference(int index, const Simulation& simulation);
+  void initializeUniformly(const Simulation& gameState);
+  void observe(const Simulation& gameState);
   vector<float> getBelief();
 
 private:

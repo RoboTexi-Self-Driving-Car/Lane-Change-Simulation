@@ -30,8 +30,8 @@ void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title) {
 }
 
 // to check if the game is over
-bool gameover(Model& model) {
-  if (model.checkVictory() || model.checkCollision(model.getHost()))
+bool gameover(Simulation& simulation) {
+  if (simulation.checkVictory() || simulation.checkCollision(simulation.getHost()))
     return true;
   return false;
 }
@@ -60,28 +60,28 @@ void drawPolygon(vector<Vector2f>& polygonvertices) {
   delete[] vertices;
 }
 
-void observe(Host* car, const Model& model) {
-  car->makeObse(model);
-  vector<Car*> cars = model.getOtherCars();
+void observe(Host* car, const Simulation& simulation) {
+  car->makeObse(simulation);
+  vector<Car*> cars = simulation.getOtherCars();
   for (int index = 0; index < cars.size(); index++) {
     Agent* car = dynamic_cast<Agent*>(cars[index]);
-    int i = model.toindex(car);
-    Inference::MarginalInference* inference = car->getInference(i + 1, model);
-    inference->observe(model);
+    int i = simulation.toindex(car);
+    Inference::MarginalInference* inference = car->getInference(i + 1, simulation);
+    inference->observe(simulation);
   }
 }
 
-vector<int> infer(const Model& model) {
-  Host* car = dynamic_cast<Host*>(model.getHost());
+vector<int> infer(const Simulation& simulation) {
+  Host* car = dynamic_cast<Host*>(simulation.getHost());
   vector<int> cartoIntention;
-  observe(car, model);
+  observe(car, simulation);
   // beliefs = []
   vector<string> colors{"green", "red"};
-  vector<Car*> cars = model.getOtherCars();
+  vector<Car*> cars = simulation.getOtherCars();
   for (int k = 0; k < cars.size(); k++) {
     Agent* car = dynamic_cast<Agent*>(cars[k]);
-    int index = model.toindex(car);
-    vector<float> belief = car->getInference(index + 1, model)->getBelief();
+    int index = simulation.toindex(car);
+    vector<float> belief = car->getInference(index + 1, simulation)->getBelief();
 
     int maxindex = 0;
     for (int i = 0; i < belief.size(); i++) {

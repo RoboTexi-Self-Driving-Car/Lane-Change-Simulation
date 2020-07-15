@@ -34,8 +34,8 @@ ostream& operator<<(ostream& os, const State& s) {
 // Search member functions
 //******************************************************************************
 
-Search::Search(Model* m, const vec2f& goal) : model(m) {
-  vec2f pos = model->getHost()->getPos();
+Search::Search(Simulation* m, const vec2f& goal) : simulation(m) {
+  vec2f pos = simulation->getHost()->getPos();
   start = State(pvff(pos, vec2f(1, 0)));
   this->goal = goal;
   cost = 1;
@@ -114,13 +114,13 @@ vector<State> Search::getSuccessors(const State& state) {
     bool isinBound = true;
 
     for (const auto& point : bounds) {
-      if (!model->inBoundsLarger(point[0], point[1])) {
+      if (!simulation->inBoundsLarger(point[0], point[1])) {
         isinBound = false;
         break;
       }
     }
 
-    //        vector<Car*> cars = model->getOtherCars();
+    //        vector<Car*> cars = simulation->getOtherCars();
     //        for (Car* othercar : cars) {
     //            if (othercar->collides(car.getPos(), bounds)){
     //                isinBound = false;

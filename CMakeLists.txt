@@ -20,8 +20,8 @@ include_directories(
 
 add_executable(simulation
   src/main.cpp
+  src/simulation.cpp
   src/layout.cpp
-  src/model.cpp
   src/car.cpp
   src/inference.cpp
   src/search.cpp

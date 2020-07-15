@@ -19,7 +19,7 @@
 #include <iostream>
 #include <queue>
 
-#include "model.h"
+#include "simulation.h"
 #include "vec2D.h"
 
 using std::ostream;
@@ -68,7 +68,7 @@ struct State {
 
 class Search {
 public:
-  Search(Model* m, const vec2f& goal);
+  Search(Simulation* m, const vec2f& goal);
   State search();
   vector<State> getSuccessors(const State& state);
   bool isGoal(State&);
@@ -81,7 +81,7 @@ public:
   void smooth();
 
 private:
-  Model* model;
+  Simulation* simulation;
   int unitdistanace;
   vec2f goal;
   State start;

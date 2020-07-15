@@ -39,13 +39,13 @@ double pdf(float mean, float std, float value) {
 }
 
 //******************************************************************************
-// JointParticles member functions (declared in model.h)
+// JointParticles member functions (declared in simulation.h)
 //******************************************************************************
 
-void JointParticles::initializeUniformly(const Model& model,
+void JointParticles::initializeUniformly(const Simulation& simulation,
                                          const vector<string>& intentions) {
   // stores infomraiton about the game, then initialize the particles
-  numAgents = model.getOtherCars().size();
+  numAgents = simulation.getOtherCars().size();
   legalIntentions = intentions;
   beliefs = Counter<vector<string>>();
   initializeParticles();
@@ -69,10 +69,10 @@ void JointParticles::initializeParticles() {
                    jointstates.begin() + n);
 }
 
-void JointParticles::observe(const Model& model) {
+void JointParticles::observe(const Simulation& simulation) {
   if (beliefs.size() == 1) initializeParticles();
 
-  vector<Car*> othercars = model.getOtherCars();
+  vector<Car*> othercars = simulation.getOtherCars();
   Counter<vector<string>> tempCounter = Counter<vector<string>>();
 
   for (int i = 0; i < particles.size(); i++) {
@@ -190,19 +190,19 @@ pff JointParticles::getMeanStandard(queue<float>& history,
 //        vector<string> legalIntentions;
 //        int index;
 //    public:
-//        MarginalInference(int index, const Model& model) {
+//        MarginalInference(int index, const Simulation& simulation) {
 //            this->index = index;
 //            legalIntentions = intentions;
-//            initializeUniformly(model);
+//            initializeUniformly(simulation);
 //        }
 //
-//        void initializeUniformly(const Model& gameState) {
+//        void initializeUniformly(const Simulation& gameState) {
 //            if (index == 1)
 //                jointInference.initializeUniformly(gameState,
 //                legalIntentions);
 //        }
 //
-//        void observe(const Model& gameState) {
+//        void observe(const Simulation& gameState) {
 //            if (index == 1)
 //                jointInference.observe(gameState);
 //        }
@@ -222,21 +222,21 @@ pff JointParticles::getMeanStandard(queue<float>& history,
 //    };
 
 //******************************************************************************
-// MarginalInference member functions (declared in model.h)
+// MarginalInference member functions (declared in simulation.h)
 //******************************************************************************
 
-MarginalInference::MarginalInference(int index, const Model& model) {
+MarginalInference::MarginalInference(int index, const Simulation& simulation) {
   this->index = index;
   legalIntentions = intentions;
-  initializeUniformly(model);
+  initializeUniformly(simulation);
 }
 
-void MarginalInference::initializeUniformly(const Model& gameState) {
+void MarginalInference::initializeUniformly(const Simulation& gameState) {
   if (index == 1)
     jointInference.initializeUniformly(gameState, legalIntentions);
 }
 
-void MarginalInference::observe(const Model& gameState) {
+void MarginalInference::observe(const Simulation& gameState) {
   if (index == 1) jointInference.observe(gameState);
 }
 

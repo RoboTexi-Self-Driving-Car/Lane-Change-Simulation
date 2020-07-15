@@ -34,19 +34,19 @@ int main(void) {
 
   string worldname = "road2";
   Layout layout = Layout(worldname);
-  Model model(layout);
+  Simulation simulation(layout);
 
   // Display setting.
-  display.setColors(model.getCars());
+  display.setColors(simulation.getCars());
 
   int SCREEN_WIDTH = layout.getWidth();
   int SCREEN_HEIGHT = layout.getHeight();
 
   // Get the ego car.
-  Car* mycar = model.getHost();
+  Car* mycar = simulation.getHost();
 
   // Get the neighboring cars.
-  vector<Car*> cars = model.getCars();
+  vector<Car*> cars = simulation.getCars();
   // std::cout << car->isHost() << std::endl;
 
   // Display setting.
@@ -66,11 +66,11 @@ int main(void) {
 
   // each neighboring cars' yielding intention
   vector<int> carintentions;
-  for (int i = 0; i < model.getOtherCars().size(); i++) {
+  for (int i = 0; i < simulation.getOtherCars().size(); i++) {
     carintentions.push_back(1);
   }
 
-  bool success = decision.getPath(model, mypath, carintentions);
+  bool success = decision.getPath(simulation, mypath, carintentions);
 
   // get candidate paths
   vector<vector<vec2f>> mypaths = decision.getPaths();
@@ -93,9 +93,9 @@ int main(void) {
     //**************************************************************************
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    Display::drawGoal(model.getFinish());
-    Display::drawBlocks(model.getBlocks());
-    Display::drawLine(model.getLine());
+    Display::drawGoal(simulation.getFinish());
+    Display::drawBlocks(simulation.getBlocks());
+    Display::drawLine(simulation.getLine());
 
     //**************************************************************************
     // Draw candidate paths.
@@ -107,10 +107,10 @@ int main(void) {
     //**************************************************************************
     // Display the cars.
     //**************************************************************************
-    display.drawCar(model.getHost());
-    display.drawOtherCar(model.getOtherCars());
+    display.drawCar(simulation.getHost());
+    display.drawOtherCar(simulation.getOtherCars());
 
-    if (!gameover(model)) {
+    if (!gameover(simulation)) {
       //************************************************************************
       // Update all the cars in a time step
       //************************************************************************
@@ -119,22 +119,22 @@ int main(void) {
         if (car == mycar) {
           // destination reaches, generate new paths
           if (mypath.size() == 0 || abs(mycar->getPos().x - mypath[mypath.size() - 1].x) < 10) {
-            success = decision.getPath(model, mypath, carintentions);
-            change = decision.isChangeRequired(car, model);
+            success = decision.getPath(simulation, mypath, carintentions);
+            change = decision.isChangeRequired(car, simulation);
             // candidate paths
             mypaths = decision.getPaths();
             if (!success && change) {
-              carintentions = infer(model);
+              carintentions = infer(simulation);
               mypath.clear();
-              decision.ApplyAction(model, 0, "dec");
+              decision.ApplyAction(simulation, 0, "dec");
             } else {
-              car->autonomousAction(mypath, model, NULL);
+              car->autonomousAction(mypath, simulation, NULL);
               car->update();
             }
           }
           // using the current path
           else {
-            car->autonomousAction(mypath, model, NULL);
+            car->autonomousAction(mypath, simulation, NULL);
             car->update();
           }
           // display the final path
@@ -142,7 +142,7 @@ int main(void) {
         }
         // other car moves
         else {
-          car->autonomousAction(mypath, model, NULL);
+          car->autonomousAction(mypath, simulation, NULL);
           car->update();
         }
       }
@@ -157,12 +157,12 @@ int main(void) {
     //************************************************************************
     // Check the ending contion.
     //************************************************************************
-    over = (gameover(model) || glfwWindowShouldClose(window));
+    over = (gameover(simulation) || glfwWindowShouldClose(window));
 
     Display::sleep(0.05);
   }
 
-  if (model.checkVictory()) {
+  if (simulation.checkVictory()) {
     std::cout << "[Simulation]: The car win." << endl;
   }
   else {

@@ -150,17 +150,17 @@ void Car::setVelocity(float amount) {
 }
 
 // check car is in instersection
-bool Car::carInintersection(const Model& model) {
+bool Car::carInintersection(const Simulation& simulation) {
   vector<Vector2f> bounds = getBounds();
   for (const auto& point : bounds) {
-    if (model.inIntersection(point[0], point[1])) return true;
+    if (simulation.inIntersection(point[0], point[1])) return true;
   }
   return false;
 }
 
-bool Car::isCloseToOtherCar(const Model& model) const {
+bool Car::isCloseToOtherCar(const Simulation& simulation) const {
   //### check the master car is close to others
-  vector<Car*> cars = model.getCars();
+  vector<Car*> cars = simulation.getCars();
   if (cars.size() == 0) return false;
   const Car* obstaclecar = nullptr;
   float distance = 9999999;
@@ -196,14 +196,14 @@ void Host::setup() {
   minSpeed = 1;
 }
 
-void Host::autonomousAction(const vector<Vector2f>& path, const Model& model,
+void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation,
                             kdtree::kdtree<point<float>>* tree = NULL) {
   if (path.size() == 0) return;
 
   Vector2f oldPos = getPos();
   Vector2f oldDir = getDir();
   // Vector2f oldVel = getVelocity();
-  UMAP<string, float> actions = getAutonomousActions(path, model, tree);
+  UMAP<string, float> actions = getAutonomousActions(path, simulation, tree);
   assert(getPos() == oldPos);
   assert(getDir() == oldDir);
 
@@ -224,7 +224,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Model& model,
   }
 }
 
-void Host::autonomousAction2(const vector<Vector2f>& path, const Model& model,
+void Host::autonomousAction2(const vector<Vector2f>& path, const Simulation& simulation,
                              int i) {
   if (path.size() == 0) return;
 
@@ -232,7 +232,7 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Model& model,
   Vector2f oldDir = getDir();
   // Vector2f oldVel = getVelocity();
 
-  UMAP<string, float> actions = getAutonomousActions2(path, model);
+  UMAP<string, float> actions = getAutonomousActions2(path, simulation);
 
   assert(getPos() == oldPos);
   assert(getDir() == oldDir);
@@ -254,9 +254,9 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Model& model,
   }
 }
 
-// bool Host::isCloseToOtherCar(const Model& model) {
+// bool Host::isCloseToOtherCar(const Simulation& simulation) {
 //
-//    vector<Car*> cars = model.getOtherCars();
+//    vector<Car*> cars = simulation.getOtherCars();
 //    if (cars.size() == 0) return false;
 //    Car* obstaclecar = nullptr;
 //    float distance = inf;
@@ -274,15 +274,15 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Model& model,
 //    return false;
 //}
 
-// void decisionMaking(const DecisionAgent& decision, const Model& model) {
+// void decisionMaking(const DecisionAgent& decision, const Simulation& simulation) {
 //
-//   if (isCloseToOtherCar(model))
-//    action = agent.getAction(model);
+//   if (isCloseToOtherCar(simulation))
+//    action = agent.getAction(simulation);
 //    return action;
 //}
 
 UMAP<string, float> Host::getAutonomousActions2(const vector<Vector2f>& path,
-                                                const Model& model) {
+                                                const Simulation& simulation) {
   UMAP<string, float> output;
   if (nodeId >= path.size()) nodeId = 0;
 
@@ -322,7 +322,7 @@ UMAP<string, float> Host::getAutonomousActions2(const vector<Vector2f>& path,
   return output;
 }
 
-void Host::makeObse(const Model& state) {
+void Host::makeObse(const Simulation& state) {
   vector<Car*> cars = state.getOtherCars();
   for (const auto& car : cars) {
     Vector2f obsv = dynamic_cast<Agent*>(car)->getObserv();
@@ -335,7 +335,7 @@ void Host::makeObse(const Model& state) {
 }
 
 UMAP<string, float> Host::getAutonomousActions(
-    const vector<Vector2f>& path, const Model& model,
+    const vector<Vector2f>& path, const Simulation& simulation,
     kdtree::kdtree<point<float>>* tree) {
   UMAP<string, float> output;
   if (nodeId > path.size()) nodeId = 0;
@@ -352,7 +352,7 @@ UMAP<string, float> Host::getAutonomousActions(
     return output;
   }
 
-  if (carInintersection(model) && !stopflag) {
+  if (carInintersection(simulation) && !stopflag) {
     stopflag = true;
     // setVelocity(0.0);
     output["TURN_WHEEL"] = 0;
@@ -361,7 +361,7 @@ UMAP<string, float> Host::getAutonomousActions(
   }
   // finished checking the
 
-  if (isCloseToOtherCar(model)) {
+  if (isCloseToOtherCar(simulation)) {
     output["TURN_WHEEL"] = 0;
     output["DRIVE_FORWARD"] = 0;
     return output;
@@ -435,7 +435,7 @@ void Agent::setup() {
   inference = NULL;
 }
 
-void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
+void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation,
                              kdtree::kdtree<point<float>>* tree) {
   /*
    * here we have three choices to choose: normal, acc, dec
@@ -447,7 +447,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
     return;
   }
   //
-  bool check = carInintersection(model);
+  bool check = carInintersection(simulation);
   if (check && !stopflag) {
     stopflag = true;
     accelerate(0);
@@ -456,7 +456,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
     return;
   }
 
-  if (isCloseToOtherCar(model)) {
+  if (isCloseToOtherCar(simulation)) {
     accelerate(0);
     setWheelAngle(0);
     return;
@@ -466,7 +466,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
   // assume it is not conservative for all drivers
   unsigned int i = 1;
 
-  Car* host = model.getHost();
+  Car* host = simulation.getHost();
 
   // conservative driver will yield
   if ((host->getPos().x < this->getPos().x + Car::LENGTH * 4) &&
@@ -490,7 +490,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Model& model,
   }
 }
 
-void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Model& model,
+void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Simulation& simulation,
                               int i) {
   // unsigned int i = rand()%1;
   // assume it is not conservative for all drivers
@@ -509,7 +509,7 @@ void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Model& model,
 }
 
 Inference::MarginalInference* Agent::getInference(int index,
-                                                  const Model& state) {
+                                                  const Simulation& state) {
   if (!hasinference) {
     inference = new Inference::MarginalInference(index, state);
     hasinference = true;

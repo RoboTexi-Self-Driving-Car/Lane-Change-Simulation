@@ -1,5 +1,5 @@
 //
-//  model.h
+//  simulation.h
 //  CarGame
 //
 //  Created by HJKBD on 8/21/16.
@@ -20,16 +20,15 @@ using std::vector;
 
 // Forward declaration
 class Car;
-class Model;
+class Simulation;
 namespace Inference {
   class JointParticles;
   class MarginalInference;
 }
 
-inline float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
-  float distance = abs(v1[0] - v2[0]) + abs(v1[1] - v2[1]);
-  return distance;
-}
+//************************************************************************
+// class Line
+//************************************************************************
 
 struct Line {
   int x1, y1, x2, y2;
@@ -103,18 +102,18 @@ private:
 };
 
 //************************************************************************
-// class Model
+// class Simulation
 //************************************************************************
 
-class Model {
+class Simulation {
 public:
-  Model(Layout&);
+  Simulation(Layout&);
 
-  Model(const Model&);
+  Simulation(const Simulation&);
 
-  ~Model();
+  ~Simulation();
 
-  // get the properties for the model class
+  // get the properties for the simulation class
   int getWidth() const { return layout.getWidth(); }
 
   int getHeight() const { return layout.getHeight(); }
@@ -149,7 +148,7 @@ public:
 
   void setHost(Car* car);
 
-  // utility function to help check model
+  // utility function to help check simulation
   bool checkVictory() const;
 
   bool checkCollision(Car* car) const;

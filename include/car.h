@@ -2,10 +2,10 @@
 #define CAR_H
 
 #include "inference.h"
-#include "model.h"
+#include "simulation.h"
 
 class Car;
-class Model;
+class Simulation;
 namespace Inference {
   class JointParticles;
   class MarginalInference;
@@ -75,10 +75,10 @@ public:
 
   virtual bool isHost() { return false; }
 
-  virtual void autonomousAction(const vector<Vector2f>&, const Model&,
+  virtual void autonomousAction(const vector<Vector2f>&, const Simulation&,
                                 kdtree::kdtree<point<float>>* tree = NULL){};
 
-  virtual void autonomousAction2(const vector<Vector2f>&, const Model&,
+  virtual void autonomousAction2(const vector<Vector2f>&, const Simulation&,
                                  int i = 1){};
 
   virtual void setup();
@@ -116,9 +116,9 @@ public:
   // carfufl not to too use the function, this is used for planning ahead
   void setVelocity(float amount);
 
-  bool carInintersection(const Model& state);
+  bool carInintersection(const Simulation& state);
 
-  bool isCloseToOtherCar(const Model& model) const;
+  bool isCloseToOtherCar(const Simulation& simulation) const;
 
 private:
   Vector2f pos;
@@ -164,20 +164,20 @@ public:
 
   bool isHost() { return true; }
 
-  void autonomousAction(const vector<Vector2f>& path, const Model& model,
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation,
                         kdtree::kdtree<point<float>>* tree);
 
-  void autonomousAction2(const vector<Vector2f>& path, const Model& model,
+  void autonomousAction2(const vector<Vector2f>& path, const Simulation& simulation,
                          int i = 1);
 
   UMAP<string, float> getAutonomousActions(const vector<Vector2f>& path,
-                                           const Model& model,
+                                           const Simulation& simulation,
                                            kdtree::kdtree<point<float>>* tree);
 
   UMAP<string, float> getAutonomousActions2(const vector<Vector2f>& path,
-                                            const Model& model);
+                                            const Simulation& simulation);
 
-  void makeObse(const Model& state);
+  void makeObse(const Simulation& state);
 
 private:
   int nodeId;
@@ -228,13 +228,13 @@ public:
 
   std::queue<float>& getHistory() { return history; }
 
-  void autonomousAction(const vector<Vector2f>& vec2, const Model& model,
+  void autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation,
                         kdtree::kdtree<point<float>>* tree);
 
-  void autonomousAction2(const vector<Vector2f>& path, const Model& model,
+  void autonomousAction2(const vector<Vector2f>& path, const Simulation& simulation,
                          int i = 1);
 
-  Inference::MarginalInference* getInference(int index, const Model& model);
+  Inference::MarginalInference* getInference(int index, const Simulation& simulation);
 
   Vector2f getObserv() { return getVelocity(); }
 };
