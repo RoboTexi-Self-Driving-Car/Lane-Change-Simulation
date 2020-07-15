@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "decision_making_2.h"
+#include "decision_making.h"
 #include "display.h"
 #include "inference.h"
 #include "util.h"
@@ -59,7 +59,7 @@ int main(void) {
   bool over = false;
 
   // decision making module
-  DecisionAgent2 decision;
+  DecisionMaker decision;
 
   // final path
   vector<vec2f> mypath;

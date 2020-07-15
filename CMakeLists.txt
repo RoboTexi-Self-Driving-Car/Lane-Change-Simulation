@@ -26,7 +26,7 @@ add_executable(simulation
   src/inference.cpp
   src/search.cpp
   src/search2.cpp
-  src/decision_making_2.cpp
+  src/decision_making.cpp
 )
 
 target_link_libraries(simulation ${OPENGL_LIBRARY} ${GLUT_LIBRARY} ${GLFW_LIBRARIES})
