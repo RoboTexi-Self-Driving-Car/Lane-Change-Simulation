@@ -1,7 +1,7 @@
 #include "car.h"
 
 //************************************************************************
-// methods and implementation
+// class Car: methods and implementation
 //************************************************************************
 
 const float Car::RADIUS = sqrt(pow(Car::LENGTH, 2) + pow(Car::WIDTH, 2));
@@ -188,6 +188,10 @@ bool Car::isCloseToOtherCar(const Simulation& simulation) const {
   return false;
 }
 
+//************************************************************************
+// class Host: methods and implementation
+//************************************************************************
+
 void Host::setup() {
   maxSpeed = 3.0;
   friction = 1;
@@ -208,7 +212,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
   assert(getDir() == oldDir);
 
   // assert (getVelocity() == oldVel);
-  if (actions.count("DRIVE_FORWARD") != 0) {
+  if (actions.count("DRIVE_FORWARD")) {
     float percent = actions["DRIVE_FORWARD"];
     int sign = 1;
     if (percent < 0) sign = -1;
@@ -217,7 +221,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
     percent = percent < 1.0 ? percent : 1.0;
     percent *= sign;
     accelerate(maxWheelAngle * percent);
-    if (actions.count("TURN_WHEEL") != 0) {
+    if (actions.count("TURN_WHEEL")) {
       float turnAngle = actions["TURN_WHEEL"];
       setWheelAngle(turnAngle);
     }
@@ -238,7 +242,7 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Simulation& sim
   assert(getDir() == oldDir);
   // assert (getVelocity() == oldVel);
 
-  if (actions.count("DRIVE_FORWARD") != 0) {
+  if (actions.count("DRIVE_FORWARD")) {
     float percent = actions["DRIVE_FORWARD"];
     int sign = 1;
     if (percent < 0) sign = -1;
@@ -247,39 +251,12 @@ void Host::autonomousAction2(const vector<Vector2f>& path, const Simulation& sim
     percent = percent < 1.0 ? percent : 1.0;
     percent *= sign;
     accelerate(maxWheelAngle * percent);
-    if (actions.count("TURN_WHEEL") != 0) {
+    if (actions.count("TURN_WHEEL")) {
       float turnAngle = actions["TURN_WHEEL"];
       setWheelAngle(turnAngle);
     }
   }
 }
-
-// bool Host::isCloseToOtherCar(const Simulation& simulation) {
-//
-//    vector<Car*> cars = simulation.getOtherCars();
-//    if (cars.size() == 0) return false;
-//    Car* obstaclecar = nullptr;
-//    float distance = inf;
-//    for (Car*car: cars) {
-//        float cardis = manhattanDistance(car->getPos(), getPos());
-//        if (cardis < distance) {
-//            distance = cardis;
-//            obstaclecar = car;
-//        }
-//        }
-//    if (abs(obstaclecar->getPos()[0] - getPos()[0]) <
-//    Globals::constant.BELIEF_TILE_SIZE*1.5 &&
-//        abs(obstaclecar->getPos()[1] - getPos()[1]) < Car::WIDTH/2)
-//        return true;
-//    return false;
-//}
-
-// void decisionMaking(const DecisionAgent& decision, const Simulation& simulation) {
-//
-//   if (isCloseToOtherCar(simulation))
-//    action = agent.getAction(simulation);
-//    return action;
-//}
 
 UMAP<string, float> Host::getAutonomousActions2(const vector<Vector2f>& path,
                                                 const Simulation& simulation) {
@@ -423,6 +400,10 @@ UMAP<string, float> Host::getAutonomousActions(
 
   return output;
 }
+
+//************************************************************************
+// class Agent: methods and implementation
+//************************************************************************
 
 void Agent::setup() {
   maxSpeed = 3.0;
