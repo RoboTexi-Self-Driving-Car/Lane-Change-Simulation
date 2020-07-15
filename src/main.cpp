@@ -14,7 +14,7 @@
 #include <iomanip>
 #include <iostream>
 
-#include "decisionmaking2.h"
+#include "decision_making_2.h"
 #include "display.h"
 #include "inference.h"
 #include "util.h"
@@ -161,6 +161,7 @@ int main(void) {
 
     Display::sleep(0.05);
   }
+
   if (model.checkVictory()) {
     std::cout << "The car win" << endl;
   }

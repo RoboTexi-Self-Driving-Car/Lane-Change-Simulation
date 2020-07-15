@@ -26,7 +26,7 @@ using std::ostream;
 
 template <class T>
 class Vector2d {
- public:
+public:
   /*
    * The x and y values are public to give easier access for
    * outside funtions. Accessors and mutators are not really

@@ -9,9 +9,6 @@
 #include <cmath>
 #include <iomanip>
 
-#include "model.h"
-#include "vec2D.h"
-
 #define pi 3.1415926
 
 extern void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title);

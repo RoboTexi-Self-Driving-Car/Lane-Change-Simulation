@@ -18,6 +18,16 @@ include_directories(
   ${GLFW_INCLUDE_DIRS}
 )
 
-add_executable(simulation src/main.cpp src/globals.cpp src/layout.cpp src/model.cpp)
+add_executable(simulation
+  src/main.cpp
+  src/globals.cpp
+  src/layout.cpp
+  src/model.cpp
+  src/inference.cpp
+  src/search.cpp
+  src/search2.cpp
+  src/decision_making_2.cpp
+)
+
 target_link_libraries(simulation ${OPENGL_LIBRARY} ${GLUT_LIBRARY} ${GLFW_LIBRARIES})
 # target_compile_features(simulation PRIVATE cxx_range_for)

@@ -24,7 +24,7 @@ class Model;
 /*********************************** Inference *******************************/
 namespace Inference {
 
-enum State { cooperative, aggressive };
+enum State {cooperative, aggressive};
 
 const vector<string> intentions{"cooperative", "aggressive"};
 
@@ -81,7 +81,7 @@ private:
 }  // namespace Inference
 /******************************************************************************/
 
-static float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
+inline float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
   float distance = abs(v1[0] - v2[0]) + abs(v1[1] - v2[1]);
   return distance;
 }
