@@ -292,7 +292,7 @@ UMAP<string, float> Host::getAutonomousActions2(const vector<Vector2f>& path,
   output["TURN_WHEEL"] = wheelAngle * sign;
   output["DRIVE_FORWARD"] = 1.0;
   //    if (abs(wheelAngle) < 20) output["DRIVE_FORWARD"] = 1.0;
-  //    else if(abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
+  //    else if (abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
   //    else output["DRIVE_FORWARD"] = 0.5;
 
   return output;
@@ -394,7 +394,7 @@ UMAP<string, float> Host::getAutonomousActions(
   output["TURN_WHEEL"] = wheelAngle * sign;
   output["DRIVE_FORWARD"] = 1.0;
   // if (abs(wheelAngle) < 20) output["DRIVE_FORWARD"] = 1.0;
-  // else if(abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
+  // else if (abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
   // else output["DRIVE_FORWARD"] = 0.5;
 
   return output;

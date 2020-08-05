@@ -116,7 +116,7 @@ int main(void) {
             if (!success && change) {
               car_intentions = infer(simulation);
               final_path.clear();
-              decision.ApplyAction(simulation, 0, "dec");
+              decision.applyAction(simulation, 0, "dec");
             } else {
               car->autonomousAction(final_path, simulation, nullptr);
               car->update();

@@ -44,7 +44,7 @@ public:
 
   vector<vector<Vec2f>>& generatePaths(const Simulation&, vector<string>&);
 
-  void ApplyAction(const Simulation&, int, const std::string&);
+  void applyAction(const Simulation&, int, const std::string&);
 
   float evaluatePath(const Simulation&, const vector<Vec2f>& path, vector<int>& car_intentions);
 

@@ -27,11 +27,11 @@ unordered_map<std::string, float> DecisionMaker::actionReward = {
 2. distance to goal
 3. distance to the neareast other cars, if it is two close, the score is less
 */
-vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& sim, vector<string>& legalactions) {
+vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& simulation, vector<string>& legalactions) {
   if (paths.size() > 0) paths.clear();
 
-  Simulation simulation = sim;
-  Car* host = simulation.getHost();
+  Simulation sim = simulation;
+  Car* host = sim.getHost();
   // Vec2f ndir = host->getDir();
 
   for (int i = 0; i < legalactions.size(); i++) {
@@ -45,13 +45,13 @@ vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& sim, vecto
     Vec2f ego_pos(host->getPos() + ndir * float(Globals::constant.BELIEF_TILE_SIZE));
 
     Vec2f des_pos(ego_pos.x + 50, host->getPos().y);
-    SEARCH::Search search(&simulation, des_pos);
+    SEARCH::Search search(&sim, des_pos);
     vector<Vec2f> path = search.path();
     paths.push_back(path);
 
     for (float deltax = 0; deltax < 80; deltax += 10) {
       Vec2f des_pos(ego_pos.x + deltax, ego_pos.y);
-      SEARCH::Search search(&simulation, des_pos);
+      SEARCH::Search search(&sim, des_pos);
       vector<Vec2f> path = search.path();
       paths.push_back(path);
     }
@@ -59,7 +59,7 @@ vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& sim, vecto
   return paths;
 }
 
-void DecisionMaker::ApplyAction(const Simulation& simulation, int agentIndex, const std::string& action) {
+void DecisionMaker::applyAction(const Simulation& simulation, int agentIndex, const std::string& action) {
   Car* car = simulation.getCars()[agentIndex];
   if (action == "normal") {
     car->accelerate(car->friction);
@@ -89,23 +89,23 @@ void DecisionMaker::ApplyAction(const Simulation& simulation, int agentIndex, co
   car->update();
 }
 
-float DecisionMaker::evaluatePath(const Simulation& sim, const vector<Vec2f>& path, vector<int>& car_intentions) {
-  Simulation simulation(sim);
+float DecisionMaker::evaluatePath(const Simulation& simulation, const vector<Vec2f>& path, vector<int>& car_intentions) {
+  Simulation sim(simulation);
   float score = 0.0;
-  Car* ego_car = simulation.getHost();
+  Car* ego_car = sim.getHost();
   Vec2f ego_pos = ego_car->getPos();
 
   while (abs(ego_pos.x - path[path.size() - 1].x) > 5) {
-    ego_car->autonomousAction(path, simulation, 1);
+    ego_car->autonomousAction(path, sim, 1);
     ego_car->update();
 
-    for (int i = 0; i < simulation.getOtherCars().size(); i++) {
-      Car* car = simulation.getOtherCars()[i];
-      car->autonomousAction(path, simulation, car_intentions[i]);
+    for (int i = 0; i < sim.getOtherCars().size(); i++) {
+      Car* car = sim.getOtherCars()[i];
+      car->autonomousAction(path, sim, car_intentions[i]);
       car->update();
     }
 
-    if (simulation.checkCollision(ego_car)) return -inf;
+    if (sim.checkCollision(ego_car)) return -inf;
 
     ego_pos = ego_car->getPos();
   }
@@ -116,7 +116,7 @@ float DecisionMaker::evaluatePath(const Simulation& sim, const vector<Vec2f>& pa
 
   if (isCloseToOtherCar(ego_car, simulation)) return -inf;
 
-  Vector2f goal = sim.getFinish().getCenter();
+  Vector2f goal = simulation.getFinish().getCenter();
   score += 100 * (1 - abs(goal[0] - ego_car->getPos()[0]) / 960);
   score += 100 * (1 - abs(goal[1] - ego_car->getPos()[1]) / 100);
 
@@ -147,13 +147,13 @@ bool DecisionMaker::getPath(const Simulation& simulation, vector<Vec2f>& final_p
   return true;
 };
 
-vector<string> DecisionMaker::generateLegalActions(const Simulation& sim) {
+vector<string> DecisionMaker::generateLegalActions(const Simulation& simulation) {
   vector<string> actionlist = hostActions;
   vector<string> legalactions;
 
   for (const std::string& action : actionlist) {
-    Simulation new_sim = Simulation(sim);
-    Car* car = new_sim.getHost();
+    Simulation sim = Simulation(simulation);
+    Car* car = sim.getHost();
 
     if (action == "left") {
       car->setWheelAngle(45);
@@ -169,7 +169,7 @@ vector<string> DecisionMaker::generateLegalActions(const Simulation& sim) {
 
     bool isinBound = true;
     for (const Vec2f& point : bounds) {
-      if (!new_sim.inBounds(point[0], point[1])) {
+      if (!sim.inBounds(point[0], point[1])) {
         isinBound = false;
         break;
       }

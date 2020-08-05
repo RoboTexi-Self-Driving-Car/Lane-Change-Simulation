@@ -33,19 +33,19 @@ Simulation::Simulation(Layout& lay) : layout(lay) {
   }
 }
 
-Simulation::Simulation(const Simulation& sim) : layout(sim.layout) {
-  finish = sim.finish;
-  blocks = sim.blocks;
-  lines = sim.lines;
-  interSections = sim.interSections;
-  agentGraph = sim.agentGraph;
-  hostGraph = sim.hostGraph;
-  allGraph = sim.allGraph;
-  host = new Host(*sim.getHost());
+Simulation::Simulation(const Simulation& simulation) : layout(simulation.layout) {
+  finish = simulation.finish;
+  blocks = simulation.blocks;
+  lines = simulation.lines;
+  interSections = simulation.interSections;
+  agentGraph = simulation.agentGraph;
+  hostGraph = simulation.hostGraph;
+  allGraph = simulation.allGraph;
+  host = new Host(*simulation.getHost());
   host->setup();
   cars.push_back(host);
 
-  for (Car* car : sim.getOtherCars()) {
+  for (Car* car : simulation.getOtherCars()) {
     Car* othercar = new Agent(*car);
     othercar->setup();
     other_cars.push_back(othercar);
