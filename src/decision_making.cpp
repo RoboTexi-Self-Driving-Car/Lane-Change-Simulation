@@ -66,11 +66,11 @@ void DecisionMaker::applyAction(const Simulation& simulation, int agentIndex, co
     car->setWheelAngle(0);
   }
   if (action == "acc") {
-    car->accelerate(car->maxaccler);
+    car->accelerate(car->max_accler);
     car->setWheelAngle(0);
   }
   if (action == "dec") {
-    car->accelerate(car->maxaccler * 0.25);
+    car->accelerate(car->max_accler * 0.25);
     car->setWheelAngle(0);
   }
   if (action == "stop") {
@@ -79,12 +79,11 @@ void DecisionMaker::applyAction(const Simulation& simulation, int agentIndex, co
   }
   if (action == "left") {
     car->setWheelAngle(-45);
-    ;
-    car->accelerate(car->maxaccler);
+    car->accelerate(car->max_accler);
   }
   if (action == "right") {
     car->setWheelAngle(45);
-    car->accelerate(car->maxaccler);
+    car->accelerate(car->max_accler);
   }
   car->update();
 }

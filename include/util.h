@@ -76,22 +76,22 @@ vector<int> infer(const Simulation& simulation) {
   vector<int> cartoIntention;
   observe(car, simulation);
   // beliefs = []
-  vector<string> colors{"green", "red"};
+  vector<string> colors{"orange", "red"};
   vector<Car*> cars = simulation.getOtherCars();
   for (int k = 0; k < cars.size(); k++) {
     Agent* car = dynamic_cast<Agent*>(cars[k]);
     int index = simulation.toindex(car);
     vector<float> belief = car->getInference(index + 1, simulation)->getBelief();
 
-    int maxindex = 0;
+    int max_index = 0;
     for (int i = 0; i < belief.size(); i++) {
-      if (belief[i] > belief[maxindex]) {
-        maxindex = i;
+      if (belief[i] > belief[max_index]) {
+        max_index = i;
       }
     }
 
-    cartoIntention.push_back(maxindex);
-    display.colorchange(car, colors[maxindex]);
+    cartoIntention.push_back(max_index);
+    display.colorChange(car, colors[max_index]);
   }
 
   return cartoIntention;

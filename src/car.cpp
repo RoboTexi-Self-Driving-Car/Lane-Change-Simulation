@@ -9,26 +9,26 @@ const float Car::RADIUS = sqrt(pow(Car::LENGTH, 2) + pow(Car::WIDTH, 2));
 void Car::init(const string& dir) {
   pii p = direction[dir];
   this->dir = Vector2f(p.first, p.second);
-  wheelAngle = 0;
+  wheel_angle = 0;
   setup();
 }
 
 void Car::init() {
-  wheelAngle = 0;
+  wheel_angle = 0;
   setup();
 }
 
 void Car::setup() {
-  maxSpeed = 5.0;
+  max_speed = 5.0;
+  min_speed = 1.0;
   friction = 0.5;
-  maxWheelAngle = 130.0;
-  maxaccler = 2.0;
-  minSpeed = 1;
+  max_wheel_angle = 130.0;
+  max_accler = 2.0;
 }
 
 void Car::turnCarTowardsWheels() {
   if (velocity.Length() > 0.0) {
-    velocity.rotate(wheelAngle);
+    velocity.rotate(wheel_angle);
     dir = Vector2f(velocity[0], velocity[1]);
     dir.normalized();
   }
@@ -44,8 +44,8 @@ void Car::update() {
 void Car::decellerate(float amount) {
   float speed = velocity.Length();
 
-  if (speed < minSpeed) {
-    speed = minSpeed;
+  if (speed < min_speed) {
+    speed = min_speed;
     return;
   }
 
@@ -59,14 +59,14 @@ void Car::decellerate(float amount) {
 }
 
 void Car::setWheelAngle(float angle) {
-  wheelAngle = angle;
+  wheel_angle = angle;
 
-  if (wheelAngle <= -maxWheelAngle) wheelAngle = -maxWheelAngle;
-  if (wheelAngle >= maxWheelAngle) wheelAngle = maxWheelAngle;
+  if (wheel_angle <= -max_wheel_angle) wheel_angle = -max_wheel_angle;
+  if (wheel_angle >= max_wheel_angle) wheel_angle = max_wheel_angle;
 }
 
 void Car::accelerate(float amount) {
-  amount = std::min(amount, maxaccler);
+  amount = std::min(amount, max_accler);
 
   if (amount < 0) decellerate(amount);
   if (amount == 0) return;
@@ -76,9 +76,9 @@ void Car::accelerate(float amount) {
   acceleration *= amount;
   velocity += acceleration;
 
-  if (velocity.Length() >= maxSpeed) {
+  if (velocity.Length() >= max_speed) {
     velocity.normalized();
-    velocity *= maxSpeed;
+    velocity *= max_speed;
   }
 }
 
@@ -160,7 +160,7 @@ bool Car::carInintersection(const Simulation& simulation) {
 }
 
 bool Car::isCloseToOtherCar(const Simulation& simulation) const {
-  //### check the master car is close to others
+  // check the master car is close to others
   vector<Car*> cars = simulation.getCars();
   if (cars.size() == 0) return false;
   const Car* obstaclecar = nullptr;
@@ -194,11 +194,11 @@ bool Car::isCloseToOtherCar(const Simulation& simulation) const {
 //************************************************************************
 
 void Host::setup() {
-  maxSpeed = 3.0;
+  max_speed = 3.0;
   friction = 1;
-  maxWheelAngle = 45;
-  maxaccler = 1.5;
-  minSpeed = 1;
+  max_wheel_angle = 45;
+  max_accler = 1.5;
+  min_speed = 1;
 }
 
 void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, kdtree::kdtree<point<float>>* tree = nullptr) {
@@ -220,7 +220,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
     percent = percent > 0.0 ? percent : 0.0;
     percent = percent < 1.0 ? percent : 1.0;
     percent *= sign;
-    accelerate(maxWheelAngle * percent);
+    accelerate(max_wheel_angle * percent);
     if (actions.count("TURN_WHEEL")) {
       float turnAngle = actions["TURN_WHEEL"];
       setWheelAngle(turnAngle);
@@ -249,7 +249,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
     percent = percent > 0.0 ? percent : 0.0;
     percent = percent < 1.0 ? percent : 1.0;
     percent *= sign;
-    accelerate(maxWheelAngle * percent);
+    accelerate(max_wheel_angle * percent);
     if (actions.count("TURN_WHEEL")) {
       float turnAngle = actions["TURN_WHEEL"];
       setWheelAngle(turnAngle);
@@ -282,18 +282,18 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
 
   if (nextId >= path.size()) nextId = nodeId;
 
-  //        goalPos = path[nextId];
+  // goalPos = path[nextId];
   // we finish the checking of end point
   vectogoal = path[nextId] - getPos();
-  float wheelAngle = -vectogoal.get_angle_between(getDir());
-  int sign = (wheelAngle < 0) ? -1 : 1;
-  wheelAngle = std::min(abs(wheelAngle), maxWheelAngle);
+  float wheel_angle = -vectogoal.get_angle_between(getDir());
+  int sign = (wheel_angle < 0) ? -1 : 1;
+  wheel_angle = std::min(abs(wheel_angle), max_wheel_angle);
 
-  output["TURN_WHEEL"] = wheelAngle * sign;
+  output["TURN_WHEEL"] = wheel_angle * sign;
   output["DRIVE_FORWARD"] = 1.0;
-  //    if (abs(wheelAngle) < 20) output["DRIVE_FORWARD"] = 1.0;
-  //    else if (abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
-  //    else output["DRIVE_FORWARD"] = 0.5;
+  // if (abs(wheel_angle) < 20) output["DRIVE_FORWARD"] = 1.0;
+  // else if (abs(wheel_angle) < 45) output["DRIVE_FORWARD"] = 0.8;
+  // else output["DRIVE_FORWARD"] = 0.5;
 
   return output;
 }
@@ -387,14 +387,14 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
 
   // we finish the checking of end point
   vectogoal = path[nextId] - getPos();
-  float wheelAngle = -vectogoal.get_angle_between(getDir());
-  int sign = (wheelAngle < 0) ? -1 : 1;
-  wheelAngle = std::min(abs(wheelAngle), maxWheelAngle);
+  float wheel_angle = -vectogoal.get_angle_between(getDir());
+  int sign = (wheel_angle < 0) ? -1 : 1;
+  wheel_angle = std::min(abs(wheel_angle), max_wheel_angle);
 
-  output["TURN_WHEEL"] = wheelAngle * sign;
+  output["TURN_WHEEL"] = wheel_angle * sign;
   output["DRIVE_FORWARD"] = 1.0;
-  // if (abs(wheelAngle) < 20) output["DRIVE_FORWARD"] = 1.0;
-  // else if (abs(wheelAngle) < 45) output["DRIVE_FORWARD"] = 0.8;
+  // if (abs(wheel_angle) < 20) output["DRIVE_FORWARD"] = 1.0;
+  // else if (abs(wheel_angle) < 45) output["DRIVE_FORWARD"] = 0.8;
   // else output["DRIVE_FORWARD"] = 0.5;
 
   return output;
@@ -405,11 +405,11 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
 //************************************************************************
 
 void Agent::setup() {
-  maxSpeed = 3.0;
+  max_speed = 3.0;
   friction = 1;
-  maxWheelAngle = 45;
-  maxaccler = 1.4;
-  minSpeed = 1;
+  max_wheel_angle = 45;
+  max_accler = 1.4;
+  min_speed = 1;
   history = std::queue<float>();
   hasinference = false;
   inference = nullptr;
@@ -457,11 +457,11 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& sim
       setWheelAngle(0);
       break;
     case 1:
-      accelerate(maxaccler);
+      accelerate(max_accler);
       setWheelAngle(0);
       break;
     case 2:
-      accelerate(maxaccler * 0.25);
+      accelerate(max_accler * 0.25);
       setWheelAngle(0);
       break;
     default:
@@ -478,7 +478,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& sim
       setWheelAngle(0);
       break;
     case 1:
-      accelerate(maxaccler);
+      accelerate(max_accler);
       setWheelAngle(0);
       break;
     default:

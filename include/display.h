@@ -40,7 +40,9 @@ public:
   static const Color GREEN;
   static const Color BLUE;
   static const Color BLACK;
-  static const Color YELLOW;
+  static const Color ORANGE;
+  static const Color DARKGREEN;
+  static const Color LIGHTBLUE;
 
   Display() { um = UMAP<size_t, Color>(); }
 
@@ -48,12 +50,12 @@ public:
     for (auto car : cars) um.insert({(size_t)car, RED});
   }
 
-  void colorchange(const Car* car, const string& color) {
+  void colorChange(const Car* car, const string& color) {
     Color col = RED;
     if (color == "green")
       col = GREEN;
-    else if (color == "yellow")
-      col = YELLOW;
+    else if (color == "orange")
+      col = ORANGE;
     else if (color == "red")
       col = RED;
     um.at((size_t)car) = col;
@@ -76,7 +78,7 @@ public:
 
   static void drawGoal(Block& goal) {
     rectangle(goal.getCenter(), goal.getHeight(), goal.getWidth(),
-              Display::GREEN, nullptr, 1.0);
+              Display::LIGHTBLUE, nullptr, 1.0);
   }
 
   static void drawLine(const vector<Line*>& lines) {
@@ -86,13 +88,13 @@ public:
 
   void drawCar(Car* car) {
     Color color = um[(size_t)car];
-    if (car->isHost()) color = Display::BLUE;
+    if (car->isHost()) color = Display::GREEN;
     Vector2f dir = car->getDir();
     rectangle(car->getPos(), Car::WIDTH, Car::LENGTH, color, &dir);
   }
 
   void drawCars(vector<Car*>& cars) {
-    Color color = Display::BLUE;
+    Color color = Display::RED;
     for (Car* car : cars) {
       Vector2f dir = car->getDir();
       rectangle(car->getPos(), Car::WIDTH, Car::LENGTH, color, &dir);
@@ -106,11 +108,11 @@ public:
   static void drawGraph(vector<Block>& graph) {
     for (Block block : graph)
       rectangle(block.getCenter(), block.getHeight(), block.getWidth(),
-                Display::BLUE, nullptr, 1.0);
+                Display::GREEN, nullptr, 1.0);
   }
 
   static void drawTriagnle(vector<Vector2f>& triangles) {
-    triangle(triangles, Display::YELLOW, 1);
+    triangle(triangles, Display::ORANGE, 1);
   }
 
   // draw the rectangle
@@ -248,12 +250,14 @@ public:
 };
 
 // Definition of static member variables of colors.
-const Color Display::GREY = {0.5f, 0.5f, 0.5f};
+const Color Display::GREY = {0.75f, 0.75f, 0.75f};
 const Color Display::WHITE = {1.0f, 1.0f, 1.0f};
 const Color Display::RED = {1.0f, 0.0f, 0.0f};
-const Color Display::GREEN = {0.16f, 0.49f, 0.31f};
+const Color Display::GREEN = {0.0f, 1.0f, 0.0f};
 const Color Display::BLUE = {0.0f, 0.0f, 1.0f};
 const Color Display::BLACK = {0.0f, 0.0f, 0.0f};
-const Color Display::YELLOW = {0.0f, 1.0f, 1.0f};
+const Color Display::ORANGE = {1.0f, 0.65f, 0.0f};
+const Color Display::DARKGREEN = {0.23f, 0.48f, 0.34f};
+const Color Display::LIGHTBLUE = {0.0f, 1.0f, 1.0f};
 
 #endif

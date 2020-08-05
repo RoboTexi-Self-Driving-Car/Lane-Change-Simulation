@@ -29,12 +29,12 @@ static UMAP<string, pff> direction = {
 // abstract class
 class Car {
 public:
-  float wheelAngle;
-  float maxSpeed;
+  float wheel_angle;
+  float max_speed;
   float friction;
-  float maxWheelAngle;
-  float maxaccler;
-  float minSpeed;
+  float max_wheel_angle;
+  float max_accler;
+  float min_speed;
 
   constexpr const static float LENGTH = 25.0;
   constexpr const static float WIDTH = 12.5;
@@ -95,7 +95,7 @@ public:
 
   void decellerate(float amount);
 
-  void turnWheelsTowardsStraight() { wheelAngle = 0.0; }
+  void turnWheelsTowardsStraight() { wheel_angle = 0.0; }
 
   void applyFriction() { decellerate(friction); }
 
