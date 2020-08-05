@@ -55,8 +55,8 @@ template <typename T>
 class node {
 public:
   T point;
-  node<T> *left = NULL;
-  node<T> *right = NULL;
+  node<T> *left = nullptr;
+  node<T> *right = nullptr;
   int _size = 0;
 
   //************************************************************************
@@ -145,7 +145,7 @@ public:
    *  @return Return true if the node has the left node, and return false if the
    * node doesn't have the left node.
    */
-  inline bool has_left_node() { return (this->left != NULL); }
+  inline bool has_left_node() { return (this->left != nullptr); }
 
   /**
    *  Indicates whether the node has the right node.
@@ -153,7 +153,7 @@ public:
    *  @return Return true if the node has the right node, and return false if
    * the node doesn't have the right node.
    */
-  inline bool has_right_node() { return (this->right != NULL); }
+  inline bool has_right_node() { return (this->right != nullptr); }
 
   /**
    *  Indicates whether the node is the leaf.
@@ -249,7 +249,7 @@ public:
     // Find the nearest node
     bool left = is_even ? (this->point.x > query->point.x)
                         : (this->point.y > query->point.y);
-    node<T> *leaf = NULL;
+    node<T> *leaf = nullptr;
 
     if (left) {
       if (this->has_left_node()) {

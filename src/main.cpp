@@ -21,7 +21,7 @@
 
 using namespace std;
 
-GLFWwindow* window = NULL;
+GLFWwindow* window = nullptr;
 
 Display display = Display();
 ofstream myfile;
@@ -118,13 +118,13 @@ int main(void) {
               final_path.clear();
               decision.ApplyAction(simulation, 0, "dec");
             } else {
-              car->autonomousAction(final_path, simulation, NULL);
+              car->autonomousAction(final_path, simulation, nullptr);
               car->update();
             }
           }
           // using the current path
           else {
-            car->autonomousAction(final_path, simulation, NULL);
+            car->autonomousAction(final_path, simulation, nullptr);
             car->update();
           }
           // display the final path
@@ -132,7 +132,7 @@ int main(void) {
         }
         // other car moves
         else {
-          car->autonomousAction(final_path, simulation, NULL);
+          car->autonomousAction(final_path, simulation, nullptr);
           car->update();
         }
       }

@@ -75,11 +75,9 @@ public:
 
   virtual bool isHost() { return false; }
 
-  virtual void autonomousAction(const vector<Vector2f>&, const Simulation&,
-                                kdtree::kdtree<point<float>>* tree = NULL){};
+  virtual void autonomousAction(const vector<Vector2f>&, const Simulation&, kdtree::kdtree<point<float>>* tree = nullptr) {};
 
-  virtual void autonomousAction2(const vector<Vector2f>&, const Simulation&,
-                                 int i = 1){};
+  virtual void autonomousAction(const vector<Vector2f>&, const Simulation&, int i = 1) {};
 
   virtual void setup();
 
@@ -164,11 +162,9 @@ public:
 
   bool isHost() { return true; }
 
-  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation,
-                        kdtree::kdtree<point<float>>* tree);
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, kdtree::kdtree<point<float>>* tree);
 
-  void autonomousAction2(const vector<Vector2f>& path, const Simulation& simulation,
-                         int i = 1);
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int i = 1);
 
   UMAP<string, float> getAutonomousActions(const vector<Vector2f>& path,
                                            const Simulation& simulation,
@@ -219,7 +215,7 @@ public:
   Agent(const Car& car) : Car(car.getPos(), car.getDir(), car.getVelocity()) {}
 
   ~Agent() {
-    if (inference != NULL) delete inference;
+    if (inference != nullptr) delete inference;
   };
 
   virtual void setup();
@@ -228,11 +224,9 @@ public:
 
   std::queue<float>& getHistory() { return history; }
 
-  void autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation,
-                        kdtree::kdtree<point<float>>* tree);
+  void autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, kdtree::kdtree<point<float>>* tree);
 
-  void autonomousAction2(const vector<Vector2f>& path, const Simulation& simulation,
-                         int i = 1);
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int i = 1);
 
   Inference::MarginalInference* getInference(int index, const Simulation& simulation);
 

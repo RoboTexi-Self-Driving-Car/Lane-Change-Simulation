@@ -156,13 +156,13 @@ bool Simulation::inBoundsLarger(float x, float y) const {
 
 bool Simulation::inIntersection(float x, float y) const {
   Block* result = getIntersection(x, y);
-  return result != NULL;
+  return result != nullptr;
 }
 
 Block* Simulation::getIntersection(float x, float y) const {
   for (int i = 0; i < interSections.size(); i++)
     if (interSections[i]->containsPoint(x, y)) return interSections[i];
-  return NULL;
+  return nullptr;
 }
 
 vector<Vector2f> Simulation::getIntersectionCenter() {

@@ -141,6 +141,7 @@ bool Car::collides(const Vector2f& otherPos,
   }
   return true;
 }
+
 // carfufl not to too use the function, this is used for planning ahead
 void Car::setVelocity(float amount) {
   Vector2f ve = Vector2f(dir[0], dir[1]);
@@ -200,8 +201,7 @@ void Host::setup() {
   minSpeed = 1;
 }
 
-void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation,
-                            kdtree::kdtree<point<float>>* tree = NULL) {
+void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, kdtree::kdtree<point<float>>* tree = nullptr) {
   if (path.size() == 0) return;
 
   Vector2f oldPos = getPos();
@@ -228,8 +228,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
   }
 }
 
-void Host::autonomousAction2(const vector<Vector2f>& path, const Simulation& simulation,
-                             int i) {
+void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int i) {
   if (path.size() == 0) return;
 
   Vector2f oldPos = getPos();
@@ -354,7 +353,7 @@ UMAP<string, float> Host::getAutonomousActions(
   Vector2f vectogoal;
 
   // chek the kd tree
-  if ((tree != NULL) && (path.size() == tree->size())) {
+  if ((tree != nullptr) && (path.size() == tree->size())) {
     Vector2f mypos = getPos();
     vector<kdtree::node<point<float>>*> neighbors =
         tree->k_nearest(point<float>(mypos[0], mypos[1]), 2);
@@ -413,11 +412,10 @@ void Agent::setup() {
   minSpeed = 1;
   history = std::queue<float>();
   hasinference = false;
-  inference = NULL;
+  inference = nullptr;
 }
 
-void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation,
-                             kdtree::kdtree<point<float>>* tree) {
+void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, kdtree::kdtree<point<float>>* tree) {
   /*
    * here we have three choices to choose: normal, acc, dec
    */
@@ -471,8 +469,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& sim
   }
 }
 
-void Agent::autonomousAction2(const vector<Vector2f>& vec2, const Simulation& simulation,
-                              int i) {
+void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, int i) {
   // unsigned int i = rand()%1;
   // assume it is not conservative for all drivers
   switch (i) {

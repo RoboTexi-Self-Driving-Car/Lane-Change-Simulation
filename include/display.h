@@ -65,18 +65,18 @@ public:
     struct timespec req = {0};
     req.tv_sec = 0;
     req.tv_nsec = sleeptime;
-    nanosleep(&req, (struct timespec*)NULL);
+    nanosleep(&req, (struct timespec*)nullptr);
   }
 
   static void drawBlocks(const vector<Block*>& blocks) {
     for (const auto& block : blocks)
       rectangle(block->getCenter(), block->getHeight(), block->getWidth(),
-                Display::GREY, NULL, 1.0);
+                Display::GREY, nullptr, 1.0);
   }
 
   static void drawGoal(Block& goal) {
     rectangle(goal.getCenter(), goal.getHeight(), goal.getWidth(),
-              Display::GREEN, NULL, 1.0);
+              Display::GREEN, nullptr, 1.0);
   }
 
   static void drawLine(const vector<Line*>& lines) {
@@ -106,7 +106,7 @@ public:
   static void drawGraph(vector<Block>& graph) {
     for (Block block : graph)
       rectangle(block.getCenter(), block.getHeight(), block.getWidth(),
-                Display::BLUE, NULL, 1.0);
+                Display::BLUE, nullptr, 1.0);
   }
 
   static void drawTriagnle(vector<Vector2f>& triangles) {
@@ -115,7 +115,7 @@ public:
 
   // draw the rectangle
   static void rectangle(Vector2f pos, int length, int width, Color color,
-                        Vector2f* dir = NULL, int filled = 1,
+                        Vector2f* dir = nullptr, int filled = 1,
                         int thickness = 0) {
     Vector2f vertices[] = {Vector2f(-width / 2.0, -length / 2.0),
                            Vector2f(+width / 2.0, -length / 2.0),
@@ -195,13 +195,13 @@ public:
   static void square(float x, float y, float grid_size, const Color& color,
                      bool filled = 0, int width = 3) {
     Vector2f pos(x, y);
-    rectangle(pos, grid_size, grid_size, color, NULL, filled, width);
+    rectangle(pos, grid_size, grid_size, color, nullptr, filled, width);
   }
 
   static void text(float x, float y, const Color& color, const std::string& str,
                    bool isIteration) {
     glColor3f(color.r, color.g, color.b);
-    void* font = NULL;
+    void* font = nullptr;
     if (isIteration) {
       font = GLUT_BITMAP_TIMES_ROMAN_24;
     }

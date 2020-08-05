@@ -96,12 +96,12 @@ float DecisionMaker::evaluatePath(const Simulation& sim, const vector<Vec2f>& pa
   Vec2f ego_pos = ego_car->getPos();
 
   while (abs(ego_pos.x - path[path.size() - 1].x) > 5) {
-    ego_car->autonomousAction2(path, simulation);
+    ego_car->autonomousAction(path, simulation, 1);
     ego_car->update();
 
     for (int i = 0; i < simulation.getOtherCars().size(); i++) {
       Car* car = simulation.getOtherCars()[i];
-      car->autonomousAction2(path, simulation, car_intentions[i]);
+      car->autonomousAction(path, simulation, car_intentions[i]);
       car->update();
     }
 

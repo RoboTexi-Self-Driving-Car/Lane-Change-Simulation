@@ -18,7 +18,7 @@ void begin_graphics(int SCREEN_WIDTH, int SCREEN_HEIGHT, string title) {
 
   // create a window mode window and its openGL context
   window =
-      glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, title.c_str(), NULL, NULL);
+      glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, title.c_str(), nullptr, nullptr);
 
   if (!window) {
     glfwTerminate();
