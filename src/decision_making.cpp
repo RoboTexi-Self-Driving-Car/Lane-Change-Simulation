@@ -152,7 +152,7 @@ vector<string> DecisionMaker::generateLegalActions(const Simulation& simulation)
   vector<string> legalactions;
 
   for (const std::string& action : actionlist) {
-    Simulation sim = Simulation(simulation);
+    Simulation sim(simulation);
     Car* car = sim.getHost();
 
     if (action == "left") {
