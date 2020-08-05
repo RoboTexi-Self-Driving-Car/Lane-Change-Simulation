@@ -57,10 +57,10 @@ int Layout::getStartX() { return int(data.get("host").get(0).get<double>()); }
 
 int Layout::getStartY() { return int(data.get("host").get(1).get<double>()); }
 
-vector<int> Layout::getFinish() {
+vector<int> Layout::getGoal() {
   vector<int> result;
-  picojson::array finish = data.get("finish").get<picojson::array>();
-  for (picojson::value val : finish) result.push_back(val.get<double>());
+  picojson::array goal = data.get("goal").get<picojson::array>();
+  for (picojson::value val : goal) result.push_back(val.get<double>());
   return result;
 }
 

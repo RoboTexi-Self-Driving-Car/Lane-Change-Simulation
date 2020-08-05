@@ -142,7 +142,7 @@ public:
 
   Block* getIntersection(float x, float y) const;
 
-  Block& getFinish() const { return *finish; }
+  Block& getGoal() const { return *goal; }
 
   Car* getHost() const { return host; }
 
@@ -163,7 +163,7 @@ public:
 
 private:
   Layout& layout;
-  Block* finish;
+  Block* goal;
   Car* host;
   // vector<vector<int>> othercardata;
   vector<Block*> blocks;

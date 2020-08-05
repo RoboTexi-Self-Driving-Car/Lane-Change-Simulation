@@ -111,24 +111,24 @@ vector<State> Search::getSuccessors(const State& state) {
     // before it was 1.5* car::length now i change to 1 to suit 'road' case
     vector<Vec2f> bounds =
         car.getBounds(car, 1.2 * Car::LENGTH, 1.2 * Car::WIDTH);
-    bool isinBound = true;
+    bool inBound = true;
 
     for (const auto& point : bounds) {
       if (!simulation->inBoundsLarger(point[0], point[1])) {
-        isinBound = false;
+        inBound = false;
         break;
       }
     }
 
-    //        vector<Car*> cars = simulation->getOtherCars();
-    //        for (Car* othercar : cars) {
-    //            if (othercar->collides(car.getPos(), bounds)){
-    //                isinBound = false;
-    //                break;
-    //            }
-    //        }
+    // vector<Car*> cars = simulation->getOtherCars();
+    // for (Car* othercar : cars) {
+    //  if (othercar->collides(car.getPos(), bounds)){
+    //    inBound = false;
+    //    break;
+    //  }
+    // }
 
-    if (!isinBound) continue;
+    if (!inBound) continue;
 
     Vec2f newPos = car.getPos();
     Vec2f newdir = car.getDir();

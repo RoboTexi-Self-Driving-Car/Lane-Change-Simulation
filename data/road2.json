@@ -17,7 +17,7 @@
 "roadline":[
 [0, 6, 32, 6]
 ],
-"finish" : [31, 5, 32, 6],
+"goal" : [31, 5, 32, 6],
 "agentGraph": {
 "nodes":[],
 "edges":{}

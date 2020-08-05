@@ -31,7 +31,7 @@ public:
 
   std::string getHostDir();
 
-  vector<int> getFinish();
+  vector<int> getGoal();
 
   vector<vector<int>> getBlockData();
 

@@ -1,19 +1,19 @@
 #include "decision_making.h"
 
-vector<std::string> DecisionMaker::hostActions = {
+vector<std::string> DecisionMaker::m_host_actions = {
   "normal",
   "left",
   "right"
 };
 
-vector<std::string> DecisionMaker::otherActions = {
+vector<std::string> DecisionMaker::m_other_actions = {
   "acc",
   "dec",
   "normal",
   "stop"
 };
 
-unordered_map<std::string, float> DecisionMaker::actionReward = {
+unordered_map<std::string, float> DecisionMaker::m_action_rewards = {
   {"normal", 3},
   {"acc", 0},
   {"dec", -1},
@@ -27,18 +27,18 @@ unordered_map<std::string, float> DecisionMaker::actionReward = {
 2. distance to goal
 3. distance to the neareast other cars, if it is two close, the score is less
 */
-vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& simulation, vector<string>& legalactions) {
+vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& simulation, vector<string>& legal_actions) {
   if (paths.size() > 0) paths.clear();
 
   Simulation sim = simulation;
   Car* host = sim.getHost();
   // Vec2f ndir = host->getDir();
 
-  for (int i = 0; i < legalactions.size(); i++) {
+  for (int i = 0; i < legal_actions.size(); i++) {
     Vec2f ndir = Vec2f(1, 1);
 
-    if (legalactions[i] == "normal") continue;
-    if (legalactions[i] == "right") {
+    if (legal_actions[i] == "normal") continue;
+    if (legal_actions[i] == "right") {
       ndir = Vec2f(1, -1);
     }
 
@@ -95,7 +95,9 @@ float DecisionMaker::evaluatePath(const Simulation& simulation, const vector<Vec
   Car* ego_car = sim.getHost();
   Vec2f ego_pos = ego_car->getPos();
 
+  // Criteria 1: collision checking
   while (abs(ego_pos.x - path[path.size() - 1].x) > 5) {
+    // check in the each update (position) if there is collision
     ego_car->autonomousAction(path, sim, 1);
     ego_car->update();
 
@@ -110,15 +112,20 @@ float DecisionMaker::evaluatePath(const Simulation& simulation, const vector<Vec
     ego_pos = ego_car->getPos();
   }
 
+  // check in the last update (position) if there is collision
   ego_car->setPos(path[path.size() - 1]);
+  if (sim.checkCollision(ego_car)) return -inf;
 
-  if (simulation.checkCollision(ego_car)) return -inf;
+  // even if there is no collision but still need to avoid too close
+  if (isCloseToOtherCar(ego_car, sim)) return -inf;
 
-  if (isCloseToOtherCar(ego_car, simulation)) return -inf;
+  Vector2f goal = simulation.getGoal().getCenter();
 
-  Vector2f goal = simulation.getFinish().getCenter();
-  score += 100 * (1 - abs(goal[0] - ego_car->getPos()[0]) / 960);
-  score += 100 * (1 - abs(goal[1] - ego_car->getPos()[1]) / 100);
+  // Criteria 2: distance to goal
+  // The final position gets closer to the goal position,
+  // the path gets higher score.
+  score += 100 * (1 - abs(goal[0] - ego_car->getPos()[0]) / 960); // score of x in [0, 100]
+  score += 100 * (1 - abs(goal[1] - ego_car->getPos()[1]) / 100); // score of y in [0, 100]
 
   return score;
 }
@@ -126,32 +133,32 @@ float DecisionMaker::evaluatePath(const Simulation& simulation, const vector<Vec
 bool DecisionMaker::getPath(const Simulation& simulation, vector<Vec2f>& final_path, vector<int>& car_intentions) {
   // std::string bestAction = "stop";
   // int numAgents = simulation.getCars().size();
-  vector<string> legalactions = generateLegalActions(simulation);
-  generatePaths(simulation, legalactions);
-  int index = 0;
-  float bestscore = -inf;
+  vector<string> legal_actions = generateLegalActions(simulation);
+  generatePaths(simulation, legal_actions);
+  int best_index = 0;
+  float best_score = -inf;
   float score = 0.0;
 
   for (int i = 0; i < paths.size(); i++) {
     score = evaluatePath(simulation, paths[i], car_intentions);
-    if (score > bestscore) {
-      index = i;
-      bestscore = score;
+    if (score > best_score) {
+      best_index = i;
+      best_score = score;
     }
   }
 
-  final_path = paths[index];
+  final_path = paths[best_index];
 
-  // index = 0 means, it can't find its next path to go
-  if (index == 0) return false;
+  // best_index = 0 means, it can't find its next path to go
+  if (best_index == 0) return false;
   return true;
 };
 
 vector<string> DecisionMaker::generateLegalActions(const Simulation& simulation) {
-  vector<string> actionlist = hostActions;
-  vector<string> legalactions;
+  vector<string> action_list = m_host_actions;
+  vector<string> legal_actions;
 
-  for (const std::string& action : actionlist) {
+  for (const std::string& action : action_list) {
     Simulation sim(simulation);
     Car* car = sim.getHost();
 
@@ -167,20 +174,20 @@ vector<string> DecisionMaker::generateLegalActions(const Simulation& simulation)
 
     vector<Vec2f> bounds = car->getBounds();
 
-    bool isinBound = true;
+    // check if it is still inbound of the lanes
+    bool inBound = true;
     for (const Vec2f& point : bounds) {
       if (!sim.inBounds(point[0], point[1])) {
-        isinBound = false;
+        inBound = false;
         break;
       }
     }
 
-    // check if it is inbound
-    if (isinBound) {
-      legalactions.push_back(action);
+    if (inBound) {
+      legal_actions.push_back(action);
     }
   }
-  return legalactions;
+  return legal_actions;
 }
 
 bool DecisionMaker::isCloseToOtherCar(Car* ego_car, const Simulation& simulation) const {
@@ -207,7 +214,7 @@ bool DecisionMaker::isCloseToOtherCar(Car* ego_car, const Simulation& simulation
 
 bool DecisionMaker::isChangeRequired(Car* ego_car, const Simulation& simulation) {
   Car* host = simulation.getHost();
-  Vec2f goal = simulation.getFinish().getCenter();
+  Vec2f goal = simulation.getGoal().getCenter();
 
   if (abs(host->getPos().y - goal.y) < 5) return false;
   return true;

@@ -84,26 +84,26 @@ void Car::accelerate(float amount) {
 
 vector<Vector2f> Car::getBounds() {
   dir.normalized();
-  Vector2f perpDir = dir.perpendicular();
+  Vector2f perp_dir = dir.perpendicular();
 
   vector<Vector2f> bounds;
-  bounds.push_back(pos + dir * float(LENGTH / 2) + perpDir * float(WIDTH / 2));
-  bounds.push_back(pos + dir * float(LENGTH / 2) - perpDir * float(WIDTH / 2));
-  bounds.push_back(pos - dir * float(LENGTH / 2) + perpDir * float(WIDTH / 2));
-  bounds.push_back(pos - dir * float(LENGTH / 2) - perpDir * float(WIDTH / 2));
+  bounds.push_back(pos + dir * float(LENGTH / 2) + perp_dir * float(WIDTH / 2));
+  bounds.push_back(pos + dir * float(LENGTH / 2) - perp_dir * float(WIDTH / 2));
+  bounds.push_back(pos - dir * float(LENGTH / 2) + perp_dir * float(WIDTH / 2));
+  bounds.push_back(pos - dir * float(LENGTH / 2) - perp_dir * float(WIDTH / 2));
 
   return bounds;
 }
 
 vector<Vector2f> Car::getBounds(Car& car, float LEN, float WID) {
   Vector2f normalDir = normalized(car.getDir());
-  Vector2f perpDir = normalDir.perpendicular();
+  Vector2f perp_dir = normalDir.perpendicular();
 
   vector<Vector2f> bounds;
-  bounds.push_back(pos + dir * float(LEN / 2) + perpDir * float(WID / 2));
-  bounds.push_back(pos + dir * float(LEN / 2) - perpDir * float(WID / 2));
-  bounds.push_back(pos - dir * float(LEN / 2) + perpDir * float(WID / 2));
-  bounds.push_back(pos - dir * float(LEN / 2) - perpDir * float(WID / 2));
+  bounds.push_back(pos + dir * float(LEN / 2) + perp_dir * float(WID / 2));
+  bounds.push_back(pos + dir * float(LEN / 2) - perp_dir * float(WID / 2));
+  bounds.push_back(pos - dir * float(LEN / 2) + perp_dir * float(WID / 2));
+  bounds.push_back(pos - dir * float(LEN / 2) - perp_dir * float(WID / 2));
 
   return bounds;
 }
@@ -123,7 +123,7 @@ bool Car::collides(const Vector2f& otherPos,
                            vec1.perpendicular(),
                            vec2,
                            vec2.perpendicular()
-                           };
+                          };
 
   for (const auto& vec : axis) {
     pff result = projectPoints(bounds, vec);
@@ -235,7 +235,7 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
   Vector2f oldDir = getDir();
   // Vector2f oldVel = getVelocity();
 
-  UMAP<string, float> actions = getAutonomousActions2(path, simulation);
+  UMAP<string, float> actions = getAutonomousActions(path, simulation);
 
   assert(getPos() == oldPos);
   assert(getDir() == oldDir);
@@ -257,8 +257,8 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
   }
 }
 
-UMAP<string, float> Host::getAutonomousActions2(const vector<Vector2f>& path,
-                                                const Simulation& simulation) {
+UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
+                                               const Simulation& simulation) {
   UMAP<string, float> output;
   if (nodeId >= path.size()) nodeId = 0;
 
@@ -310,9 +310,9 @@ void Host::makeObse(const Simulation& state) {
   }
 }
 
-UMAP<string, float> Host::getAutonomousActions(
-    const vector<Vector2f>& path, const Simulation& simulation,
-    kdtree::kdtree<point<float>>* tree) {
+UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
+                                               const Simulation& simulation,
+                                               kdtree::kdtree<point<float>>* tree) {
   UMAP<string, float> output;
   if (nodeId > path.size()) nodeId = 0;
 

@@ -33,9 +33,9 @@ inline float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
  */
 class DecisionMaker {
 public:
-  static vector<std::string> hostActions;
-  static vector<std::string> otherActions;
-  static unordered_map<std::string, float> actionReward;
+  static vector<std::string> m_host_actions;
+  static vector<std::string> m_other_actions;
+  static unordered_map<std::string, float> m_action_rewards;
   // static const unorder_mapd<std::string, float> command;
 
   DecisionMaker(int dep = 2, int ind = 0) : depth(dep), index(ind) {}

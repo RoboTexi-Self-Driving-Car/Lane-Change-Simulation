@@ -14,8 +14,8 @@ Simulation::Simulation(Layout& lay) : layout(lay) {
   int startX = layout.getStartX();
   int startY = layout.getStartY();
   string startDir = layout.getHostDir();
-  vector<int> finishdata = layout.getFinish();
-  finish = new Block(finishdata);
+  vector<int> goal_data = layout.getGoal();
+  goal = new Block(goal_data);
   host = new Host(Vector2f(startX, startY), startDir, Vector2f(0.0, 0.0));
   cars.push_back(host);
 
@@ -34,7 +34,7 @@ Simulation::Simulation(Layout& lay) : layout(lay) {
 }
 
 Simulation::Simulation(const Simulation& simulation) : layout(simulation.layout) {
-  finish = simulation.finish;
+  goal = simulation.goal;
   blocks = simulation.blocks;
   lines = simulation.lines;
   interSections = simulation.interSections;
@@ -117,7 +117,7 @@ bool Simulation::checkVictory() const {
 
   vector<Vector2f> bounds = host->getBounds();
   for (Vector2f point : bounds) {
-    if (finish->containsPoint(point[0], point[1])) return true;
+    if (goal->containsPoint(point[0], point[1])) return true;
   }
 
   return false;

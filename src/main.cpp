@@ -83,7 +83,7 @@ int main(void) {
     //**************************************************************************
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    Display::drawGoal(simulation.getFinish());
+    Display::drawGoal(simulation.getGoal());
     Display::drawBlocks(simulation.getBlocks());
     Display::drawLine(simulation.getLine());
 

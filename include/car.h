@@ -170,8 +170,8 @@ public:
                                            const Simulation& simulation,
                                            kdtree::kdtree<point<float>>* tree);
 
-  UMAP<string, float> getAutonomousActions2(const vector<Vector2f>& path,
-                                            const Simulation& simulation);
+  UMAP<string, float> getAutonomousActions(const vector<Vector2f>& path,
+                                           const Simulation& simulation);
 
   void makeObse(const Simulation& state);
 
