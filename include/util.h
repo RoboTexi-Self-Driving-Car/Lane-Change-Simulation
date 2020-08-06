@@ -67,6 +67,7 @@ void observe(Host* ego, const Simulation& simulation) {
     Car* car = dynamic_cast<Car*>(cars[i]);
     int index = simulation.getIndex(car);
     Inference::MarginalInference* inference = car->getInference(index + 1, simulation);
+    inference->observe(simulation);
   }
 }
 
