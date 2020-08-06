@@ -60,8 +60,8 @@ void drawPolygon(vector<Vector2f>& polygonvertices) {
   delete[] vertices;
 }
 
-void observe(Host* ego, const Simulation& simulation) {
-  ego->makeObservation(simulation);
+void observe(Host* host, const Simulation& simulation) {
+  host->makeObservation(simulation);
   vector<Actor*> cars = simulation.getOtherCars();
   for (int i = 0; i < cars.size(); i++) {
     Car* car = dynamic_cast<Car*>(cars[i]);
@@ -72,9 +72,9 @@ void observe(Host* ego, const Simulation& simulation) {
 }
 
 vector<int> infer(const Simulation& simulation) {
-  Host* ego = dynamic_cast<Host*>(simulation.getHost());
+  Host* host = dynamic_cast<Host*>(simulation.getHost());
   vector<int> car2intention;
-  observe(ego, simulation);
+  observe(host, simulation);
 
   // beliefs = []
   vector<string> colors{"orange", "red"};

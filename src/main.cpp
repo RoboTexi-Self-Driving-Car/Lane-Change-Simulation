@@ -42,8 +42,8 @@ int main(void) {
   int SCREEN_WIDTH = layout.getWidth();
   int SCREEN_HEIGHT = layout.getHeight();
 
-  // Get the ego car.
-  Actor* ego_car = simulation.getHost();
+  // Get the host car.
+  Actor* host = simulation.getHost();
 
   // Get the neighboring cars.
   vector<Actor*> cars = simulation.getAllCars();
@@ -51,7 +51,7 @@ int main(void) {
   // Display setting.
   string title = Globals::constant.TITLE;
   begin_graphics(SCREEN_WIDTH, SCREEN_HEIGHT, title);
-  std::cout << "[Simulation]: " << typeid(*ego_car).name() << std::endl;
+  std::cout << "[Simulation]: " << typeid(*host).name() << std::endl;
 
   // loop util the user closes the window
   // bool gameover = false;
@@ -106,11 +106,11 @@ int main(void) {
       //************************************************************************
       for (Actor* car : cars) {
         // my car moves
-        if (car == ego_car) {
+        if (car == host) {
           // destination reaches, generate new paths
-          if (final_path.size() == 0 || abs(ego_car->getPos().x - final_path[final_path.size() - 1].x) < 10) {
+          if (final_path.size() == 0 || abs(host->getPos().x - final_path[final_path.size() - 1].x) < 10) {
             success = decision.getPath(simulation, final_path, car_intentions);
-            change = decision.isChangeRequired(car, simulation);
+            change = decision.isChangeRequired(simulation);
             // candidate paths
             candidate_paths = decision.getPaths();
             if (!success && change) {

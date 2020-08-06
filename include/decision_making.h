@@ -54,7 +54,7 @@ public:
 
   bool isCloseToOtherCar(Actor* car, const Simulation& simulation) const;
 
-  bool isChangeRequired(Actor* ego_car, const Simulation& simulation);
+  bool isChangeRequired(const Simulation& simulation);
 
 private:
   int depth;

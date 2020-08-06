@@ -9,7 +9,7 @@ class Actor;
 
 namespace Inference {
 
-enum State {cooperative, aggressive};
+enum Intention {cooperative, aggressive};
 
 const vector<string> g_intentions{"cooperative", "aggressive"};
 

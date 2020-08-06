@@ -162,28 +162,28 @@ bool Actor::isCloseToOtherCar(const Simulation& simulation) const {
   // check the master car is close to others
   vector<Actor*> cars = simulation.getAllCars();
   if (cars.size() == 0) return false;
-  const Actor* obstaclecar = nullptr;
+  const Actor* obstacle_car = nullptr;
   float distance = 9999999;
   for (const Actor* car : cars) {
     if (car == this) continue;
-    float cardis = abs(car->getPos()[0] - getPos()[0]) +
+    float dist = abs(car->getPos()[0] - getPos()[0]) +
                    abs(car->getPos()[1] - getPos()[1]);
-    if (cardis < distance) {
-      distance = cardis;
-      obstaclecar = car;
+    if (dist < distance) {
+      distance = dist;
+      obstacle_car = car;
     }
   }
 
-  if (!obstaclecar) return false;
+  if (!obstacle_car) return false;
 
-  Vector2f diff = obstaclecar->getPos() - this->getPos();
+  Vector2f diff = obstacle_car->getPos() - this->getPos();
   float angdiff = -diff.get_angle_between(this->getDir());
   if (abs(angdiff) > 90) return false;
   // std::cout<<angdiff <<std::endl;
 
-  if ((abs(obstaclecar->getPos()[0] - getPos()[0]) <
+  if ((abs(obstacle_car->getPos()[0] - getPos()[0]) <
        Globals::constant.BELIEF_TILE_SIZE * 1.5) &&
-      (abs(obstaclecar->getPos()[1] - getPos()[1]) < Actor::WIDTH / 2))
+      (abs(obstacle_car->getPos()[1] - getPos()[1]) < Actor::WIDTH / 2))
     return true;
   return false;
 }
