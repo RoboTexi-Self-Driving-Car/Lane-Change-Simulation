@@ -87,7 +87,7 @@ struct Constant {
   int BELIEF_TILE_SIZE;
 
   Constant()
-      : TITLE("Driveless Car Simulator"),
+      : TITLE("Driverless Car Simulator"),
         SONAR_STD(15.0),
         LAYOUT_DIR("data"),
         BLOCK_TILE_SIZE(30),

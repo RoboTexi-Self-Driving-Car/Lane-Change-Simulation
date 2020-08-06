@@ -19,7 +19,7 @@ using std::string;
 using std::vector;
 
 // Forward declaration
-class Car;
+class Actor;
 class Simulation;
 namespace Inference {
   class JointParticles;
@@ -126,9 +126,9 @@ public:
 
   const vector<Line*>& getLine() const { return lines; }
 
-  const vector<Car*>& getCars() const { return cars; }
+  const vector<Actor*>& getAllCars() const { return all_cars; }
 
-  const vector<Car*>& getOtherCars() const { return other_cars; }
+  const vector<Actor*>& getOtherCars() const { return other_cars; }
 
   vector<Vector2f> getIntersectionCenter();
 
@@ -144,14 +144,14 @@ public:
 
   Block& getGoal() const { return *goal; }
 
-  Car* getHost() const { return host; }
+  Actor* getHost() const { return host; }
 
-  void setHost(Car* car);
+  void setHost(Actor* car);
 
   // utility function to help check simulation
   bool checkVictory() const;
 
-  bool checkCollision(Car* car) const;
+  bool checkCollision(Actor* car) const;
 
   bool inBounds(float x, float y) const;
 
@@ -159,17 +159,17 @@ public:
 
   bool inIntersection(float x, float y) const;
 
-  int toindex(const Car* car) const { return car2index.at((size_t)car); }
+  int getIndex(const Actor* car) const { return car2index.at((size_t)car); }
 
 private:
   Layout& layout;
   Block* goal;
-  Car* host;
+  Actor* host;
   // vector<vector<int>> othercardata;
   vector<Block*> blocks;
   vector<Line*> lines;
-  vector<Car*> cars;
-  vector<Car*> other_cars;
+  vector<Actor*> all_cars;
+  vector<Actor*> other_cars;
   vector<Block*> interSections;
   vector<Block*> agentGraph;
   vector<Block*> hostGraph;

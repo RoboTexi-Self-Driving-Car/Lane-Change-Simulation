@@ -17,13 +17,13 @@ Simulation::Simulation(Layout& lay) : layout(lay) {
   vector<int> goal_data = layout.getGoal();
   goal = new Block(goal_data);
   host = new Host(Vector2f(startX, startY), startDir, Vector2f(0.0, 0.0));
-  cars.push_back(host);
+  all_cars.push_back(host);
 
   for (vector<int> other : layout.getOtherData()) {
-    Car* othercar =
-        new Agent(Vector2f(other[0], other[1]), "east", Vector2f(0.0, 0.0));
+    Actor* othercar =
+        new Car(Vector2f(other[0], other[1]), "east", Vector2f(0.0, 0.0));
     other_cars.push_back(othercar);
-    cars.push_back(othercar);
+    all_cars.push_back(othercar);
   }
 
   car2index = UMAP<size_t, int>();
@@ -43,32 +43,32 @@ Simulation::Simulation(const Simulation& simulation) : layout(simulation.layout)
   allGraph = simulation.allGraph;
   host = new Host(*simulation.getHost());
   host->setup();
-  cars.push_back(host);
+  all_cars.push_back(host);
 
-  for (Car* car : simulation.getOtherCars()) {
-    Car* othercar = new Agent(*car);
+  for (Actor* car : simulation.getOtherCars()) {
+    Actor* othercar = new Car(*car);
     othercar->setup();
     other_cars.push_back(othercar);
-    cars.push_back(othercar);
+    all_cars.push_back(othercar);
   }
 }
 
 Simulation::~Simulation() {
-  if (cars.size() != 0) {
-    while (cars.size() != 0) {
-      delete cars.back();
-      cars.pop_back();
+  if (all_cars.size() != 0) {
+    while (all_cars.size() != 0) {
+      delete all_cars.back();
+      all_cars.pop_back();
     }
   }
 }
 
-void Simulation::setHost(Car* car) {
-  vector<Car*> cars;
+void Simulation::setHost(Actor* car) {
+  vector<Actor*> cars;
   cars.push_back(car);
   for (auto c : cars) {
     if (typeid(*c) != typeid(*host)) cars.push_back(c);
   }
-  this->cars = cars;
+  all_cars = cars;
 }
 
 void Simulation::clearBlocks(vector<Block*>& bloc) {
@@ -123,13 +123,13 @@ bool Simulation::checkVictory() const {
   return false;
 }
 
-bool Simulation::checkCollision(Car* car) const {
+bool Simulation::checkCollision(Actor* car) const {
   vector<Vector2f> bounds = car->getBounds();
   for (Vector2f point : bounds) {
     if (!inBounds(point.x, point.y)) return true;
   }
 
-  for (Car* othercar : cars) {
+  for (Actor* othercar : all_cars) {
     if (othercar == car) continue;
     if (othercar->collides(car->getPos(), bounds)) return true;
   }

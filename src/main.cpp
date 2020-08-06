@@ -37,16 +37,16 @@ int main(void) {
   Simulation simulation(layout);
 
   // Display setting.
-  display.setColors(simulation.getCars());
+  display.setColors(simulation.getAllCars());
 
   int SCREEN_WIDTH = layout.getWidth();
   int SCREEN_HEIGHT = layout.getHeight();
 
   // Get the ego car.
-  Car* ego_car = simulation.getHost();
+  Actor* ego_car = simulation.getHost();
 
   // Get the neighboring cars.
-  vector<Car*> cars = simulation.getCars();
+  vector<Actor*> cars = simulation.getAllCars();
 
   // Display setting.
   string title = Globals::constant.TITLE;
@@ -104,7 +104,7 @@ int main(void) {
       //************************************************************************
       // Update all the cars in a time step
       //************************************************************************
-      for (Car* car : cars) {
+      for (Actor* car : cars) {
         // my car moves
         if (car == ego_car) {
           // destination reaches, generate new paths
