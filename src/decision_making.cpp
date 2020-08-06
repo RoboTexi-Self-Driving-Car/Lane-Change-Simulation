@@ -60,8 +60,8 @@ vector<vector<Vec2f>>& DecisionMaker::generatePaths(const Simulation& simulation
   return paths;
 }
 
-void DecisionMaker::applyAction(const Simulation& simulation, int agentIndex, const std::string& action) {
-  Actor* car = simulation.getAllCars()[agentIndex];
+void DecisionMaker::applyAction(const Simulation& simulation, int index, const std::string& action) {
+  Actor* car = simulation.getAllCars()[index];
   if (action == "normal") {
     car->accelerate(car->friction);
     car->setWheelAngle(0);
@@ -86,7 +86,6 @@ void DecisionMaker::applyAction(const Simulation& simulation, int agentIndex, co
     car->setWheelAngle(45);
     car->accelerate(car->max_accler);
   }
-  car->update();
 }
 
 float DecisionMaker::evaluatePath(const Simulation& simulation, const vector<Vec2f>& path, vector<int>& car_intentions) {

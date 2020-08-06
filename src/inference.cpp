@@ -168,22 +168,22 @@ pff JointParticles::getMeanStandard(queue<float>& history, const string& intenti
   // for (int i = 0; i < history.size(); i++) {
   //   total += history[i];
   // }
-  float vref = total;
+  float v_ref = total;
 
-  if (vref == 0) vref = 0.01;
+  if (v_ref == 0) v_ref = 0.01;
 
-  float sigma = 0.3 * vref; // How to get this value?
+  float sigma = 0.3 * v_ref; // How to get this value?
   int index = g_intention2index.at(intention);
 
   // decel, normal, accel
   if (index == 0) {
-    return pff(0.7 * vref, sigma);
+    return pff(0.7 * v_ref, sigma);
   }
   else if (index == 1) {
-    return pff(vref, sigma);
+    return pff(v_ref, sigma);
   }
   // else if (index == 2) {
-  //   return pff(1.5*vref,sigma);
+  //   return pff(1.5*v_ref,sigma);
   // }
 
   return pff(0, 0);
