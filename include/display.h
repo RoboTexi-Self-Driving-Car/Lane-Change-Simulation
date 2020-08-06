@@ -46,11 +46,11 @@ public:
 
   Display() { um = UMAP<size_t, Color>(); }
 
-  void setColors(vector<Car*> cars) {
+  void setColors(vector<Actor*> cars) {
     for (auto car : cars) um.insert({(size_t)car, RED});
   }
 
-  void colorChange(const Car* car, const string& color) {
+  void colorChange(const Actor* car, const string& color) {
     Color col = RED;
     if (color == "green")
       col = GREEN;
@@ -86,23 +86,23 @@ public:
       line(l->getstart(), l->getend(), Display::BLACK);
   }
 
-  void drawCar(Car* car) {
+  void drawCar(Actor* car) {
     Color color = um[(size_t)car];
     if (car->isHost()) color = Display::GREEN;
     Vector2f dir = car->getDir();
-    rectangle(car->getPos(), Car::WIDTH, Car::LENGTH, color, &dir);
+    rectangle(car->getPos(), Actor::WIDTH, Actor::LENGTH, color, &dir);
   }
 
-  void drawCars(vector<Car*>& cars) {
+  void drawCars(vector<Actor*>& cars) {
     Color color = Display::RED;
-    for (Car* car : cars) {
+    for (Actor* car : cars) {
       Vector2f dir = car->getDir();
-      rectangle(car->getPos(), Car::WIDTH, Car::LENGTH, color, &dir);
+      rectangle(car->getPos(), Actor::WIDTH, Actor::LENGTH, color, &dir);
     }
   }
 
-  void drawOtherCar(const vector<Car*>& cars) {
-    for (Car* car : cars) drawCar(car);
+  void drawOtherCar(const vector<Actor*>& cars) {
+    for (Actor* car : cars) drawCar(car);
   }
 
   static void drawGraph(vector<Block>& graph) {

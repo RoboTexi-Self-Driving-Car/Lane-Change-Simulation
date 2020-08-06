@@ -6,7 +6,7 @@ namespace Inference {
 // Helper functions
 //******************************************************************************
 
-// to produce the permuation of a list of states
+// to produce the permutation of a list of states
 vector<vector<string>> product(const vector<string>& states, int repeat = 2) {
   vector<vector<string>> res(states.size());
   vector<vector<string>> output;
@@ -34,7 +34,6 @@ double pdf(float mean, float std, float value) {
   double u = double(value - mean) / abs(std);
   double y = (1.0 / (sqrt(2 * PI) * abs(std))) * exp(-u * u / 2.0);
   if (y == 0) return 0.00000001;
-  // cout << "I am here!" << endl;
   return y;
 }
 
@@ -44,9 +43,9 @@ double pdf(float mean, float std, float value) {
 
 void JointParticles::initializeUniformly(const Simulation& simulation,
                                          const vector<string>& intentions) {
-  // stores infomraiton about the game, then initialize the particles
-  numAgents = simulation.getOtherCars().size();
-  legalIntentions = intentions;
+  // stores infomraiton about the simulation, then initialize the particles
+  num_cars = simulation.getOtherCars().size();
+  legal_intentions = intentions;
   beliefs = Counter<vector<string>>();
   initializeParticles();
 }
@@ -54,32 +53,36 @@ void JointParticles::initializeUniformly(const Simulation& simulation,
 void JointParticles::initializeParticles() {
   std::random_device rd;
   std::mt19937 g(rd());
-  vector<vector<string>> jointstates = product(legalIntentions, numAgents);
-  std::shuffle(jointstates.begin(), jointstates.end(), g);
-  int n = numParticles;
-  int p = jointstates.size();
+  vector<vector<string>> joint_states = product(legal_intentions, num_cars);
+  std::shuffle(joint_states.begin(), joint_states.end(), g);
+  int n = num_particles;
+  int p = joint_states.size();
   particles.clear();
 
+  // n = k*p + b
+  // each particle represents a permutation/state, like ["cooperative", "aggressive", ...]
+  // joint_states has p states then the insert of "joint_states" will add in p particles.
   while (n > p) {
-    particles.insert(particles.end(), jointstates.begin(), jointstates.end());
+    particles.insert(particles.end(), joint_states.begin(), joint_states.end());
     n -= p;
   }
 
-  particles.insert(particles.end(), jointstates.begin(),
-                   jointstates.begin() + n);
+  particles.insert(particles.end(), joint_states.begin(),
+                   joint_states.begin() + n);
 }
 
 void JointParticles::observe(const Simulation& simulation) {
-  if (beliefs.size() == 1) initializeParticles();
+  if (beliefs.size() == 1) initializeParticles(); // ?
 
-  vector<Car*> othercars = simulation.getOtherCars();
+  vector<Actor*> cars = simulation.getOtherCars();
   Counter<vector<string>> tempCounter = Counter<vector<string>>();
 
   for (int i = 0; i < particles.size(); i++) {
     float prob = 1;
     vector<string> intentions = particles[i];
-    for (int index = 0; index < numAgents; index++) {
-      queue<float> history = ((Agent*)othercars[index])->getHistory();
+    // intention of each car is independent event for each other
+    for (int index = 0; index < num_cars; index++) {
+      queue<float> history = ((Car*)cars[index])->getHistory();
       float observ = history.back();
       string intention = intentions[index];
       pff res = getMeanStandard(history, intention);
@@ -108,8 +111,8 @@ void JointParticles::observe(const Simulation& simulation) {
   else {
     beliefs.normalize();
     for (int i = 0; i < particles.size(); i++) {
-      vector<string> newPos = sample(beliefs);
-      particles[i] = newPos;
+      vector<string> new_state = sample(beliefs);
+      particles[i] = new_state;
     }
   }
 }
@@ -126,20 +129,23 @@ Counter<vector<string>> JointParticles::getBelief() {
   return beliefDist;
 }
 
+// "randonly" pick a particle/state from the distribution
+// distribution: A distribution of particles.
 vector<string> JointParticles::sample(Counter<vector<string>>& distribution) {
   if (distribution.sum() != 1) distribution.normalize();
 
   std::vector<std::pair<vector<string>, float>> elems(distribution.begin(),
                                                       distribution.end());
 
+  // sort the particle/state based on the probability in incresing order
   std::sort(elems.begin(), elems.end(),
             [](const std::pair<vector<string>, float>& a,
                const std::pair<vector<string>, float>& b) -> bool {
               return a.second < b.second;
             });
 
-  vector<vector<string>> keys;
-  vector<float> values;
+  vector<vector<string>> keys; // particles/states
+  vector<float> values; // probabilities
 
   for (auto item : elems) {
     keys.push_back(item.first);
@@ -157,8 +163,7 @@ vector<string> JointParticles::sample(Counter<vector<string>>& distribution) {
   return keys[i > keys.size() - 1 ? keys.size() - 1 : i];
 }
 
-pff JointParticles::getMeanStandard(queue<float>& history,
-                                    const string& intention) {
+pff JointParticles::getMeanStandard(queue<float>& history, const string& intention) {
   int total = history.front();
   // for (int i = 0; i < history.size(); i++) {
   //   total += history[i];
@@ -167,9 +172,10 @@ pff JointParticles::getMeanStandard(queue<float>& history,
 
   if (vref == 0) vref = 0.01;
 
-  float sigma = 0.3 * vref;
-  int index = Intention_To_Index.at(intention);
+  float sigma = 0.3 * vref; // How to get this value?
+  int index = g_intention2index.at(intention);
 
+  // decel, normal, accel
   if (index == 0) {
     return pff(0.7 * vref, sigma);
   }
@@ -183,61 +189,23 @@ pff JointParticles::getMeanStandard(queue<float>& history,
   return pff(0, 0);
 }
 
-// to construct a joint inference array
-//    JointParticles jointInference = JointParticles();
-//    class MarginalInference {
-//    private:
-//        vector<string> legalIntentions;
-//        int index;
-//    public:
-//        MarginalInference(int index, const Simulation& simulation) {
-//            this->index = index;
-//            legalIntentions = intentions;
-//            initializeUniformly(simulation);
-//        }
-//
-//        void initializeUniformly(const Simulation& gameState) {
-//            if (index == 1)
-//                jointInference.initializeUniformly(gameState,
-//                legalIntentions);
-//        }
-//
-//        void observe(const Simulation& gameState) {
-//            if (index == 1)
-//                jointInference.observe(gameState);
-//        }
-//        vector<float> getBelief() {
-//            Counter<vector<string>> jointDistribution =
-//            jointInference.getBelief(); Counter<int> dist = Counter<int>();
-//            for (const auto& item: jointDistribution) {
-//                int i = Intention_To_Index[item.first[index-1]];
-//                dist[i] += item.second;
-//            }
-//            vector<float> result = vector<float>();
-//            result.resize(legalIntentions.size());
-//            for (const auto& item: dist)
-//                result[item.first] = item.second;
-//            return result;
-//        }
-//    };
-
 //******************************************************************************
 // MarginalInference member functions (declared in simulation.h)
 //******************************************************************************
 
 MarginalInference::MarginalInference(int index, const Simulation& simulation) {
   this->index = index;
-  legalIntentions = intentions;
+  legal_intentions = g_intentions;
   initializeUniformly(simulation);
 }
 
-void MarginalInference::initializeUniformly(const Simulation& gameState) {
+void MarginalInference::initializeUniformly(const Simulation& simulation) {
   if (index == 1)
-    jointInference.initializeUniformly(gameState, legalIntentions);
+    jointInference.initializeUniformly(simulation, legal_intentions);
 }
 
-void MarginalInference::observe(const Simulation& gameState) {
-  if (index == 1) jointInference.observe(gameState);
+void MarginalInference::observe(const Simulation& simulation) {
+  if (index == 1) jointInference.observe(simulation);
 }
 
 std::vector<float> MarginalInference::getBelief() {
@@ -245,13 +213,13 @@ std::vector<float> MarginalInference::getBelief() {
   Counter<int> dist = Counter<int>();
 
   for (const auto& item : jointDistribution) {
-    int i = Intention_To_Index.at(item.first[index - 1]);
+    int i = g_intention2index.at(item.first[index - 1]);
     dist[i] += item.second;
   }
 
   vector<float> result = vector<float>();
 
-  result.resize(legalIntentions.size());
+  result.resize(legal_intentions.size());
 
   for (const auto& item : dist) result[item.first] = item.second;
   // if (result[0] > result[1]) {

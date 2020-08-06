@@ -63,7 +63,7 @@ vector<Vec2f> Search::path(list<char>& actions) {
   //    Vec2f pos = start.current.first;
   //    Vec2f olddir = start.current.second;
   //    Vec2f velocity = olddir*float(unitdistanace);
-  //    Car car(pos, olddir, velocity);
+  //    Actor car(pos, olddir, velocity);
   State state = start;
   Vec2f pos = state.current.first;
   Vec2f olddir = state.current.second;
@@ -71,7 +71,7 @@ vector<Vec2f> Search::path(list<char>& actions) {
   result.push_back(pos);
 
   for (const auto& c : actions) {
-    Car car(pos, olddir, velocity);
+    Actor car(pos, olddir, velocity);
     car.setWheelAngle(angle[c - 'A']);
     car.update();
     pos = car.getPos();
@@ -105,12 +105,12 @@ vector<State> Search::getSuccessors(const State& state) {
   for (int i = 0; i < num_action(); i++) {
     list<char> actions = state.actions;
     float oldcost = state.cost;
-    Car car(pos, olddir, velocity);
+    Actor car(pos, olddir, velocity);
     car.setWheelAngle(angle[i]);
     car.update();
     // before it was 1.5* car::length now i change to 1 to suit 'road' case
     vector<Vec2f> bounds =
-        car.getBounds(car, 1.2 * Car::LENGTH, 1.2 * Car::WIDTH);
+        car.getBounds(car, 1.2 * Actor::LENGTH, 1.2 * Actor::WIDTH);
     bool inBound = true;
 
     for (const auto& point : bounds) {
@@ -120,8 +120,8 @@ vector<State> Search::getSuccessors(const State& state) {
       }
     }
 
-    // vector<Car*> cars = simulation->getOtherCars();
-    // for (Car* othercar : cars) {
+    // vector<Actor*> cars = simulation->getOtherCars();
+    // for (Actor* othercar : cars) {
     //  if (othercar->collides(car.getPos(), bounds)){
     //    inBound = false;
     //    break;

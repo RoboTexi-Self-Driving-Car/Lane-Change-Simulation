@@ -60,41 +60,41 @@ void drawPolygon(vector<Vector2f>& polygonvertices) {
   delete[] vertices;
 }
 
-void observe(Host* car, const Simulation& simulation) {
-  car->makeObse(simulation);
-  vector<Car*> cars = simulation.getOtherCars();
-  for (int index = 0; index < cars.size(); index++) {
-    Agent* car = dynamic_cast<Agent*>(cars[index]);
-    int i = simulation.toindex(car);
-    Inference::MarginalInference* inference = car->getInference(i + 1, simulation);
-    inference->observe(simulation);
+void observe(Host* ego, const Simulation& simulation) {
+  ego->makeObservation(simulation);
+  vector<Actor*> cars = simulation.getOtherCars();
+  for (int i = 0; i < cars.size(); i++) {
+    Car* car = dynamic_cast<Car*>(cars[i]);
+    int index = simulation.getIndex(car);
+    Inference::MarginalInference* inference = car->getInference(index + 1, simulation);
   }
 }
 
 vector<int> infer(const Simulation& simulation) {
-  Host* car = dynamic_cast<Host*>(simulation.getHost());
-  vector<int> cartoIntention;
-  observe(car, simulation);
+  Host* ego = dynamic_cast<Host*>(simulation.getHost());
+  vector<int> car2intention;
+  observe(ego, simulation);
+
   // beliefs = []
   vector<string> colors{"orange", "red"};
-  vector<Car*> cars = simulation.getOtherCars();
-  for (int k = 0; k < cars.size(); k++) {
-    Agent* car = dynamic_cast<Agent*>(cars[k]);
-    int index = simulation.toindex(car);
+  vector<Actor*> cars = simulation.getOtherCars();
+  for (int i = 0; i < cars.size(); i++) {
+    Car* car = dynamic_cast<Car*>(cars[i]);
+    int index = simulation.getIndex(car);
     vector<float> belief = car->getInference(index + 1, simulation)->getBelief();
 
     int max_index = 0;
-    for (int i = 0; i < belief.size(); i++) {
-      if (belief[i] > belief[max_index]) {
-        max_index = i;
+    for (int j = 0; j < belief.size(); j++) {
+      if (belief[j] > belief[max_index]) {
+        max_index = j;
       }
     }
 
-    cartoIntention.push_back(max_index);
+    car2intention.push_back(max_index);
     display.colorChange(car, colors[max_index]);
   }
 
-  return cartoIntention;
+  return car2intention;
 }
 
 #endif /* UTIL_H */

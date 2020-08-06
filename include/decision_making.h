@@ -28,7 +28,7 @@ inline float manhattanDistance(const Vector2f& v1, const Vector2f& v2) {
  * This class provides some common elements to all of your
  * multi-agent searchers.  Any methods defined here will be available
  * Note: this is an abstract class: one that should not be instantiated.  It's
- * only partially specified, and designed to be extended.  Agent (game.py)
+ * only partially specified, and designed to be extended.  Car (game.py)
  * is another abstract class.
  */
 class DecisionMaker {
@@ -52,9 +52,9 @@ public:
 
   vector<vector<Vec2f>> getPaths() { return paths; }
 
-  bool isCloseToOtherCar(Car* car, const Simulation& simulation) const;
+  bool isCloseToOtherCar(Actor* car, const Simulation& simulation) const;
 
-  bool isChangeRequired(Car* ego_car, const Simulation& simulation);
+  bool isChangeRequired(Actor* ego_car, const Simulation& simulation);
 
 private:
   int depth;

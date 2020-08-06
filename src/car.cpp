@@ -1,24 +1,24 @@
 #include "car.h"
 
 //************************************************************************
-// class Car: methods and implementation
+// class Actor: methods and implementation
 //************************************************************************
 
-const float Car::RADIUS = sqrt(pow(Car::LENGTH, 2) + pow(Car::WIDTH, 2));
+const float Actor::RADIUS = sqrt(pow(Actor::LENGTH, 2) + pow(Actor::WIDTH, 2));
 
-void Car::init(const string& dir) {
+void Actor::init(const string& dir) {
   pii p = direction[dir];
   this->dir = Vector2f(p.first, p.second);
   wheel_angle = 0;
   setup();
 }
 
-void Car::init() {
+void Actor::init() {
   wheel_angle = 0;
   setup();
 }
 
-void Car::setup() {
+void Actor::setup() {
   max_speed = 5.0;
   min_speed = 1.0;
   friction = 0.5;
@@ -26,7 +26,7 @@ void Car::setup() {
   max_accler = 2.0;
 }
 
-void Car::turnCarTowardsWheels() {
+void Actor::turnCarTowardsWheels() {
   if (velocity.Length() > 0.0) {
     velocity.rotate(wheel_angle);
     dir = Vector2f(velocity[0], velocity[1]);
@@ -34,14 +34,14 @@ void Car::turnCarTowardsWheels() {
   }
 }
 
-void Car::update() {
+void Actor::update() {
   turnCarTowardsWheels();
   pos += velocity;
   turnWheelsTowardsStraight();
   applyFriction();
 }
 
-void Car::decellerate(float amount) {
+void Actor::decellerate(float amount) {
   float speed = velocity.Length();
 
   if (speed < min_speed) {
@@ -58,14 +58,14 @@ void Car::decellerate(float amount) {
   if (abs(angle) < 180) velocity = Vector2f(0, 0);
 }
 
-void Car::setWheelAngle(float angle) {
+void Actor::setWheelAngle(float angle) {
   wheel_angle = angle;
 
   if (wheel_angle <= -max_wheel_angle) wheel_angle = -max_wheel_angle;
   if (wheel_angle >= max_wheel_angle) wheel_angle = max_wheel_angle;
 }
 
-void Car::accelerate(float amount) {
+void Actor::accelerate(float amount) {
   amount = std::min(amount, max_accler);
 
   if (amount < 0) decellerate(amount);
@@ -82,7 +82,7 @@ void Car::accelerate(float amount) {
   }
 }
 
-vector<Vector2f> Car::getBounds() {
+vector<Vector2f> Actor::getBounds() {
   dir.normalized();
   Vector2f perp_dir = dir.perpendicular();
 
@@ -95,7 +95,7 @@ vector<Vector2f> Car::getBounds() {
   return bounds;
 }
 
-vector<Vector2f> Car::getBounds(Car& car, float LEN, float WID) {
+vector<Vector2f> Actor::getBounds(Actor& car, float LEN, float WID) {
   Vector2f normalDir = normalized(car.getDir());
   Vector2f perp_dir = normalDir.perpendicular();
 
@@ -108,10 +108,9 @@ vector<Vector2f> Car::getBounds(Car& car, float LEN, float WID) {
   return bounds;
 }
 
-//#
-//http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
-bool Car::collides(const Vector2f& otherPos,
-                   const vector<Vector2f>& otherBounds) {
+// http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+bool Actor::collides(const Vector2f& otherPos,
+                     const vector<Vector2f>& otherBounds) {
   Vector2f diff = otherPos - pos;
   float dist = diff.Length();
   if (dist > RADIUS * 2) return false;
@@ -143,7 +142,7 @@ bool Car::collides(const Vector2f& otherPos,
 }
 
 // carfufl not to too use the function, this is used for planning ahead
-void Car::setVelocity(float amount) {
+void Actor::setVelocity(float amount) {
   Vector2f ve = Vector2f(dir[0], dir[1]);
   ve.normalized();
   ve *= amount;
@@ -151,7 +150,7 @@ void Car::setVelocity(float amount) {
 }
 
 // check car is in instersection
-bool Car::carInintersection(const Simulation& simulation) {
+bool Actor::carInIntersection(const Simulation& simulation) {
   vector<Vector2f> bounds = getBounds();
   for (const auto& point : bounds) {
     if (simulation.inIntersection(point[0], point[1])) return true;
@@ -159,13 +158,13 @@ bool Car::carInintersection(const Simulation& simulation) {
   return false;
 }
 
-bool Car::isCloseToOtherCar(const Simulation& simulation) const {
+bool Actor::isCloseToOtherCar(const Simulation& simulation) const {
   // check the master car is close to others
-  vector<Car*> cars = simulation.getCars();
+  vector<Actor*> cars = simulation.getAllCars();
   if (cars.size() == 0) return false;
-  const Car* obstaclecar = nullptr;
+  const Actor* obstaclecar = nullptr;
   float distance = 9999999;
-  for (const Car* car : cars) {
+  for (const Actor* car : cars) {
     if (car == this) continue;
     float cardis = abs(car->getPos()[0] - getPos()[0]) +
                    abs(car->getPos()[1] - getPos()[1]);
@@ -184,7 +183,7 @@ bool Car::isCloseToOtherCar(const Simulation& simulation) const {
 
   if ((abs(obstaclecar->getPos()[0] - getPos()[0]) <
        Globals::constant.BELIEF_TILE_SIZE * 1.5) &&
-      (abs(obstaclecar->getPos()[1] - getPos()[1]) < Car::WIDTH / 2))
+      (abs(obstaclecar->getPos()[1] - getPos()[1]) < Actor::WIDTH / 2))
     return true;
   return false;
 }
@@ -260,27 +259,27 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
 UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
                                                const Simulation& simulation) {
   UMAP<string, float> output;
-  if (nodeId >= path.size()) nodeId = 0;
+  if (node_id >= path.size()) node_id = 0;
 
   // set the timer to control time
   if (path.size() == 0) return output;
   int nextId;
 
   Vector2f vectogoal;
-  nextId = nodeId + 1;
-  if (nodeId >= path.size()) nodeId = pre;
-  if (nextId > path.size()) nextId = nodeId;
+  nextId = node_id + 1;
+  if (node_id >= path.size()) node_id = pre;
+  if (nextId > path.size()) nextId = node_id;
 
   Vector2f nextpos = path[nextId];
 
   if (nextpos.get_distance(getPos()) <
       Globals::constant.BELIEF_TILE_SIZE * 0.3) {
-    pre = nodeId;
-    nodeId = nextId;
-    nextId = nodeId + 1;
+    pre = node_id;
+    node_id = nextId;
+    nextId = node_id + 1;
   }
 
-  if (nextId >= path.size()) nextId = nodeId;
+  if (nextId >= path.size()) nextId = node_id;
 
   // goalPos = path[nextId];
   // we finish the checking of end point
@@ -298,15 +297,16 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
   return output;
 }
 
-void Host::makeObse(const Simulation& state) {
-  vector<Car*> cars = state.getOtherCars();
+void Host::makeObservation(const Simulation& simulation) {
+  vector<Actor*> cars = simulation.getOtherCars();
   for (const auto& car : cars) {
-    Vector2f obsv = dynamic_cast<Agent*>(car)->getObserv();
+    Vector2f obsv = dynamic_cast<Car*>(car)->getObservation();
     float obs = obsv.Length();
     obs = obs > 0 ? obs : 0;
-    if (dynamic_cast<Agent*>(car)->history.size() == 11)
-      dynamic_cast<Agent*>(car)->history.pop();
-    dynamic_cast<Agent*>(car)->history.push(obs);
+    if (dynamic_cast<Car*>(car)->history.size() > 10) {
+      dynamic_cast<Car*>(car)->history.pop();
+    }
+    dynamic_cast<Car*>(car)->history.push(obs);
   }
 }
 
@@ -314,13 +314,13 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
                                                const Simulation& simulation,
                                                kdtree::kdtree<point<float>>* tree) {
   UMAP<string, float> output;
-  if (nodeId > path.size()) nodeId = 0;
+  if (node_id > path.size()) node_id = 0;
 
   static unsigned int timer = 0;
-  static bool stopflag = false;
+  static bool stop_flag = false;
 
   // set the timer to control time
-  if (timer < 30 && stopflag) {
+  if (timer < 30 && stop_flag) {
     setVelocity(0.0);
     output["TURN_WHEEL"] = 0;
     output["DRIVE_FORWARD"] = 0;
@@ -328,8 +328,8 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
     return output;
   }
 
-  if (carInintersection(simulation) && !stopflag) {
-    stopflag = true;
+  if (carInIntersection(simulation) && !stop_flag) {
+    stop_flag = true;
     // setVelocity(0.0);
     output["TURN_WHEEL"] = 0;
     output["DRIVE_FORWARD"] = 0;
@@ -346,9 +346,9 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
   if (path.size() == 0) return output;
 
   int nextId;
-  //= nodeId + 1;
-  // if (nodeId>=path.size()) nodeId = pre;
-  // if (nextId > path.size()) nextId = nodeId;
+  //= node_id + 1;
+  // if (node_id>=path.size()) node_id = pre;
+  // if (nextId > path.size()) nextId = node_id;
 
   Vector2f vectogoal;
 
@@ -369,21 +369,21 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
     else
       nextId = p1.id;
   } else {
-    nextId = nodeId + 1;
-    if (nodeId >= path.size()) nodeId = pre;
-    if (nextId > path.size()) nextId = nodeId;
+    nextId = node_id + 1;
+    if (node_id >= path.size()) node_id = pre;
+    if (nextId > path.size()) nextId = node_id;
   }
 
   Vector2f nextpos = path[nextId];
 
   if (nextpos.get_distance(getPos()) <
       Globals::constant.BELIEF_TILE_SIZE * 0.5) {
-    pre = nodeId;
-    nodeId = nextId;
-    nextId = nodeId + 1;
+    pre = node_id;
+    node_id = nextId;
+    nextId = node_id + 1;
   }
 
-  if (nextId >= path.size()) nextId = nodeId;
+  if (nextId >= path.size()) nextId = node_id;
 
   // we finish the checking of end point
   vectogoal = path[nextId] - getPos();
@@ -401,34 +401,36 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
 }
 
 //************************************************************************
-// class Agent: methods and implementation
+// class Car: methods and implementation
 //************************************************************************
 
-void Agent::setup() {
+void Car::setup() {
   max_speed = 3.0;
+  min_speed = 1.0;
   friction = 1;
   max_wheel_angle = 45;
   max_accler = 1.4;
-  min_speed = 1;
   history = std::queue<float>();
-  hasinference = false;
+  has_inference = false;
   inference = nullptr;
 }
 
-void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, kdtree::kdtree<point<float>>* tree) {
+// tree is not used in this function
+void Car::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, kdtree::kdtree<point<float>>* tree) {
   /*
    * here we have three choices to choose: normal, acc, dec
    */
   // set the timer to control time
-  if (timer < 30 && stopflag) {
+  if (timer < 30 && stop_flag) {
     // setVelocity(0.0);
     timer++;
     return;
   }
-  //
-  bool check = carInintersection(simulation);
-  if (check && !stopflag) {
-    stopflag = true;
+
+  // Stop for a fixed duration at the stop sign or intersections.
+  bool check = carInIntersection(simulation);
+  if (check && !stop_flag) {
+    stop_flag = true;
     accelerate(0);
     setWheelAngle(0);
     timer = 0;
@@ -445,12 +447,14 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& sim
   // assume it is not conservative for all drivers
   unsigned int i = 1;
 
-  Car* host = simulation.getHost();
+  Actor* host = simulation.getHost();
 
   // conservative driver will yield
-  if ((host->getPos().x < this->getPos().x + Car::LENGTH * 4) &&
-      (host->getPos().x > this->getPos().x))
+  if ((host->getPos().x < this->getPos().x + Actor::LENGTH * 4) &&
+      (host->getPos().x > this->getPos().x)) {
     i = 0;
+  }
+
   switch (i) {
     case 0:
       accelerate(friction);
@@ -469,7 +473,7 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& sim
   }
 }
 
-void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, int i) {
+void Car::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, int i) {
   // unsigned int i = rand()%1;
   // assume it is not conservative for all drivers
   switch (i) {
@@ -486,11 +490,11 @@ void Agent::autonomousAction(const vector<Vector2f>& vec2, const Simulation& sim
   }
 }
 
-Inference::MarginalInference* Agent::getInference(int index,
-                                                  const Simulation& state) {
-  if (!hasinference) {
-    inference = new Inference::MarginalInference(index, state);
-    hasinference = true;
+Inference::MarginalInference* Car::getInference(int index,
+                                                const Simulation& simulation) {
+  if (!has_inference) {
+    inference = new Inference::MarginalInference(index, simulation);
+    has_inference = true;
     return inference;
   }
 

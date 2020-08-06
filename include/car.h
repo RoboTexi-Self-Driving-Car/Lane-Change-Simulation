@@ -4,7 +4,7 @@
 #include "inference.h"
 #include "simulation.h"
 
-class Car;
+class Actor;
 class Simulation;
 namespace Inference {
   class JointParticles;
@@ -12,7 +12,7 @@ namespace Inference {
 }
 
 /*
- * Car object initilization now
+ * Actor object initilization now
  */
 
 static UMAP<string, pff> direction = {
@@ -27,7 +27,7 @@ static UMAP<string, pff> direction = {
 };
 
 // abstract class
-class Car {
+class Actor {
 public:
   float wheel_angle;
   float max_speed;
@@ -41,33 +41,33 @@ public:
   const static float RADIUS;
 
 public:
-  Car() {}
+  Actor() {}
 
-  Car(const Vector2f& _pos, string&& dir, const Vector2f& _velocity)
+  Actor(const Vector2f& _pos, string&& dir, const Vector2f& _velocity)
       : pos(_pos), velocity(_velocity) {
     init(dir);
   }
 
-  Car(const Vector2f& _pos, const string& dir, const Vector2f& _velocity)
+  Actor(const Vector2f& _pos, const string& dir, const Vector2f& _velocity)
       : pos(_pos), velocity(_velocity) {
     init(dir);
   }
 
-  Car(const Vector2f& _pos, const string& dir, Vector2f&& _velocity)
+  Actor(const Vector2f& _pos, const string& dir, Vector2f&& _velocity)
       : pos(_pos), velocity(_velocity) {
     init(dir);
   }
 
-  Car(const Vector2f& _pos, string&& dir, Vector2f&& _velocity)
+  Actor(const Vector2f& _pos, string&& dir, Vector2f&& _velocity)
       : pos(_pos), velocity(_velocity) {
     init(dir);
   }
-  Car(const Vector2f& _pos, const Vector2f& dir_, const Vector2f& _velocity)
+  Actor(const Vector2f& _pos, const Vector2f& dir_, const Vector2f& _velocity)
       : pos(_pos), dir(dir_), velocity(_velocity) {
     init();
   }
 
-  virtual ~Car(){};
+  virtual ~Actor(){};
 
   void init(const string& dir);
 
@@ -105,16 +105,15 @@ public:
 
   vector<Vector2f> getBounds();
 
-  vector<Vector2f> getBounds(Car& car, float LEN, float WID);
+  vector<Vector2f> getBounds(Actor& car, float LEN, float WID);
 
-  //#
-  //http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
+  // http://www.gamedev.net/page/resources/_/technical/game-programming/2d-rotated-rectangle-collision-r2604
   bool collides(const Vector2f& otherPos, const vector<Vector2f>& otherBounds);
 
   // carfufl not to too use the function, this is used for planning ahead
   void setVelocity(float amount);
 
-  bool carInintersection(const Simulation& state);
+  bool carInIntersection(const Simulation& simulation);
 
   bool isCloseToOtherCar(const Simulation& simulation) const;
 
@@ -127,32 +126,32 @@ private:
 /*
  * derived class
  */
-class Host : public Car {
+class Host : public Actor {
 public:
-  Host() : Car(), nodeId{0}, pre{-1} {}
+  Host() : Actor(), node_id{0}, pre{-1} {}
 
   Host(const Vector2f& _pos, string&& _dir, const Vector2f& _velocity)
-      : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
+      : Actor(_pos, _dir, _velocity), node_id(0), pre(-1) {
     setup();
   }
 
   Host(const Vector2f& _pos, const string& _dir, const Vector2f& _velocity)
-      : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
+      : Actor(_pos, _dir, _velocity), node_id(0), pre(-1) {
     setup();
   }
 
   Host(const Vector2f& _pos, const string& _dir, Vector2f&& _velocity)
-      : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
+      : Actor(_pos, _dir, _velocity), node_id(0), pre(-1) {
     setup();
   }
 
   Host(const Vector2f& _pos, string&& _dir, Vector2f&& _velocity)
-      : Car(_pos, _dir, _velocity), nodeId(0), pre(-1) {
+      : Actor(_pos, _dir, _velocity), node_id(0), pre(-1) {
     setup();
   }
 
-  Host(const Car& car)
-      : Car(car.getPos(), car.getDir(), car.getVelocity()), nodeId(0), pre(-1) {
+  Host(const Actor& car)
+      : Actor(car.getPos(), car.getDir(), car.getVelocity()), node_id(0), pre(-1) {
     setup();
   }
 
@@ -173,48 +172,48 @@ public:
   UMAP<string, float> getAutonomousActions(const vector<Vector2f>& path,
                                            const Simulation& simulation);
 
-  void makeObse(const Simulation& state);
+  void makeObservation(const Simulation& simulation);
 
 private:
-  int nodeId;
+  int node_id;
   int pre;
 };
 
 // derived class for other cars
-class Agent : public Car {
+class Car : public Actor {
 public:
   unsigned int timer = 0;
-  bool stopflag = false;
+  bool stop_flag = false;
   std::queue<float> history;
-  bool hasinference;
+  bool has_inference;
   Inference::MarginalInference* inference;
 
 public:
-  Agent() : Car() {}
+  Car() : Actor() {}
 
-  Agent(const Vector2f& _pos, string&& _dir, const Vector2f& _velocity)
-      : Car(_pos, _dir, _velocity) {
+  Car(const Vector2f& _pos, string&& _dir, const Vector2f& _velocity)
+      : Actor(_pos, _dir, _velocity) {
     setup();
   }
 
-  Agent(const Vector2f& _pos, const string& _dir, const Vector2f& _velocity)
-      : Car(_pos, _dir, _velocity) {
+  Car(const Vector2f& _pos, const string& _dir, const Vector2f& _velocity)
+      : Actor(_pos, _dir, _velocity) {
     setup();
   }
 
-  Agent(const Vector2f& _pos, const string& _dir, Vector2f&& _velocity)
-      : Car(_pos, _dir, _velocity) {
+  Car(const Vector2f& _pos, const string& _dir, Vector2f&& _velocity)
+      : Actor(_pos, _dir, _velocity) {
     setup();
   }
 
-  Agent(const Vector2f& _pos, string&& _dir, Vector2f&& _velocity)
-      : Car(_pos, _dir, _velocity) {
+  Car(const Vector2f& _pos, string&& _dir, Vector2f&& _velocity)
+      : Actor(_pos, _dir, _velocity) {
     setup();
   }
 
-  Agent(const Car& car) : Car(car.getPos(), car.getDir(), car.getVelocity()) {}
+  Car(const Actor& car) : Actor(car.getPos(), car.getDir(), car.getVelocity()) {}
 
-  ~Agent() {
+  ~Car() {
     if (inference != nullptr) delete inference;
   };
 
@@ -230,7 +229,7 @@ public:
 
   Inference::MarginalInference* getInference(int index, const Simulation& simulation);
 
-  Vector2f getObserv() { return getVelocity(); }
+  Vector2f getObservation() { return getVelocity(); }
 };
 
 #endif /* CAR_H */
