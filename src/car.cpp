@@ -227,7 +227,8 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
   }
 }
 
-void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int i) {
+// intention is not used
+void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int intention) {
   if (path.size() == 0) return;
 
   Vector2f oldPos = getPos();
@@ -253,60 +254,6 @@ void Host::autonomousAction(const vector<Vector2f>& path, const Simulation& simu
       float turnAngle = actions["TURN_WHEEL"];
       setWheelAngle(turnAngle);
     }
-  }
-}
-
-UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
-                                               const Simulation& simulation) {
-  UMAP<string, float> output;
-  if (node_id >= path.size()) node_id = 0;
-
-  // set the timer to control time
-  if (path.size() == 0) return output;
-  int nextId;
-
-  Vector2f vectogoal;
-  nextId = node_id + 1;
-  if (node_id >= path.size()) node_id = pre;
-  if (nextId > path.size()) nextId = node_id;
-
-  Vector2f nextpos = path[nextId];
-
-  if (nextpos.get_distance(getPos()) <
-      Globals::constant.BELIEF_TILE_SIZE * 0.3) {
-    pre = node_id;
-    node_id = nextId;
-    nextId = node_id + 1;
-  }
-
-  if (nextId >= path.size()) nextId = node_id;
-
-  // goalPos = path[nextId];
-  // we finish the checking of end point
-  vectogoal = path[nextId] - getPos();
-  float wheel_angle = -vectogoal.get_angle_between(getDir());
-  int sign = (wheel_angle < 0) ? -1 : 1;
-  wheel_angle = std::min(abs(wheel_angle), max_wheel_angle);
-
-  output["TURN_WHEEL"] = wheel_angle * sign;
-  output["DRIVE_FORWARD"] = 1.0;
-  // if (abs(wheel_angle) < 20) output["DRIVE_FORWARD"] = 1.0;
-  // else if (abs(wheel_angle) < 45) output["DRIVE_FORWARD"] = 0.8;
-  // else output["DRIVE_FORWARD"] = 0.5;
-
-  return output;
-}
-
-void Host::makeObservation(const Simulation& simulation) {
-  vector<Actor*> cars = simulation.getOtherCars();
-  for (const auto& car : cars) {
-    Vector2f obsv = dynamic_cast<Car*>(car)->getObservation();
-    float obs = obsv.Length();
-    obs = obs > 0 ? obs : 0;
-    if (dynamic_cast<Car*>(car)->history.size() > 10) {
-      dynamic_cast<Car*>(car)->history.pop();
-    }
-    dynamic_cast<Car*>(car)->history.push(obs);
   }
 }
 
@@ -400,6 +347,60 @@ UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
   return output;
 }
 
+UMAP<string, float> Host::getAutonomousActions(const vector<Vector2f>& path,
+                                               const Simulation& simulation) {
+  UMAP<string, float> output;
+  if (node_id >= path.size()) node_id = 0;
+
+  // set the timer to control time
+  if (path.size() == 0) return output;
+  int nextId;
+
+  Vector2f vectogoal;
+  nextId = node_id + 1;
+  if (node_id >= path.size()) node_id = pre;
+  if (nextId > path.size()) nextId = node_id;
+
+  Vector2f nextpos = path[nextId];
+
+  if (nextpos.get_distance(getPos()) <
+      Globals::constant.BELIEF_TILE_SIZE * 0.3) {
+    pre = node_id;
+    node_id = nextId;
+    nextId = node_id + 1;
+  }
+
+  if (nextId >= path.size()) nextId = node_id;
+
+  // goalPos = path[nextId];
+  // we finish the checking of end point
+  vectogoal = path[nextId] - getPos();
+  float wheel_angle = -vectogoal.get_angle_between(getDir());
+  int sign = (wheel_angle < 0) ? -1 : 1;
+  wheel_angle = std::min(abs(wheel_angle), max_wheel_angle);
+
+  output["TURN_WHEEL"] = wheel_angle * sign;
+  output["DRIVE_FORWARD"] = 1.0;
+  // if (abs(wheel_angle) < 20) output["DRIVE_FORWARD"] = 1.0;
+  // else if (abs(wheel_angle) < 45) output["DRIVE_FORWARD"] = 0.8;
+  // else output["DRIVE_FORWARD"] = 0.5;
+
+  return output;
+}
+
+void Host::makeObservation(const Simulation& simulation) {
+  vector<Actor*> cars = simulation.getOtherCars();
+  for (const auto& car : cars) {
+    Vector2f obsv = dynamic_cast<Car*>(car)->getObservation();
+    float obs = obsv.Length();
+    obs = obs > 0 ? obs : 0;
+    if (dynamic_cast<Car*>(car)->history.size() > 10) {
+      dynamic_cast<Car*>(car)->history.pop();
+    }
+    dynamic_cast<Car*>(car)->history.push(obs);
+  }
+}
+
 //************************************************************************
 // class Car: methods and implementation
 //************************************************************************
@@ -415,8 +416,8 @@ void Car::setup() {
   inference = nullptr;
 }
 
-// tree is not used in this function
-void Car::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, kdtree::kdtree<point<float>>* tree) {
+// path, tree are not used in this function
+void Car::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, kdtree::kdtree<point<float>>* tree) {
   /*
    * here we have three choices to choose: normal, acc, dec
    */
@@ -473,10 +474,11 @@ void Car::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simul
   }
 }
 
-void Car::autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, int i) {
+// path is not used
+void Car::autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int intention) {
   // unsigned int i = rand()%1;
   // assume it is not conservative for all drivers
-  switch (i) {
+  switch (intention) {
     case 0:
       accelerate(friction);
       setWheelAngle(0);

@@ -163,7 +163,7 @@ public:
 
   void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, kdtree::kdtree<point<float>>* tree);
 
-  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int i = 1);
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int intention = 1);
 
   UMAP<string, float> getAutonomousActions(const vector<Vector2f>& path,
                                            const Simulation& simulation,
@@ -223,9 +223,9 @@ public:
 
   std::queue<float>& getHistory() { return history; }
 
-  void autonomousAction(const vector<Vector2f>& vec2, const Simulation& simulation, kdtree::kdtree<point<float>>* tree);
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, kdtree::kdtree<point<float>>* tree);
 
-  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int i = 1);
+  void autonomousAction(const vector<Vector2f>& path, const Simulation& simulation, int intention = 1);
 
   Inference::MarginalInference* getInference(int index, const Simulation& simulation);
 
